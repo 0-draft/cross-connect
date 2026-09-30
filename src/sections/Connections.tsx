@@ -12,7 +12,7 @@ const C = {
   },
   lead: {
     en: "A connection is the physical layer. Either AWS gives you a whole port on its router (dedicated), or a Direct Connect Delivery Partner carves a policed slice out of its own interconnect and hands it to your account (hosted).",
-    ja: "接続 (Connection) は物理レイヤーです。AWS ルーターのポートを丸ごと借りる「専用接続」か、Direct Connect Delivery Partner が自社の相互接続から帯域を切り出してお客様アカウントに渡す「ホスト接続」かのどちらかです。",
+    ja: "接続 (Connection) は物理レイヤーです。AWS ルーターのポートを丸ごと借りる「専用接続」か、Direct Connect Delivery Partner が自社の相互接続から帯域を切り出して自社アカウントに渡す「ホスト接続」かのどちらかです。",
   },
   speeds: { en: "Available speeds (log scale)", ja: "提供帯域 (対数スケール)" },
   dedicated: { en: "Dedicated", ja: "専用接続" },
@@ -22,11 +22,21 @@ const C = {
   mtu: { en: "MTU per VIF type", ja: "VIF 種別ごとの MTU" },
   hvTitle: {
     en: "Hosted connection ≠ hosted VIF",
-    ja: "ホスト接続 ≠ ホスト仮想インターフェイス (ホスト型 VIF)",
+    ja: "ホスト接続 ≠ ホスト仮想インターフェイス",
   },
   hv: {
     en: "A hosted connection has its own AWS-policed capacity and one VIF. A hosted VIF is just a VIF on someone else's connection with no capacity of its own, so it can be oversubscribed. AWS no longer accepts new partner integrations built on hosted VIFs; use hosted VIFs only to share your own dedicated connection with another of your accounts.",
-    ja: "ホスト接続は AWS がポリシングする専用帯域と VIF 1 本を持ちます。ホスト仮想インターフェイス (ホスト型 VIF) は他人の接続上に作られた VIF にすぎず、帯域の割り当てがないためオーバーサブスクライブされ得ます。AWS はホスト VIF ベースの新規パートナー統合を受け付けていません。自社の専用接続を自社の別アカウントに共有する用途に限りましょう。",
+    ja: "ホスト接続は AWS が上限を制御する専用帯域と VIF 1 本を持ちます。ホスト仮想インターフェイスは他人の接続上に作られた VIF にすぎず、帯域の割り当てがないため他の利用者と帯域を奪い合うことがあります。AWS はホスト VIF ベースの新規パートナー統合を受け付けていません。自社の専用接続を自社の別アカウントに共有する用途に限りましょう。",
+  },
+  flatTitle: { en: "Hosted connection or hosted VIF?", ja: "ホスト接続? ホスト VIF?" },
+  flat: {
+    en: "Think of flats. A hosted connection is renting a whole flat: the space (bandwidth) is yours, guaranteed. A hosted VIF is renting a room in someone else's flat: you share the kitchen with whoever else lives there.",
+    ja: "部屋探しにたとえると、ホスト接続は「部屋を丸ごと借りる」。広さ (帯域) は自分専用で保証される。ホスト VIF は「他人の家の一部屋を借りる」。キッチン (帯域) は同居人とシェアだよ。",
+  },
+  carrierTitle: { en: "Buying through a carrier?", ja: "キャリア経由で使うなら" },
+  carrier: {
+    en: "Many “closed network to AWS” services from carriers have Direct Connect inside. The carrier owns everything up to the AWS port (often a hosted connection), so a failure can be theirs or AWS's. Ask them which pieces they run, and what bandwidth you really get.",
+    ja: "キャリアの「AWS 閉域接続」サービスの多くは、中身が Direct Connect。AWS ポートまではキャリアの担当 (ホスト接続のことが多い) だから、障害がキャリア側か AWS 側かは切り分けが必要。どこまでがキャリアの担当か、実際にどれだけの帯域が使えるのかを確認しよう。",
   },
   jpTitle: { en: "If you are in Japan", ja: "日本で使うなら" },
   jp: {
@@ -114,10 +124,10 @@ const TYPE_ROWS: { k: L; d: L; h: L }[] = [
   },
   {
     k: { en: "Ordered by", ja: "発注者" },
-    d: { en: "You, in the console / CLI / API", ja: "お客様 (コンソール / CLI / API)" },
+    d: { en: "You, in the console / CLI / API", ja: "自社 (コンソール / CLI / API)" },
     h: {
       en: "A Delivery Partner; you Accept it",
-      ja: "パートナーが作成し、お客様が承認 (Accept)",
+      ja: "パートナーが作成し、自社が承認 (Accept)",
     },
   },
   {
@@ -278,8 +288,8 @@ const PHYS: [L, L][] = [
   [
     { en: "Auto-negotiation", ja: "オートネゴシエーション" },
     {
-      en: "Off above 1G (set speed and full duplex); at 1G it depends on the AWS endpoint",
-      ja: "1G 超はオフ (速度と全二重を固定)。1G は AWS 側機器次第",
+      en: "Depends on the AWS endpoint: usually off above 1G with speed and full duplex set by hand. Check your connection's details",
+      ja: "AWS 側機器次第。1G 超では通常オフにして速度と全二重を固定。接続ごとに確認を",
     },
   ],
   [
@@ -360,13 +370,18 @@ export function Connections() {
           </table>
         </Scroll>
       </div>
-      <div className="mt-6 max-w-3xl">
+      <div className="mt-6 grid max-w-5xl gap-6 lg:grid-cols-2">
+        <HikariSays mood="thinking" title={C.flatTitle}>
+          <T c={C.flat} />
+        </HikariSays>
+        <HikariSays mood="happy" title={C.carrierTitle}>
+          <T c={C.carrier} />
+        </HikariSays>
+      </div>
+      <div className="mt-6 max-w-3xl space-y-6">
         <Callout title={C.hvTitle}>
           <T c={C.hv} />
         </Callout>
-      </div>
-
-      <div className="mt-6 max-w-3xl">
         <Callout title={C.jpTitle}>
           <T c={C.jp} />
         </Callout>

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { DTO_PER_GB, PORT_HOURLY, breakEvenGb, estimate, portHourly } from "./pricing";
+import {
+  DTO_PER_GB,
+  FLAT_RATE_EXAMPLE,
+  PORT_HOURLY,
+  breakEvenGb,
+  estimate,
+  portHourly,
+} from "./pricing";
 
 describe("pricing", () => {
   // Both examples are the worked scenarios on the AWS pricing page.
@@ -52,7 +59,8 @@ describe("pricing", () => {
   });
 
   it("matches the ~230 TB break-even for a 10G Tier 1 port-pair", () => {
-    const gb = breakEvenGb(10.96, 2.25, 2, 0.02);
+    const f = FLAT_RATE_EXAMPLE;
+    const gb = breakEvenGb(f.hourly, f.paygPortHourly, f.paygPorts, f.dtoPerGb);
     expect(Math.round(gb)).toBe(235790);
     expect(breakEvenGb(1, 2.25, 2, 0.02)).toBe(0);
   });

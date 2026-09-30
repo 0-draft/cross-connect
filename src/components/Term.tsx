@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { GLOSSARY_BY_ID } from "../content/glossary";
 import { useLang } from "../i18n/useLang";
@@ -14,6 +14,22 @@ export function Term({ id, children }: { id: string; children?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const tipId = useId();
   const ref = useRef<HTMLSpanElement>(null);
+  const tipRef = useRef<HTMLSpanElement>(null);
+  const [shift, setShift] = useState(0);
+
+  // Keep the tip inside the viewport: terms near the right edge would
+  // otherwise push the page sideways on phones.
+  useLayoutEffect(() => {
+    if (!open || !tipRef.current) return;
+    const r = tipRef.current.getBoundingClientRect();
+    const margin = 16;
+    // Undo any shift left over from the previous opening before measuring.
+    const left = r.left - shift;
+    const over = r.right - shift - (window.innerWidth - margin);
+    setShift(over > 0 ? Math.max(-over, margin - left) : 0);
+    // Measure only when opening; the shift itself must not retrigger this.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -31,7 +47,11 @@ export function Term({ id, children }: { id: string; children?: ReactNode }) {
     };
   }, [open]);
 
-  if (!e) throw new Error(`unknown glossary term: ${id}`);
+  if (!e) {
+    // A typo in a term id must not blank the whole page in production.
+    if (import.meta.env.DEV) throw new Error(`unknown glossary term: ${id}`);
+    return <>{children ?? id}</>;
+  }
   const other = e.notTo ? GLOSSARY_BY_ID[e.notTo.id] : undefined;
 
   return (
@@ -48,7 +68,9 @@ export function Term({ id, children }: { id: string; children?: ReactNode }) {
       {open && (
         <span
           id={tipId}
+          ref={tipRef}
           role="note"
+          style={{ transform: `translateX(${shift}px)` }}
           className="sticker absolute top-full left-0 z-30 mt-2 block w-[min(20rem,80vw)] rounded-2xl border-2 border-[var(--fiber-soft)] bg-[var(--panel)] p-4 text-left text-sm leading-relaxed font-normal text-[var(--ink)]"
         >
           <span className="block font-display text-base font-semibold">{e.en}</span>

@@ -39,3 +39,13 @@ describe("allowed prefixes (AWS documented examples)", () => {
     expect(advertised("tgw", vpc, [c(p)])).toEqual(tgw);
   });
 });
+
+describe("cidr edge cases", () => {
+  it("rejects leading zeros, accepts the extremes", () => {
+    expect(parseCidr("010.0.0.0/8")).toBeNull();
+    expect(parseCidr("10.0.0.0/08")).toBeNull();
+    expect(parseCidr(" 10.0.0.0/8\n")).not.toBeNull();
+    expect(formatCidr(c("255.255.255.255/32"))).toBe("255.255.255.255/32");
+    expect(contains(c("0.0.0.0/0"), c("203.0.113.7/32"))).toBe(true);
+  });
+});

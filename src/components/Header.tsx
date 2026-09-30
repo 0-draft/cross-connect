@@ -33,7 +33,7 @@ function RouteMenu() {
         aria-expanded={open}
         aria-controls="route-menu"
         onClick={() => setOpen((o) => !o)}
-        className="rounded-full border-2 border-[var(--line)] bg-[var(--panel)] px-4 py-1.5 text-sm font-bold hover:border-[var(--fiber)]"
+        className="rounded-full border-2 border-[var(--line)] bg-[var(--panel)] px-4 py-1.5 text-sm font-bold whitespace-nowrap hover:border-[var(--fiber)]"
       >
         {t(UI.route)}
       </button>
@@ -41,15 +41,15 @@ function RouteMenu() {
         <nav
           id="route-menu"
           aria-label={t(UI.navLabel)}
-          className="sticker absolute top-full right-0 mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-3xl border-2 border-[var(--line)] bg-[var(--panel)] p-3"
+          className="sticker fixed inset-x-4 top-16 rounded-3xl border-2 border-[var(--line)] bg-[var(--panel)] p-3 sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:w-[22rem]"
         >
-          <ol className="grid grid-cols-2 gap-1">
+          <ol className="grid grid-flow-col grid-rows-8 gap-1">
             {NAV.map((n, i) => (
               <li key={n.id}>
                 <a
                   href={`#${n.id}`}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 rounded-2xl px-2 py-1.5 text-sm hover:bg-[var(--fiber-soft)]"
+                  className="flex min-h-9 items-center gap-2 rounded-2xl px-2 py-1.5 text-sm hover:bg-[var(--fiber-soft)]"
                 >
                   <span
                     className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-[var(--fiber)] text-xs font-bold text-[var(--fiber)]"

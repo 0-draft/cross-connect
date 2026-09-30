@@ -57,6 +57,18 @@ export const DTO_PER_GB: Record<SourceRegion, Record<DxGeo, number>> = {
   "south-america": { us: 0.15, europe: 0.1107, japan: 0.17, apac: 0.17, australia: 0.18 },
 };
 
+/**
+ * AWS's published flat-rate example (10G Tier 1 port-pair at Equinix DC2,
+ * $10.96/hour), compared with two pay-as-you-go 10G ports at the US → US
+ * data-transfer rate.
+ */
+export const FLAT_RATE_EXAMPLE = {
+  hourly: 10.96,
+  paygPortHourly: PORT_HOURLY.dedicated[10000][0],
+  paygPorts: 2,
+  dtoPerGb: DTO_PER_GB.us.us,
+} as const;
+
 export interface Estimate {
   type: ConnType;
   mbps: number;

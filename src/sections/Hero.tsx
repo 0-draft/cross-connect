@@ -10,8 +10,8 @@ const C = {
     ja: "光の粒と一緒に、自社ルーターから AWS まで。",
   },
   lead: {
-    en: "Direct Connect is hard because it is four worlds at once: a fiber in someone else's building, VLANs, BGP, and AWS gateways — each with its own vocabulary. Hikari, a photon who lives in the fiber, walks you through every stop. Click things, break things, and watch where the traffic goes.",
-    ja: "Direct Connect が難しいのは、他社の建物にあるファイバー、VLAN、BGP、AWS のゲートウェイという 4 つの世界が一度に出てくるから。しかもそれぞれに専門用語がある。ファイバーの中に住む光の粒「ヒカリ」が、ひとつずつ案内します。触って、壊して、通信がどこを通るか見てみよう。",
+    en: "Direct Connect is hard because it is four worlds at once: a fiber in someone else's building, VLANs, BGP, and AWS gateways — each with its own vocabulary. Hikari, a photon who lives in the fiber, walks you through every stop. Tap things, break things, and watch where the traffic goes.",
+    ja: "Direct Connect が難しいのは、他社の建物にあるファイバー、VLAN、BGP、AWS のゲートウェイという 4 つの世界が一度に出てくるからです。しかも、それぞれに専門用語があります。ファイバーの中に住む光の粒「ヒカリ」が、ひとつずつ案内します。触って、壊して、通信がどこを通るのかを確かめてみましょう。",
   },
   start: { en: "Why is DX so confusing?", ja: "DX はなぜわかりにくい?" },
   lab: { en: "Skip to the BGP lab", ja: "BGP ラボへ" },

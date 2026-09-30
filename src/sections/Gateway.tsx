@@ -30,7 +30,12 @@ const C = {
     ja: "DXGW で最も誤解される設定。VGW 関連付けではフィルター、TGW 関連付けでは「広告する経路そのもの」です。",
   },
   vpcCidr: { en: "VPC CIDR behind the gateway", ja: "ゲートウェイ配下の VPC CIDR" },
-  allowed: { en: "Allowed prefix", ja: "許可プレフィックス" },
+  allowed: { en: "Allowed prefix", ja: "許可されたプレフィックス" },
+  vgwAssoc: { en: "VGW association", ja: "VGW 関連付け" },
+  tgwAssoc: { en: "TGW association", ja: "TGW 関連付け" },
+  slOn: { en: "AWS backbone, shortest path", ja: "AWS バックボーンの最短経路" },
+  slOff: { en: "VIF-to-VIF blocked", ja: "VIF 間の通信は不可" },
+  presets: { en: "Try an example prefix", ja: "例のプレフィックスを試す" },
   receives: { en: "Your router receives", ja: "オンプレのルーターが受け取る経路" },
   nothing: { en: "nothing", ja: "何も届かない" },
   invalid: { en: "Not a valid IPv4 CIDR", ja: "IPv4 CIDR として不正" },
@@ -57,9 +62,9 @@ const C = {
 
 type Mode = "vgw" | "tgw" | "cwan";
 
-const MODES: Record<Mode, { vif: string; targets: string[]; note: L }> = {
+const MODES: Record<Mode, { vif: L; targets: string[]; note: L }> = {
   vgw: {
-    vif: "private VIF",
+    vif: { en: "private VIF", ja: "プライベート VIF" },
     targets: ["VGW · us-east-1", "VGW · eu-west-1", "VGW · ap-northeast-1 (acct B)"],
     note: {
       en: "Up to 20 VGWs, any Region, any account (via association proposals). VPC CIDRs must not overlap.",
@@ -67,19 +72,19 @@ const MODES: Record<Mode, { vif: string; targets: string[]; note: L }> = {
     },
   },
   tgw: {
-    vif: "transit VIF",
+    vif: { en: "transit VIF", ja: "トランジット VIF" },
     targets: ["TGW · us-east-1", "TGW · ap-northeast-1", "TGW · eu-central-1"],
     note: {
       en: "Up to 6 TGWs per DXGW (and 20 DXGWs per TGW). Give TGWs in different Regions unique ASNs. Allowed prefixes: max 200 per TGW, no overlap across TGWs.",
-      ja: "DXGW あたり最大 6 TGW (TGW あたり最大 20 DXGW)。リージョンごとの TGW には一意の ASN を。許可プレフィックスは TGW あたり最大 200、TGW 間で重複不可。",
+      ja: "DXGW あたり最大 6 TGW (TGW あたり最大 20 DXGW)。リージョンごとの TGW には一意の ASN を。許可されたプレフィックスは TGW あたり最大 200、TGW 間で重複不可。",
     },
   },
   cwan: {
-    vif: "transit VIF",
+    vif: { en: "transit VIF", ja: "トランジット VIF" },
     targets: ["CNE · us-west-2", "CNE · ap-southeast-2", "segment: prod"],
     note: {
       en: "Native Cloud WAN attachment (GA 2024-11-25): one core network, one segment, managed from Network Manager. No allowed-prefix lists, no DX communities, no static routes; AS_PATH is preserved; up to 5,000 prefixes toward on-premises.",
-      ja: "Cloud WAN ネイティブ接続 (2024-11-25 GA): コアネットワーク 1 つ・セグメント 1 つ、Network Manager から管理。許可プレフィックスリスト・DX コミュニティ・静的ルートは非対応、AS_PATH は保持、オンプレ向け最大 5,000 プレフィックス。",
+      ja: "Cloud WAN ネイティブ接続 (2024-11-25 GA): コアネットワーク 1 つ・セグメント 1 つ、Network Manager から管理。許可されたプレフィックスリスト・DX コミュニティ・静的ルートは非対応、AS_PATH は保持、オンプレ向け最大 5,000 プレフィックス。",
     },
   },
 };
@@ -123,7 +128,7 @@ function ModeDiagram({ mode }: { mode: Mode }) {
               className="flow"
             />
             <text x="210" y={66 + i * 118} fontSize="11.2" fill="var(--muted)">
-              {m.vif}
+              {t(m.vif)}
             </text>
           </g>
         ))}
@@ -138,8 +143,8 @@ function ModeDiagram({ mode }: { mode: Mode }) {
         <text x="420" y="126" fontSize="15" textAnchor="middle" fill="var(--fiber)">
           DXGW
         </text>
-        <text x="420" y="142" fontSize="9.5" textAnchor="middle" fill="var(--muted)">
-          global · ASN 64512
+        <text x="420" y="142" fontSize="11" textAnchor="middle" fill="var(--muted)">
+          {t({ en: "global · ASN 64512", ja: "グローバル · ASN 64512" })}
         </text>
         {m.targets.map((label, i) => {
           const y = 40 + i * 90;
@@ -202,31 +207,41 @@ function PrefixLab() {
           />
           {!v && <span className="text-xs text-[var(--bad)]">{t(C.invalid)}</span>}
         </label>
-        <label className="text-sm">
-          <span className="mb-1 block text-[var(--muted)]">{t(C.allowed)}</span>
-          <input
-            className={inputCls}
-            value={allowed}
-            onChange={(e) => setAllowed(e.target.value)}
-            aria-invalid={!a}
-            spellCheck={false}
-          />
+        <div className="text-sm">
+          <label>
+            <span className="mb-1 block text-[var(--muted)]">{t(C.allowed)}</span>
+            <input
+              className={inputCls}
+              value={allowed}
+              onChange={(e) => setAllowed(e.target.value)}
+              aria-invalid={!a}
+              spellCheck={false}
+            />
+          </label>
           {!a && <span className="text-xs text-[var(--bad)]">{t(C.invalid)}</span>}
-          <span className="mt-2 flex flex-wrap gap-1.5">
+          <span
+            role="group"
+            aria-label={t(C.presets)}
+            className="mt-2 flex flex-wrap gap-1.5"
+          >
             {PRESETS.map((p) => (
               <button
                 key={p}
                 type="button"
                 onClick={() => setAllowed(p)}
-                className="rounded-full border border-[var(--line)] px-2 py-0.5 text-xs font-bold text-[var(--muted)] hover:text-[var(--ink)]"
+                className="min-h-8 rounded-full border-2 border-[var(--line)] px-3 py-1 font-mono text-xs font-bold text-[var(--muted)] hover:border-[var(--fiber)] hover:text-[var(--ink)]"
               >
                 {p}
               </button>
             ))}
           </span>
-        </label>
+        </div>
       </div>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2" aria-live="polite">
+      <div
+        className="mt-6 grid gap-4 sm:grid-cols-2"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {(["vgw", "tgw"] as Association[]).map((kind) => {
           const got = v && a ? advertised(kind, [v], [a]) : [];
           return (
@@ -235,7 +250,7 @@ function PrefixLab() {
               className="rounded-2xl border border-[var(--line)] bg-[var(--panel-2)] p-4"
             >
               <p className="mb-2 text-xs font-bold text-[var(--muted)]">
-                {kind === "vgw" ? "VGW association" : "TGW association"} → {t(C.receives)}
+                {t(kind === "vgw" ? C.vgwAssoc : C.tgwAssoc)} → {t(C.receives)}
               </p>
               <p className="font-mono text-lg">
                 {got.length ? (
@@ -253,7 +268,7 @@ function PrefixLab() {
                   <T
                     c={{
                       en: "Filter: the VPC CIDR itself passes only if an allowed prefix is equal or wider.",
-                      ja: "フィルター: 許可プレフィックスが VPC CIDR と同じかより広いときだけ、VPC CIDR そのものが通る。",
+                      ja: "フィルター: 許可されたプレフィックスが VPC CIDR と同じかより広いときだけ、VPC CIDR そのものが通る。",
                     }}
                   />
                 ) : (
@@ -306,7 +321,7 @@ function SiteLinkDiagram() {
             stroke="var(--line)"
           />
           <text x="75" y="50" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
-            DC Tokyo
+            {t({ en: "DC Tokyo", ja: "東京 DC" })}
           </text>
           <rect
             x="760"
@@ -318,7 +333,7 @@ function SiteLinkDiagram() {
             stroke="var(--line)"
           />
           <text x="825" y="50" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
-            DC London
+            {t({ en: "DC London", ja: "ロンドン DC" })}
           </text>
           <rect
             x="180"
@@ -330,7 +345,7 @@ function SiteLinkDiagram() {
             stroke="var(--fiber)"
           />
           <text x="250" y="50" fontSize="12.5" textAnchor="middle" fill="var(--fiber)">
-            DX loc · Tokyo
+            {t({ en: "DX loc · Tokyo", ja: "DX ロケーション 東京" })}
           </text>
           <rect
             x="580"
@@ -342,7 +357,7 @@ function SiteLinkDiagram() {
             stroke="var(--fiber)"
           />
           <text x="650" y="50" fontSize="12.5" textAnchor="middle" fill="var(--fiber)">
-            DX loc · London
+            {t({ en: "DX loc · London", ja: "DX ロケーション ロンドン" })}
           </text>
           <line x1="140" x2="180" y1="45" y2="45" stroke="var(--fiber)" strokeWidth="3" />
           <line x1="720" x2="760" y1="45" y2="45" stroke="var(--fiber)" strokeWidth="3" />
@@ -384,7 +399,7 @@ function SiteLinkDiagram() {
             textAnchor="middle"
             fill={on ? "var(--ok)" : "var(--bad)"}
           >
-            {on ? "AWS backbone, shortest path" : "VIF-to-VIF blocked"}
+            {t(on ? C.slOn : C.slOff)}
           </text>
         </svg>
       </Scroll>
@@ -407,7 +422,7 @@ const QUOTAS: [L, string][] = [
     "30",
   ],
   [{ en: "DXGWs per account", ja: "アカウントあたり DXGW" }, "200"],
-  [{ en: "Allowed prefixes per TGW", ja: "TGW あたり許可プレフィックス" }, "200"],
+  [{ en: "Allowed prefixes per TGW", ja: "TGW あたり許可されたプレフィックス" }, "200"],
   [
     {
       en: "Inbound prefix pool per DXGW (2026)",
@@ -434,8 +449,8 @@ export function Gateway() {
         <HikariSays mood="thinking">
           <T
             c={{
-              en: "A DX gateway is a switchboard operator, not a road. It tells each side what the other side has, but it never carries a call between two phones on the same side — no VPC-to-VPC, no VIF-to-VIF. And “allowed prefixes” changes job depending on who is behind it: a checkpoint for a VGW, a signboard for a Transit Gateway.",
-              ja: "DX ゲートウェイは道路じゃなくて電話交換手。両側に「相手側には何があるか」を教えるけど、同じ側どうしの電話はつながない (VPC 間も VIF 間もダメ)。そして「許可されたプレフィックス」は相手によって役割が変わる。VGW なら検問所、Transit Gateway なら看板。",
+              en: "A DX gateway is directory assistance, not a road. It tells each side which numbers the other side has, but your traffic never flows through it, and by design it won't link two parties on the same side — no VPC-to-VPC, no VIF-to-VIF. And “allowed prefixes” changes job depending on who is behind it: a checkpoint for a VGW, a signboard for a Transit Gateway.",
+              ja: "DX ゲートウェイは道路じゃなくて番号案内 (104) みたいなもの。両側に「相手側にはどんな番号 (経路) があるか」を教えるけど、通信そのものは通らないし、同じ側どうしをつなぐこともしない (VPC 間も VIF 間もダメ)。そして「許可されたプレフィックス」は相手によって役割が変わる。VGW なら検問所、Transit Gateway なら看板。",
             }}
           />
         </HikariSays>

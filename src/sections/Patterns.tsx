@@ -55,7 +55,7 @@ const ATTACH: Record<Plan["attach"], L> = {
   },
   tgw: {
     en: "Transit VIF → DX gateway → Transit Gateway (summarize allowed prefixes, ≤ 200 per TGW)",
-    ja: "トランジット VIF → DXGW → Transit Gateway (許可プレフィックスは集約、TGW あたり 200 まで)",
+    ja: "トランジット VIF → DXGW → Transit Gateway (許可されたプレフィックスは集約、TGW あたり 200 まで)",
   },
   cloudwan: {
     en: "Transit VIF → DX gateway → Cloud WAN core network (segments, no DX communities)",
@@ -320,7 +320,10 @@ export function Patterns() {
         </Panel>
         <Panel className="border-[var(--fiber)]">
           <p className="mb-4 text-sm font-bold text-[var(--fiber)]">{t(C.plan)}</p>
-          <ul aria-live="polite" className="space-y-3">
+          <p aria-live="polite" className="sr-only">
+            {lines.map(([, v]) => v).join(". ")}
+          </p>
+          <ul className="space-y-3">
             {lines.map(([k, v, color], i) => (
               <li
                 key={`${k}-${i}`}

@@ -86,8 +86,8 @@ const TREE: Record<NodeId, Q | A> = {
         ja: "ルーター電源・ポート有効・光モジュール (LX / LR / LR4) とシングルモードファイバーは正しい?",
       },
       {
-        en: "Auto-negotiation off above 1G with speed/duplex set manually.",
-        ja: "1G 超はオートネゴをオフにして速度・二重を固定。",
+        en: "Auto-negotiation set the way your AWS endpoint expects (usually off above 1G, with speed and duplex fixed).",
+        ja: "オートネゴは AWS 側機器の想定どおりに (1G 超では通常オフにして速度・二重を固定)。",
       },
       {
         en: "Check ConnectionLightLevelTx/Rx; try rolling the Tx/Rx strands.",
@@ -156,7 +156,7 @@ const TREE: Record<NodeId, Q | A> = {
       },
       {
         en: "DXGW allowed prefixes cover the VPC (VGW) or list the right ranges (TGW).",
-        ja: "DXGW の許可プレフィックスが VPC を包含 (VGW) / 正しい範囲を列挙 (TGW) しているか。",
+        ja: "DXGW の許可されたプレフィックスが VPC を包含 (VGW) / 正しい範囲を列挙 (TGW) しているか。",
       },
       {
         en: "Route propagation enabled in the VPC / TGW route table; ≤ 100 propagated routes per VPC table.",
@@ -220,7 +220,7 @@ function Troubleshoot() {
               <button
                 type="button"
                 onClick={() => setTrail(trail.slice(0, i + 1))}
-                className="rounded-full border border-[var(--line)] px-2 py-0.5 text-[var(--muted)] hover:text-[var(--ink)]"
+                className="min-h-8 rounded-full border-2 border-[var(--line)] px-3 py-1 text-[var(--muted)] hover:text-[var(--ink)]"
               >
                 {"q" in node ? `Q${i + 1}` : node.layer}
               </button>
@@ -354,7 +354,7 @@ export function Operations() {
           <T
             c={{
               en: "Until March 2026 there was no CloudWatch metric for BGP state at all, so a session could quietly go Idle — for example after someone advertised a 101st prefix. Now you can alarm on it. Do.",
-              ja: "2026 年 3 月までは BGP の状態を示す CloudWatch メトリクスがなかったので、たとえば 101 本目の経路を広告しただけでセッションが静かに Idle になっても気づけなかった。今はアラームを設定できる。設定しよう。",
+              ja: "2026 年 3 月までは BGP の状態を示す CloudWatch メトリクスがなかったので、たとえば 101 本目の経路を広告しただけでセッションが静かに Idle になっても気づけなかった。今はアラームを設定できるから、ぜひ設定してね。",
             }}
           />
         </HikariSays>

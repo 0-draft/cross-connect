@@ -15,13 +15,17 @@ const C = {
   myth: { en: "Myth", ja: "うそ" },
   right: { en: "Right!", ja: "正解!" },
   wrong: { en: "Not quite.", ja: "ざんねん。" },
-  score: { en: "correct", ja: "問正解" },
+  intro: {
+    en: `${MYTHS.length} questions — pick Fact or Myth`,
+    ja: `全 ${MYTHS.length} 問。「ほんと」か「うそ」を選んでね`,
+  },
   reset: { en: "Try again", ja: "もう一度" },
 };
 
 export function Myths() {
   const { t, lang } = useLang();
   const [answers, setAnswers] = useState<Record<number, boolean>>({});
+  const [lastAnswered, setLastAnswered] = useState<number | null>(null);
   const answered = Object.keys(answers).length;
   const correct = Object.entries(answers).filter(
     ([i, a]) => MYTHS[Number(i)].truth === a,
@@ -36,17 +40,28 @@ export function Myths() {
       >
         <Hikari
           size={40}
-          mood={!done ? "thinking" : correct >= 8 ? "happy" : "worried"}
+          mood={
+            !done
+              ? "thinking"
+              : correct >= Math.ceil(MYTHS.length * 0.7)
+                ? "happy"
+                : "worried"
+          }
         />
         <span className="font-display text-lg font-semibold">
-          {lang === "ja"
-            ? `${answered} / ${MYTHS.length} 問中 ${correct} ${t(C.score)}`
-            : `${correct} of ${answered} ${t(C.score)}, ${MYTHS.length - answered} to go`}
+          {answered === 0
+            ? t(C.intro)
+            : lang === "ja"
+              ? `${MYTHS.length} 問中 ${answered} 問回答・${correct} 問正解`
+              : `${correct} of ${answered} correct, ${MYTHS.length - answered} to go`}
         </span>
         {answered > 0 && (
           <button
             type="button"
-            onClick={() => setAnswers({})}
+            onClick={() => {
+              setAnswers({});
+              setLastAnswered(null);
+            }}
             className="rounded-full px-3 py-1 text-sm font-bold text-[var(--fiber)] hover:bg-[var(--fiber-soft)]"
           >
             {t(C.reset)}
@@ -80,7 +95,10 @@ export function Myths() {
                     <button
                       key={String(v)}
                       type="button"
-                      onClick={() => setAnswers((x) => ({ ...x, [i]: v }))}
+                      onClick={() => {
+                        setAnswers((x) => ({ ...x, [i]: v }));
+                        setLastAnswered(i);
+                      }}
                       className="flex-1 rounded-full border-2 border-[var(--line)] px-4 py-2 font-bold hover:border-[var(--fiber)] hover:bg-[var(--fiber-soft)]"
                     >
                       {t(v ? C.fact : C.myth)}
@@ -90,7 +108,12 @@ export function Myths() {
               ) : (
                 <div className="mt-auto">
                   <p
-                    className="font-bold"
+                    tabIndex={-1}
+                    ref={(el) => {
+                      // The answer buttons just unmounted; keep focus on this card.
+                      if (el && i === lastAnswered) el.focus();
+                    }}
+                    className="font-bold outline-none"
                     style={{ color: ok ? "var(--ok)" : "var(--bad)" }}
                   >
                     {t(ok ? C.right : C.wrong)} {t(m.truth ? C.fact : C.myth)}.

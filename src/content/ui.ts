@@ -5,8 +5,8 @@ export const UI = {
   language: { en: "Language", ja: "言語" },
   route: { en: "All stops", ja: "もくじ" },
   clickHint: {
-    en: "Click any part of the diagram.",
-    ja: "図の各パーツをクリックすると解説が出ます。",
+    en: "Tap or click any part of the diagram.",
+    ja: "図の各パーツをタップ (クリック) すると解説が出ます。",
   },
   asOf: {
     en: "Facts verified against AWS documentation as of 2026-09-30.",

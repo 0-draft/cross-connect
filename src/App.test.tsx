@@ -51,6 +51,34 @@ describe("App", () => {
     expect(winner()).toBe("Traffic goes via: VPN");
   });
 
+  it("warns when the two directions disagree", async () => {
+    renderApp();
+    const lab = screen.getByRole("heading", {
+      name: /Path selection lab/,
+    }).parentElement!;
+    await userEvent.click(
+      within(lab).getByRole("button", { name: "Active / passive (communities)" }),
+    );
+    expect(within(lab).queryByText("Asymmetric!")).toBeNull();
+    await userEvent.selectOptions(
+      within(lab).getByLabelText(/Your router sends/),
+      "DX-B",
+    );
+    expect(within(lab).getByText("Asymmetric!")).toBeInTheDocument();
+  });
+
+  it("radio groups follow the arrow-key pattern", async () => {
+    renderApp();
+    const group = screen.getByRole("radiogroup", { name: "VIF type" });
+    const [priv, pub] = within(group).getAllByRole("radio");
+    expect(priv).toHaveAttribute("tabindex", "0");
+    expect(pub).toHaveAttribute("tabindex", "-1");
+    priv.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    expect(pub).toHaveAttribute("aria-checked", "true");
+    expect(pub).toHaveFocus();
+  });
+
   it("has both languages for every timeline entry", () => {
     for (const e of EVENTS) {
       expect(e.text.en.length).toBeGreaterThan(0);
@@ -83,11 +111,9 @@ describe("App", () => {
     renderApp();
     const quiz = document.querySelector("section#myths") as HTMLElement;
     // Q1 (encrypted by default) is a myth.
-    const [, myth] = within(quiz).getAllByRole("button", { name: "Myth" });
     expect(MYTHS[0].truth).toBe(false);
     await userEvent.click(within(quiz).getAllByRole("button", { name: "Myth" })[0]);
     expect(within(quiz).getByText(/^Right!/)).toBeInTheDocument();
     expect(within(quiz).getByText(/1 of 1 correct/)).toBeInTheDocument();
-    expect(myth).toBeDefined();
   });
 });

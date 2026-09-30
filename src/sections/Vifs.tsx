@@ -27,7 +27,7 @@ const C = {
   limitsTitle: { en: "Per-connection limits", ja: "接続あたりの上限" },
   limits: {
     en: "A dedicated connection or LAG takes up to 51 VIFs: 50 private/public plus up to 4 transit. A hosted connection takes exactly one. Routes you advertise on a private or transit VIF are capped at 100 per address family by default (up to 1,000 with inbound prefix controls since 2026-08); above the limit the BGP session goes Idle. Public VIFs accept 1,000.",
-    ja: "専用接続 / LAG あたり VIF は最大 51 (プライベート/パブリック 50 + トランジット最大 4)。ホスト接続は 1 本だけ。プライベート / トランジット VIF でお客様が広告できる経路はアドレスファミリーごとにデフォルト 100 (2026-08 以降、inbound prefix controls で最大 1,000)。超えると BGP は Idle になります。パブリック VIF は 1,000。",
+    ja: "VIF は専用接続 / LAG あたり最大 51 本 (プライベート / パブリック 50 本 + トランジット最大 4 本)、ホスト接続では 1 本だけです。プライベート / トランジット VIF で自社が広告できる経路は、アドレスファミリーごとにデフォルト 100 本です (2026-08 以降は inbound prefix controls で最大 1,000 本)。上限を超えると BGP は Idle になります。パブリック VIF の上限は 1,000 本です。",
   },
 };
 
@@ -114,7 +114,7 @@ function VifDiagram({ vif }: { vif: Vif }) {
           stroke="var(--line)"
         />
         <text x="65" y="185" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
-          your router
+          {t({ en: "your router", ja: "自社ルーター" })}
         </text>
         <rect
           x="150"
@@ -126,7 +126,7 @@ function VifDiagram({ vif }: { vif: Vif }) {
           stroke="var(--line)"
         />
         <text x="225" y="112" fontSize="12.5" textAnchor="middle" fill="var(--muted)">
-          connection
+          {t({ en: "connection", ja: "接続" })}
         </text>
         {(["private", "public", "transit"] as Vif[]).map((v, i) => (
           <g key={v} opacity={dim(v)}>
@@ -192,7 +192,7 @@ function VifDiagram({ vif }: { vif: Vif }) {
             VPC
           </text>
           <text x="645" y="74" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-            same Region
+            {t({ en: "same Region", ja: "同一リージョン" })}
           </text>
         </g>
 
@@ -215,7 +215,10 @@ function VifDiagram({ vif }: { vif: Vif }) {
             stroke={COLOR.public}
           />
           <text x="760" y="176" fontSize="13.8" textAnchor="middle" fill={COLOR.public}>
-            AWS public prefixes · all public Regions
+            {t({
+              en: "AWS public prefixes · all public Regions",
+              ja: "AWS パブリックプレフィックス · 全パブリックリージョン",
+            })}
           </text>
           <text x="760" y="194" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
             S3 · DynamoDB · CloudFront · Route 53 …
@@ -250,10 +253,10 @@ function VifDiagram({ vif }: { vif: Vif }) {
             stroke="var(--fiber)"
           />
           <text x="455" y="289" fontSize="13.8" textAnchor="middle" fill="var(--fiber)">
-            DX gateway
+            {t({ en: "DX gateway", ja: "DX ゲートウェイ" })}
           </text>
           <text x="455" y="304" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-            global
+            {t({ en: "global", ja: "グローバル" })}
           </text>
         </g>
         {vif === "private" ? (
@@ -276,10 +279,16 @@ function VifDiagram({ vif }: { vif: Vif }) {
               stroke={COLOR.private}
             />
             <text x="760" y="286" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
-              VGW → VPC in any Region / account
+              {t({
+                en: "VGW → VPC in any Region / account",
+                ja: "VGW → 任意のリージョン / アカウントの VPC",
+              })}
             </text>
             <text x="760" y="304" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-              up to 20 VGWs per DX gateway
+              {t({
+                en: "up to 20 VGWs per DX gateway",
+                ja: "DX ゲートウェイあたり VGW 20 個まで",
+              })}
             </text>
           </g>
         ) : (
@@ -311,7 +320,7 @@ function VifDiagram({ vif }: { vif: Vif }) {
               Transit Gateway
             </text>
             <text x="665" y="304" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-              ≤ 6 per DXGW
+              {t({ en: "≤ 6 per DXGW", ja: "DXGW あたり 6 個まで" })}
             </text>
             <rect
               x="770"
@@ -332,7 +341,7 @@ function VifDiagram({ vif }: { vif: Vif }) {
               Cloud WAN
             </text>
             <text x="855" y="304" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-              core network
+              {t({ en: "core network", ja: "コアネットワーク" })}
             </text>
           </g>
         )}

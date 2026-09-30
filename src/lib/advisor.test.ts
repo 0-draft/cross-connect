@@ -65,3 +65,18 @@ describe("recommend", () => {
     });
   });
 });
+
+describe("recommend edge cases", () => {
+  it("rounds sub-1G bandwidth up to a real hosted capacity", () => {
+    expect(recommend({ ...base, gbps: 0.25 })).toMatchObject({
+      connection: "hosted",
+      portGbps: 0.3,
+    });
+    expect(recommend({ ...base, gbps: 0.01 })).toMatchObject({ portGbps: 0.05 });
+  });
+
+  it("rejects non-positive or missing bandwidth", () => {
+    expect(() => recommend({ ...base, gbps: 0 })).toThrow();
+    expect(() => recommend({ ...base, gbps: Number.NaN })).toThrow();
+  });
+});

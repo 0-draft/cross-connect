@@ -21,15 +21,15 @@ const C = {
   },
   lead: {
     en: "A link aggregation group (LAG) bundles same-speed dedicated connections on one AWS device into one logical link with LACP. MACsec (IEEE 802.1AE) encrypts the link between your router and that device at Layer 2.",
-    ja: "LAG (Link Aggregation Group) は同一 AWS 機器上の同速度の専用接続を LACP で 1 本の論理リンクに束ねます。MACsec (IEEE 802.1AE) はお客様ルーターとその機器の間のリンクをレイヤー 2 で暗号化します。",
+    ja: "LAG (Link Aggregation Group) は同一 AWS 機器上の同速度の専用接続を LACP で 1 本の論理リンクに束ねます。MACsec (IEEE 802.1AE) は自社ルーターとその機器の間のリンクをレイヤー 2 で暗号化します。",
   },
   lagLab: { en: "LAG lab", ja: "LAG ラボ" },
   speed: { en: "Port speed", ja: "ポート速度" },
   members: { en: "Members", ja: "メンバー数" },
   minLinks: { en: "Minimum links", ja: "最小リンク数 (minimum links)" },
   clickMember: {
-    en: "Click a member to cut or restore it.",
-    ja: "メンバーをクリックすると切断 / 復旧します。",
+    en: "Tap a member to cut or restore it.",
+    ja: "メンバーをタップすると切断 / 復旧します。",
   },
   lagUp: { en: "LAG operational", ja: "LAG 稼働中" },
   lagDown: {
@@ -160,7 +160,7 @@ function LagLab() {
             stroke="var(--line)"
           />
           <text x="95" y="30" fontSize="13.8" textAnchor="middle" fill="var(--muted)">
-            your router
+            {t({ en: "your router", ja: "自社ルーター" })}
           </text>
           <text
             x="95"
@@ -181,7 +181,7 @@ function LagLab() {
             stroke="var(--aws)"
           />
           <text x="665" y="30" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
-            one AWS device
+            {t({ en: "one AWS device", ja: "AWS 機器 1 台" })}
           </text>
           <text
             x="665"
@@ -199,10 +199,13 @@ function LagLab() {
             return (
               <g
                 key={i}
-                role="button"
                 tabIndex={0}
-                aria-pressed={!isUp}
-                aria-label={`member ${i + 1} ${isUp ? "up" : "down"}`}
+                role="switch"
+                aria-checked={isUp}
+                aria-label={t({
+                  en: `${speed}G member ${i + 1}`,
+                  ja: `${speed}G メンバー ${i + 1}`,
+                })}
                 onClick={() => toggle(i)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -297,7 +300,7 @@ function MacsecLab() {
             stroke="var(--line)"
           />
           <text x="75" y="104" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
-            your router
+            {t({ en: "your router", ja: "自社ルーター" })}
           </text>
           <rect
             x="360"
@@ -309,10 +312,10 @@ function MacsecLab() {
             stroke="var(--aws)"
           />
           <text x="430" y="98" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
-            AWS DX device
+            {t({ en: "AWS DX device", ja: "AWS DX 機器" })}
           </text>
           <text x="430" y="114" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-            DX location
+            {t({ en: "DX location", ja: "DX ロケーション" })}
           </text>
           <rect
             x="740"
@@ -324,7 +327,7 @@ function MacsecLab() {
             stroke="var(--aws)"
           />
           <text x="815" y="104" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
-            AWS Region
+            {t({ en: "AWS Region", ja: "AWS リージョン" })}
           </text>
 
           <line
@@ -344,10 +347,10 @@ function MacsecLab() {
           </text>
           <line x1="500" x2="740" y1="100" y2="100" stroke="var(--aws)" strokeWidth="3" />
           <text x="620" y="88" fontSize="12.5" textAnchor="middle" fill="var(--muted)">
-            AWS backbone
+            {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
           </text>
           <text x="620" y="126" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-            AWS physical-layer encryption
+            {t({ en: "AWS physical-layer encryption", ja: "AWS が物理層で暗号化" })}
           </text>
 
           <path
@@ -357,7 +360,10 @@ function MacsecLab() {
             strokeDasharray="4 4"
           />
           <text x="445" y="192" fontSize="12.5" textAnchor="middle" fill="var(--violet)">
-            IPsec / TLS = end-to-end (optional, on top)
+            {t({
+              en: "IPsec / TLS = end-to-end (optional, on top)",
+              ja: "IPsec / TLS = エンドツーエンド (上に重ねる)",
+            })}
           </text>
         </svg>
       </Scroll>
@@ -370,7 +376,7 @@ const KEYS: [string, L][] = [
     "CKN",
     {
       en: "Connectivity Association Key Name — 64 hex chars you generate; names the key.",
-      ja: "Connectivity Association Key Name — お客様が生成する 64 桁の 16 進数。鍵の名前。",
+      ja: "Connectivity Association Key Name — 自社で生成する 64 桁の 16 進数。鍵の名前。",
     },
   ],
   [

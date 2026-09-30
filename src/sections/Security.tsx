@@ -22,7 +22,7 @@ const C = {
   },
   public: {
     en: "You receive every AWS public prefix in every public Region — including addresses used by other AWS customers — and the prefixes you advertise are reachable from any AWS public IP. Put a firewall on it, filter with 7224:8100/8200 and scope your own prefixes with 7224:9100/9200. If you only need a few services, a private VIF plus PrivateLink endpoints is a smaller surface. (S3/DynamoDB gateway endpoints do not accept traffic arriving over DX.)",
-    ja: "全パブリックリージョンの AWS パブリックプレフィックスを受け取ります (他の AWS 顧客が使うアドレスも含む)。そしてお客様が広告したプレフィックスには、任意の AWS パブリック IP から到達できます。ファイアウォールを置き、7224:8100/8200 でフィルタし、自プレフィックスは 7224:9100/9200 でスコープを絞りましょう。使うサービスが少ないなら、プライベート VIF + PrivateLink エンドポイントの方が攻撃面は小さくなります (S3 / DynamoDB のゲートウェイエンドポイントは DX 経由の通信を受け付けません)。",
+    ja: "全パブリックリージョンの AWS パブリックプレフィックスを受け取ります (他の AWS 顧客が使うアドレスも含む)。そして自社が広告したプレフィックスには、任意の AWS パブリック IP から到達できます。ファイアウォールを置き、7224:8100/8200 でフィルタし、自プレフィックスは 7224:9100/9200 でスコープを絞りましょう。使うサービスが少ないなら、プライベート VIF + PrivateLink エンドポイントの方が攻撃面は小さくなります (S3 / DynamoDB のゲートウェイエンドポイントは DX 経由の通信を受け付けません)。",
   },
   checklist: { en: "Checklist", ja: "チェックリスト" },
 };
@@ -40,7 +40,7 @@ const LAYERS: Record<
     to: 450,
     body: {
       en: "Your router ↔ AWS DX device. Near line rate, no extra charge. Dedicated 10/100/400G at (M) locations, LAGs and partner interconnects. Protects everything on the link, including ARP and BGP.",
-      ja: "お客様ルーター ↔ AWS DX 機器。ほぼラインレート、追加料金なし。(M) 表記拠点の専用 10/100/400G、LAG、パートナー相互接続で利用可。ARP や BGP を含むリンク上のすべてを保護。",
+      ja: "自社ルーター ↔ AWS DX 機器。ほぼラインレート、追加料金なし。(M) 表記拠点の専用 10/100/400G、LAG、パートナー相互接続で利用可。ARP や BGP を含むリンク上のすべてを保護。",
     },
   },
   ipsec: {
@@ -50,7 +50,7 @@ const LAYERS: Record<
     to: 790,
     body: {
       en: "Your router ↔ Transit Gateway (Private IP VPN over a transit VIF, since 2022-06, no public IPs) or ↔ VGW/TGW public endpoints over a public VIF. Works on any connection, including 1G and hosted. Per-tunnel throughput limits apply.",
-      ja: "お客様ルーター ↔ Transit Gateway (トランジット VIF 上の Private IP VPN、2022-06〜、パブリック IP 不要)、またはパブリック VIF 経由で VGW / TGW のパブリックエンドポイント。1G やホスト接続を含むあらゆる接続で使えるが、トンネルあたりのスループット上限あり。",
+      ja: "自社ルーター ↔ Transit Gateway (トランジット VIF 上の Private IP VPN、2022-06〜、パブリック IP 不要)、またはパブリック VIF 経由で VGW / TGW のパブリックエンドポイント。1G やホスト接続を含むあらゆる接続で使えるが、トンネルあたりのスループット上限あり。",
     },
   },
   tls: {
@@ -69,11 +69,11 @@ function LayerDiagram() {
   const { t } = useLang();
   const [focus, setFocus] = useState<Layer>("macsec");
   const nodes: [number, string][] = [
-    [60, "app"],
-    [150, "router"],
-    [450, "DX device"],
+    [60, t({ en: "app", ja: "アプリ" })],
+    [150, t({ en: "router", ja: "ルーター" })],
+    [450, t({ en: "DX device", ja: "DX 機器" })],
     [790, "TGW / VGW"],
-    [890, "workload"],
+    [890, t({ en: "workload", ja: "ワークロード" })],
   ];
   return (
     <Panel>
@@ -87,11 +87,14 @@ function LayerDiagram() {
           <line x1="60" x2="890" y1="40" y2="40" stroke="var(--line)" strokeWidth="2" />
           <line x1="150" x2="450" y1="40" y2="40" stroke="var(--fiber)" strokeWidth="3" />
           <text x="300" y="30" fontSize="11.2" textAnchor="middle" fill="var(--fiber)">
-            cross connect / carrier
+            {t({ en: "cross connect / carrier", ja: "クロスコネクト / キャリア" })}
           </text>
           <line x1="450" x2="790" y1="40" y2="40" stroke="var(--aws)" strokeWidth="3" />
           <text x="620" y="30" fontSize="11.2" textAnchor="middle" fill="var(--aws)">
-            AWS backbone (AWS physical-layer encryption)
+            {t({
+              en: "AWS backbone (AWS physical-layer encryption)",
+              ja: "AWS バックボーン (AWS が物理層で暗号化)",
+            })}
           </text>
           {nodes.map(([x, label]) => (
             <g key={label}>
@@ -127,7 +130,6 @@ function LayerDiagram() {
                     setFocus(k);
                   }
                 }}
-                opacity={on ? 1 : 0.45}
               >
                 <rect
                   x={l.from}
@@ -136,7 +138,7 @@ function LayerDiagram() {
                   height="30"
                   rx="15"
                   fill={l.color}
-                  opacity="0.18"
+                  opacity={on ? 0.22 : 0.08}
                 />
                 <rect
                   x={l.from}
@@ -147,6 +149,7 @@ function LayerDiagram() {
                   fill="none"
                   stroke={l.color}
                   strokeWidth={on ? 2.5 : 1.5}
+                  strokeDasharray={on ? undefined : "4 4"}
                 />
                 <text
                   x={(l.from + l.to) / 2}
@@ -209,7 +212,7 @@ const CHECKS: L[] = [
   },
   {
     en: "Restrict DXGW allowed prefixes to what each VPC / TGW needs.",
-    ja: "DXGW の許可プレフィックスを各 VPC / TGW に必要な範囲に絞る。",
+    ja: "DXGW の許可されたプレフィックスを各 VPC / TGW に必要な範囲に絞る。",
   },
   {
     en: "Centralize DX in a network account; deny directconnect:Create* / Allocate* / Accept* elsewhere with SCPs.",

@@ -5,6 +5,7 @@ import { Panel, Section, T } from "../components/ui";
 import { HikariSays } from "../components/Hikari";
 import { Term } from "../components/Term";
 import { CAUSE, TRAPS, type Trap } from "../content/traps";
+import { NAV } from "../content/nav";
 
 const C = {
   kicker: { en: "Start here", ja: "まずはここから" },
@@ -16,17 +17,25 @@ const C = {
     en: "We read re:Post questions, Knowledge Center articles, study guides and Japanese community write-ups to find exactly where people get stuck. It comes down to four things — and every stop on this route is built to untangle one of them.",
     ja: "re:Post の質問、Knowledge Center、資格の勉強記録、日本のコミュニティ記事を読み込んで、みんながどこでつまずくのかを洗い出しました。原因は大きく 4 つ。このサイトの各ステップは、そのどれかをほどくために作っています。",
   },
-  stack: { en: "Four worlds in one feature", ja: "ひとつの機能に 4 つの世界" },
+  stack: {
+    en: "Cause 1, up close: four worlds in one feature",
+    ja: "原因 1 をくわしく: ひとつの機能に 4 つの世界",
+  },
+  belief: { en: "Common belief", ja: "よくある思い込み" },
+  showTraps: { en: "Show these traps", ja: "該当する例を見る" },
   stackHint: {
     en: "Tap any word for a plain-language definition and its official console name.",
     ja: "単語をタップすると、やさしい説明と AWS コンソール上の正式名が出ます。",
   },
-  owners: { en: "…owned by different companies", ja: "…しかも持ち主がバラバラ" },
+  owners: {
+    en: "Cause 4, up close: who owns what",
+    ja: "原因 4 をくわしく: だれが何を持っているか",
+  },
   traps: {
     en: "The traps, and where we defuse them",
     ja: "つまずきポイントと、その解き方",
   },
-  goto: { en: "Go to stop", ja: "ステップ" },
+  goto: { en: "Stop", ja: "ステップ" },
   notThat: {
     en: "One more thing: in Japan “DX” usually means digital transformation. Here it means Direct Connect — the fiber, not the buzzword.",
     ja: "最初にひとつだけ。ここでの「DX」はデジタルトランスフォーメーションではなく Direct Connect のこと。バズワードじゃなくて、ファイバーの話だよ。",
@@ -158,9 +167,14 @@ function Owners() {
   );
 }
 
-function Traps() {
+function Traps({
+  filter,
+  setFilter,
+}: {
+  filter: Trap["cause"] | null;
+  setFilter: (f: Trap["cause"] | null) => void;
+}) {
   const { t } = useLang();
-  const [filter, setFilter] = useState<Trap["cause"] | null>(null);
   const shown = TRAPS.filter((x) => !filter || x.cause === filter);
   return (
     <div>
@@ -170,7 +184,7 @@ function Traps() {
             key={k}
             type="button"
             aria-pressed={filter === k}
-            onClick={() => setFilter((f) => (f === k ? null : k))}
+            onClick={() => setFilter(filter === k ? null : k)}
             className="rounded-full border-2 px-3 py-1 text-sm font-bold transition-colors"
             style={{
               borderColor: CAUSE[k].color,
@@ -194,6 +208,9 @@ function Traps() {
             >
               {t(CAUSE[x.cause].label)}
             </span>
+            {/^[“「]/.test(t(x.title)) && (
+              <p className="text-xs font-bold text-[var(--bad)]">✕ {t(C.belief)}</p>
+            )}
             <p className="mb-2 font-display text-lg leading-snug font-semibold">
               {t(x.title)}
             </p>
@@ -204,7 +221,8 @@ function Traps() {
               href={`#${x.stop}`}
               className="mt-auto self-start rounded-full bg-[var(--fiber-soft)] px-3 py-1 text-sm font-bold text-[var(--fiber)] hover:brightness-95"
             >
-              {t(C.goto)} {x.stopNo}
+              {t(C.goto)} {x.stopNo}:{" "}
+              {t(NAV.find((n) => n.id === x.stop)?.label ?? C.goto)}
             </a>
           </li>
         ))}
@@ -213,8 +231,67 @@ function Traps() {
   );
 }
 
+const CAUSE_TEXT: Record<Trap["cause"], L> = {
+  layers: {
+    en: "Fiber and optics, VLANs, BGP and AWS gateways all show up at once — and most people are fluent in one or two of them.",
+    ja: "ファイバーと光、VLAN、BGP、AWS のゲートウェイが一度に出てくる。全部に詳しい人はほとんどいない。",
+  },
+  words: {
+    en: "“Hosted”, “location”, “closed network”, even “DX” mean two different things depending on who says them.",
+    ja: "「ホスト」「ロケーション」「閉域」、そして「DX」さえも、言う人によって意味が変わる。",
+  },
+  context: {
+    en: "Allowed prefixes, AS_PATH prepending and MTU behave differently depending on what they are attached to.",
+    ja: "許可されたプレフィックス、AS_PATH プリペンド、MTU は、何につながっているかで挙動が変わる。",
+  },
+  invisible: {
+    en: "No free-tier lab, four companies own pieces of the path, and until 2026 BGP state wasn't even in CloudWatch.",
+    ja: "無料で試せる環境はなく、経路の持ち主は 4 社にまたがり、2026 年までは BGP の状態すら CloudWatch で見えなかった。",
+  },
+};
+
+function Causes({ onPick }: { onPick: (c: Trap["cause"]) => void }) {
+  const { t } = useLang();
+  return (
+    <ol className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {(Object.keys(CAUSE) as Trap["cause"][]).map((k, i) => (
+        <li
+          key={k}
+          className="flex flex-col rounded-3xl border-2 p-5"
+          style={{ borderColor: CAUSE[k].color }}
+        >
+          <span
+            className="mb-3 flex h-9 w-9 items-center justify-center rounded-full font-display text-lg font-bold"
+            style={{ background: CAUSE[k].color, color: "var(--on-accent)" }}
+            aria-hidden="true"
+          >
+            {i + 1}
+          </span>
+          <p className="mb-2 font-display text-lg font-semibold">{t(CAUSE[k].label)}</p>
+          <p className="mb-4 text-sm leading-relaxed text-[var(--muted)]">
+            {t(CAUSE_TEXT[k])}
+          </p>
+          <button
+            type="button"
+            onClick={() => onPick(k)}
+            className="mt-auto min-h-8 self-start rounded-full border-2 px-3 py-1 text-sm font-bold"
+            style={{ borderColor: CAUSE[k].color, color: CAUSE[k].color }}
+          >
+            {t(C.showTraps)} ({TRAPS.filter((x) => x.cause === k).length})
+          </button>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function WhyHard() {
   const { t } = useLang();
+  const [filter, setFilter] = useState<Trap["cause"] | null>(null);
+  const pick = (c: Trap["cause"]) => {
+    setFilter(c);
+    document.getElementById("traps")?.scrollIntoView();
+  };
   return (
     <Section id="why" index="?" kicker={C.kicker} title={C.title} lead={C.lead}>
       <div className="mb-8 max-w-2xl">
@@ -222,12 +299,15 @@ export function WhyHard() {
           <T c={C.notThat} />
         </HikariSays>
       </div>
+      <Causes onPick={pick} />
       <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
         <Stack />
         <Owners />
       </div>
-      <h3 className="mt-14 mb-4 font-display text-2xl font-semibold">{t(C.traps)}</h3>
-      <Traps />
+      <h3 id="traps" className="mt-14 mb-4 font-display text-2xl font-semibold">
+        {t(C.traps)}
+      </h3>
+      <Traps filter={filter} setFilter={setFilter} />
     </Section>
   );
 }

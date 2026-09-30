@@ -103,3 +103,22 @@ describe("isAsymmetric", () => {
     expect(isAsymmetric(["DX-A"], null)).toBe(false);
   });
 });
+
+describe("selectPath combinations", () => {
+  it("drops the shorter prefix, then load-balances the rest", () => {
+    const r = selectPath([
+      dx("a", { prefixLength: 24 }),
+      dx("b", { prefixLength: 24 }),
+      dx("c"),
+    ]);
+    expect(r).toEqual({ winners: ["a", "b"], decidedBy: "ecmp" });
+  });
+
+  it("breaks a tie between two BGP VPNs on AS_PATH", () => {
+    const r = selectPath([
+      { ...dx("v1", { prepend: 1 }), kind: "vpn-bgp" },
+      { ...dx("v2"), kind: "vpn-bgp" },
+    ]);
+    expect(r).toEqual({ winners: ["v2"], decidedBy: "as-path" });
+  });
+});

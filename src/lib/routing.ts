@@ -44,7 +44,11 @@ export type Decision =
 
 export interface Selection {
   winners: string[];
-  /** The first step that narrowed the candidates to the final set. */
+  /**
+   * The step that settled the choice: the one that narrowed the candidates
+   * to a single path, "ecmp" when several stay tied, or "no-path" /
+   * "only-path" when there was nothing to compare.
+   */
   decidedBy: Decision;
 }
 

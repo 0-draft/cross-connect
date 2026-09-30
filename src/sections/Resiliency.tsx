@@ -24,8 +24,8 @@ const C = {
   },
   lab: { en: "Failure lab", ja: "障害シミュレーター" },
   labHint: {
-    en: "Click a connection to cut it, or a location header to burn the building down.",
-    ja: "接続をクリックで切断、ロケーション名をクリックで建物ごと停止。",
+    en: "Tap a connection to cut it, or a location to take the whole building down.",
+    ja: "接続をタップで切断、ロケーションをタップで建物ごと停止します。",
   },
   reset: { en: "Reset", ja: "リセット" },
   model: { en: "Model", ja: "モデル" },
@@ -38,8 +38,8 @@ const C = {
   both: { en: "a location + 1 more connection", ja: "ロケーション + さらに接続 1 つ" },
   slaTitle: { en: "SLA fine print", ja: "SLA の注意点" },
   sla: {
-    en: "99.99% needs ≥ 4 connections in ≥ 2 locations (≥ 2 per location) on unique AWS devices, Enterprise Support and a Well-Architected Review; 99.9% needs ≥ 2 connections in ≥ 2 locations and Enterprise Support. 'Unavailable' means no traffic for 120 consecutive seconds. Hosted connections and hosted VIFs are not covered. A multi-building campus counts as one location.",
-    ja: "99.99% には 2 拠点以上に計 4 本以上 (拠点あたり 2 本以上)・全接続が別々の AWS 機器・Enterprise Support・Well-Architected レビューが必要。99.9% には 2 拠点以上に 2 本以上と Enterprise Support が必要。「利用不可」は 120 秒連続で通信できない状態。ホスト接続とホスト VIF は対象外。複数棟のキャンパスは 1 ロケーション扱い。",
+    en: "99.99% needs ≥ 4 connections in ≥ 2 locations (≥ 2 per location) on unique AWS devices, Enterprise Support and a Well-Architected Review; 99.9% needs ≥ 2 connections in ≥ 2 locations and Enterprise Support. 'Unavailable' means no traffic for 120 consecutive seconds. Hosted connections and hosted VIFs are not covered. Buildings that together form one DX location (e.g. Equinix DC2/DC11, or sub-locations in one building) do not give location-level diversity.",
+    ja: "99.99% には 2 拠点以上に計 4 本以上 (拠点あたり 2 本以上)・全接続が別々の AWS 機器・Enterprise Support・Well-Architected レビューが必要。99.9% には 2 拠点以上に 2 本以上と Enterprise Support が必要。「利用不可」は 120 秒連続で通信できない状態。ホスト接続とホスト VIF は対象外。複数の建物で 1 つの DX ロケーションを成す場合 (例: Equinix DC2/DC11、同じ建物内のサブロケーション) はロケーション冗長になりません。",
   },
   detect: { en: "Detecting failure fast", ja: "障害を素早く検知する" },
   test: { en: "Prove it before it happens", ja: "本番障害の前に試す" },
@@ -134,7 +134,7 @@ function FailureLab() {
             stroke="var(--line)"
           />
           <text x="450" y="38" fontSize="15" textAnchor="middle" fill="var(--ink)">
-            your data center(s)
+            {t({ en: "your data center(s)", ja: "自社データセンター" })}
           </text>
           <rect
             x="300"
@@ -146,7 +146,10 @@ function FailureLab() {
             stroke="var(--aws)"
           />
           <text x="450" y="302" fontSize="15" textAnchor="middle" fill="var(--aws)">
-            AWS Region · VPCs in 2+ AZs
+            {t({
+              en: "AWS Region · VPCs in 2+ AZs",
+              ja: "AWS リージョン · VPC は 2 AZ 以上",
+            })}
           </text>
           {model.locations.map((loc, li) => {
             const lx = x0 + li * (locW + gap);
@@ -158,7 +161,10 @@ function FailureLab() {
                   role="button"
                   tabIndex={0}
                   aria-pressed={dead}
-                  aria-label={`location ${li + 1}`}
+                  aria-label={t({
+                    en: `DX location ${li + 1} failed`,
+                    ja: `DX ロケーション ${li + 1} を停止`,
+                  })}
                   className="cursor-pointer"
                   onClick={() => setCutLocs((l) => flip(l, loc))}
                   onKeyDown={(e) => {
@@ -194,7 +200,10 @@ function FailureLab() {
                       role="button"
                       tabIndex={0}
                       aria-pressed={cut}
-                      aria-label={`connection ${c.id}`}
+                      aria-label={t({
+                        en: `Cut connection ${c.id.split("-")[1]} at location ${li + 1}`,
+                        ja: `ロケーション ${li + 1} の接続 ${c.id.split("-")[1]} を切断`,
+                      })}
                       className="cursor-pointer"
                       onClick={() => setCutConns((l) => flip(l, c.id))}
                       onKeyDown={(e) => {
@@ -237,7 +246,7 @@ function FailureLab() {
                         textAnchor="middle"
                         fill="var(--ink)"
                       >
-                        AWS device
+                        {t({ en: "AWS device", ja: "AWS 機器" })}
                       </text>
                       <text
                         x={cx}
@@ -269,7 +278,8 @@ function FailureLab() {
                   pointerEvents="none"
                   fill={dead ? "var(--bad)" : "var(--muted)"}
                 >
-                  DX location {li + 1} {dead ? "🔥" : ""}
+                  {t({ en: `DX location ${li + 1}`, ja: `DX ロケーション ${li + 1}` })}{" "}
+                  {dead ? "🔥" : ""}
                 </text>
               </g>
             );
@@ -341,8 +351,8 @@ const TEST: [string, L][] = [
   [
     "Failover test",
     {
-      en: "Resiliency Toolkit (since 2020-06): AWS shuts down the BGP session of a VIF you pick for 180 minutes by default (up to 72 h). Works on private, public and transit VIFs; the VIF shows 'testing'.",
-      ja: "Resiliency Toolkit (2020-06〜): 指定した VIF の BGP セッションを AWS が停止。デフォルト 180 分 (最大 72 時間)。プライベート/パブリック/トランジット VIF 対応、状態は 'testing' になります。",
+      en: "The Resiliency Toolkit's failover test (since 2020-06): AWS shuts down the BGP session of a VIF you pick for 180 minutes by default (up to 72 h). Works on private, public and transit VIFs; the VIF shows 'testing'.",
+      ja: "Resiliency Toolkit のフェイルオーバーテスト (2020-06〜): 指定した VIF の BGP セッションを AWS が停止。デフォルト 180 分 (最大 72 時間)。プライベート/パブリック/トランジット VIF 対応、状態は 'testing' になります。",
     },
   ],
   [
@@ -355,8 +365,8 @@ const TEST: [string, L][] = [
   [
     "Maintenance",
     {
-      en: "Planned maintenance is announced 14 days ahead (reminders at 7 and 1 days) with a window of up to 4 hours; emergency work usually has a 2-hour window. AWS never schedules planned work that takes down all your redundant connections at once.",
-      ja: "計画メンテは 14 日前に通知 (7 日前・1 日前にリマインド)、最大 4 時間枠。緊急メンテは通常 2 時間枠。冗長接続すべてを同時に落とす計画メンテは組まれません。",
+      en: "Planned maintenance is announced 14 days ahead (reminders at 7 and 1 days) with a window of typically 4 hours (AWS may extend it with a new notice); emergency work usually has a 2-hour window. AWS never schedules planned work that takes down all your redundant connections at once.",
+      ja: "計画メンテは 14 日前に通知 (7 日前・1 日前にリマインド)、通常 4 時間枠 (延長時は別途通知)。緊急メンテは通常 2 時間枠。冗長接続すべてを同時に落とす計画メンテは組まれません。",
     },
   ],
 ];
@@ -376,8 +386,8 @@ export function Resiliency() {
         <HikariSays mood="worried">
           <T
             c={{
-              en: "On 2021-09-02, a Direct Connect problem in Tokyo left connections showing UP while they dropped packets. Redundancy only helps if the backup path is truly separate — and if something notices the primary is sick. Build for a whole building failing, and test it.",
-              ja: "2021-09-02 の東京リージョンの Direct Connect 障害では、接続が UP 表示のままパケットを落としていた。冗長化が効くのは、予備の経路が本当に別物で、しかも主経路の不調に誰かが気づけるときだけ。建物ごと落ちる前提で組んで、ちゃんと試そう。",
+              en: "On 2021-09-02, devices inside AWS's network between the Direct Connect locations and the Tokyo Region misforwarded traffic for about six hours. Every location into Tokyo was hit, so spreading connections over buildings didn't help, while Site-to-Site VPN and DX to other Regions kept working. Lesson: keep a backup of a different kind, and watch for loss, not just link state.",
+              ja: "2021-09-02 の東京リージョンの Direct Connect 障害では、DX ロケーションと東京リージョンの間にある AWS 内部の機器が約 6 時間、正しく転送できなくなったの。東京に向かう通信はどのロケーションでも影響を受けたから、建物を分けるだけでは防げなかった。一方で Site-to-Site VPN や他リージョンへの DX は無事だったよ。教訓は、種類の違う予備経路を持つことと、リンクの状態だけじゃなくパケットロスも見張ること。",
             }}
           />
         </HikariSays>

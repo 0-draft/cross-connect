@@ -6,7 +6,11 @@ export interface Cidr {
 }
 
 export function parseCidr(s: string): Cidr | null {
-  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})$/.exec(s.trim());
+  // No leading zeros: "010" is octal to inet_aton and AWS rejects it.
+  const oct = "(0|[1-9]\\d{0,2})";
+  const m = new RegExp(`^${oct}\\.${oct}\\.${oct}\\.${oct}\\/(\\d|[12]\\d|3[0-2])$`).exec(
+    s.trim(),
+  );
   if (!m) return null;
   const octets = m.slice(1, 5).map(Number);
   const len = Number(m[5]);

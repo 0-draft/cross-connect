@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
 
@@ -157,9 +157,25 @@ export function Tag({ children, color }: { children: ReactNode; color?: string }
 
 /** Horizontally scrollable wrapper for wide diagrams and tables. */
 export function Scroll({ children }: { children: ReactNode }) {
-  return <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">{children}</div>;
+  const { t } = useLang();
+  return (
+    <div>
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">{children}</div>
+      {/* Wide diagrams scroll sideways on phones; say so. */}
+      <p
+        className="mt-1 text-center text-xs text-[var(--muted)] sm:hidden"
+        aria-hidden="true"
+      >
+        {t({ en: "← swipe to see more →", ja: "← 横にスワイプできます →" })}
+      </p>
+    </div>
+  );
 }
 
+/**
+ * A single-choice toggle with the WAI-ARIA radio group keyboard model: one
+ * Tab stop (the checked option), arrow keys move and select.
+ */
 export function Segmented<V extends string>({
   label,
   value,
@@ -171,10 +187,21 @@ export function Segmented<V extends string>({
   options: { value: V; label: string }[];
   onChange: (v: V) => void;
 }) {
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const i = options.findIndex((o) => o.value === value);
+    const next = (i + step + options.length) % options.length;
+    onChange(options[next].value);
+    const buttons = e.currentTarget.querySelectorAll<HTMLButtonElement>("[role=radio]");
+    buttons[next]?.focus();
+  };
   return (
     <div
       role="radiogroup"
       aria-label={label}
+      onKeyDown={onKeyDown}
       className="inline-flex flex-wrap gap-1 rounded-full border-2 border-[var(--line)] bg-[var(--panel-2)] p-1"
     >
       {options.map((o) => (
@@ -183,8 +210,9 @@ export function Segmented<V extends string>({
           type="button"
           role="radio"
           aria-checked={value === o.value}
+          tabIndex={value === o.value ? 0 : -1}
           onClick={() => onChange(o.value)}
-          className={`rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
+          className={`min-h-8 rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
             value === o.value
               ? "bg-[var(--fiber)] text-[var(--on-accent)]"
               : "text-[var(--muted)] hover:bg-[var(--panel)] hover:text-[var(--ink)]"

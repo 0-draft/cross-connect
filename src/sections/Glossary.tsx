@@ -73,7 +73,7 @@ export function Glossary() {
                   )}
                   <a
                     href={`#${e.see}`}
-                    className="mt-2 inline-block text-xs font-bold text-[var(--fiber)] underline"
+                    className="mt-2 inline-block py-1 text-xs font-bold text-[var(--fiber)] underline"
                   >
                     {t(C.more)}: {t(NAV.find((n) => n.id === e.see)?.label ?? C.more)}
                   </a>

@@ -37,3 +37,10 @@ describe("MACsec", () => {
     expect(macsecCiphers(400)).toEqual(["GCM-AES-XPN-256"]);
   });
 });
+
+describe("LAG edge cases", () => {
+  it("minimum links above the member count keeps the LAG down", () => {
+    expect(lagState(100, 2, 3)).toEqual({ operational: false, capacity: 0 });
+    expect(lagState(400, 2, 2)).toEqual({ operational: true, capacity: 800 });
+  });
+});

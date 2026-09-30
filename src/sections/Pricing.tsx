@@ -14,6 +14,7 @@ import {
   SOURCE_REGIONS,
   type SourceRegion,
   breakEvenGb,
+  FLAT_RATE_EXAMPLE,
   estimate,
 } from "../lib/pricing";
 
@@ -45,7 +46,7 @@ const C = {
   flatTitle: { en: "Flat-rate (since 2026-09-15)", ja: "定額料金 (2026-09-15〜)" },
   flat: {
     en: "Dedicated 10G / 100G only. A fixed hourly price per geographic tier (Tier 1 same metro … Tier 5 global) that includes DTO from the Regions in that tier. A port-pair gives you a second, redundant port for free — usable bandwidth is still one port. AWS's example: 10G Tier 1 port-pair at Ashburn = $10.96/hour.",
-    ja: "専用 10G / 100G のみ。地理的ティア (Tier 1 同一都市圏 〜 Tier 5 全世界) ごとの固定時間料金で、ティア内リージョンからの DTO を含みます。ポートペアなら冗長用の 2 本目が無料 (使える帯域は 1 本分)。AWS の例: Ashburn の 10G Tier 1 ポートペア = $10.96/時。",
+    ja: "対象は専用接続の 10G / 100G のみです。地理的ティア (Tier 1 同一都市圏〜Tier 5 全世界) ごとの固定時間料金で、ティア内リージョンからの DTO を含みます。ポートペアにすると冗長用の 2 本目が無料になります (使える帯域は 1 本分)。AWS の例では、Ashburn の 10G Tier 1 ポートペアが $10.96/時です。",
   },
   breakEven: {
     en: "Break-even vs 2 × pay-as-you-go 10G at $0.02/GB",
@@ -94,7 +95,10 @@ function Calculator() {
   const { t } = useLang();
   const [type, setType] = useState<ConnType>("dedicated");
   const [mbps, setMbps] = useState(10000);
-  const [count, setCount] = useState(2);
+  // Keep what the viewer typed; clamp only when pricing, so clearing the
+  // field and typing a new number works.
+  const [countText, setCountText] = useState("2");
+  const count = Math.max(1, Math.min(16, Math.trunc(Number(countText)) || 1));
   const [dxGeo, setDxGeo] = useState<DxGeo>("japan");
   const [source, setSource] = useState<SourceRegion>("tokyo-osaka");
   const [tb, setTb] = useState(10);
@@ -146,10 +150,11 @@ function Calculator() {
               min={1}
               max={16}
               className={`${field} w-full font-mono`}
-              value={count}
-              onChange={(e) =>
-                setCount(Math.max(1, Math.min(16, Number(e.target.value) || 1)))
-              }
+              step={1}
+              inputMode="numeric"
+              value={countText}
+              onChange={(e) => setCountText(e.target.value)}
+              onBlur={() => setCountText(String(count))}
             />
           </label>
           <label className="text-sm">
@@ -197,7 +202,10 @@ function Calculator() {
         </div>
       </Panel>
       <Panel className="flex flex-col">
-        <dl aria-live="polite" className="space-y-3 font-mono text-sm">
+        <p aria-live="polite" className="sr-only">
+          {t(C.total)}: {usd(r.total)}
+        </p>
+        <dl className="space-y-3 font-mono text-sm">
           <div className="flex justify-between gap-2">
             <dt className="text-[var(--muted)]">
               {t(C.port)}
@@ -242,7 +250,8 @@ function Calculator() {
 
 export function Pricing() {
   const { t } = useLang();
-  const be = breakEvenGb(10.96, 2.25, 2, 0.02);
+  const f = FLAT_RATE_EXAMPLE;
+  const be = breakEvenGb(f.hourly, f.paygPortHourly, f.paygPorts, f.dtoPerGb);
   return (
     <Section
       id="pricing"
@@ -276,7 +285,8 @@ export function Pricing() {
             <span className="text-base text-[var(--muted)]"> / mo</span>
           </p>
           <p className="mt-2 text-xs text-[var(--muted)]">
-            ($10.96 − 2 × $2.25) × 730 h ÷ $0.02/GB
+            (${f.hourly} − {f.paygPorts} × ${f.paygPortHourly}) × {HOURS_PER_MONTH} h ÷ $
+            {f.dtoPerGb}/GB
           </p>
         </Panel>
       </div>

@@ -19,7 +19,7 @@ const C = {
   },
   lead: {
     en: "Every VIF is an eBGP session, so every design question — active/active, active/passive, DX with VPN backup — comes down to path selection. You control the AWS → on-premises direction with what you advertise; the on-premises → AWS direction is your own router's decision.",
-    ja: "VIF はすべて eBGP セッションです。Active/Active か Active/Passive か、VPN をバックアップにするか — 設計上の問いはすべて経路選択に帰着します。AWS → オンプレ方向は「お客様が何を広告するか」で制御し、オンプレ → AWS 方向はお客様ルーター自身が決めます。",
+    ja: "VIF はすべて eBGP セッションです。Active/Active か Active/Passive か、VPN をバックアップにするか — 設計上の問いはすべて経路選択に帰着します。AWS → オンプレ方向は「自社が何を広告するか」で制御し、オンプレ → AWS 方向は自社ルーター自身が決めます。",
   },
   lab: { en: "Path selection lab", ja: "経路選択ラボ" },
   labLead: {
@@ -37,6 +37,18 @@ const C = {
     en: "Your router sends outbound traffic via",
     ja: "自社ルーターが行きの通信に使う経路",
   },
+  guess: {
+    en: "About the remote-Region path: AWS only says an untagged path from another Region's location gets “a lower value” than 7224:7200. This lab places it between 7224:7100 and 7224:7200; how it compares with an explicit 7224:7100 is not documented.",
+    ja: "別リージョンのロケーション経由の経路について: タグなしの場合 AWS は「7224:7200 より低い値」としか説明していません。このラボでは 7224:7100 と 7224:7200 の間に置いています。明示的な 7224:7100 との大小は公開されていません。",
+  },
+  onlyOne: {
+    en: "Only one path is up, so there is nothing to compare.",
+    ja: "稼働している経路が 1 本だけなので、比較するまでもありません。",
+  },
+  nothingUp: {
+    en: "Every path is down: the VPC cannot reach 10.1.0.0/16.",
+    ja: "すべての経路が停止中。VPC から 10.1.0.0/16 に届きません。",
+  },
   asymTitle: { en: "Asymmetric!", ja: "非対称ルーティング!" },
   asym: {
     en: "Packets leave over one link and come back over another. A stateful firewall that sees only one direction will drop them. Make both sides agree: communities toward AWS, local preference on your router.",
@@ -46,16 +58,22 @@ const C = {
     en: "Both directions use the same path.",
     ja: "行きも帰りも同じ経路。",
   },
+  ecmp: {
+    en: "Return traffic is spread over every tied path, including yours. Stateful firewalls must see all of them.",
+    ja: "帰りの通信は同点の経路すべてに分散されます (行きの経路も含む)。ステートフル FW はそのすべてを見られる必要があります。",
+  },
+  legendBack: { en: "AWS → you (AWS decides)", ja: "帰り: AWS → 自社 (AWS が決める)" },
+  legendOut: { en: "you → AWS (your router)", ja: "行き: 自社 → AWS (自社ルーター)" },
   twoWays: {
     en: "There are two directions and two deciders. AWS picks the way back to you from what you advertise (communities, prefix length, AS_PATH). Your own router picks the way to AWS with its local preference. Change one and forget the other, and traffic goes out one door and comes back through another.",
-    ja: "向きは 2 つ、決める人も 2 人。帰り (AWS → 自社) は、あなたの広告内容 (コミュニティ・プレフィックス長・AS_PATH) を見て AWS が決めます。行き (自社 → AWS) は自社ルーターがローカルプリファレンスで決めます。片方だけ変えると、出ていくドアと戻ってくるドアが別々になります。",
+    ja: "向きは 2 つ、決める人も 2 人。帰り (AWS → 自社) は、自社が広告した内容 (コミュニティ・プレフィックス長・AS_PATH) を見て AWS が決めます。行き (自社 → AWS) は自社ルーターがローカルプリファレンスで決めます。片方だけ変えると、出ていくドアと戻ってくるドアが別々になります。",
   },
   none: { en: "No path — unreachable", ja: "経路なし — 到達不可" },
   commTitle: { en: "BGP communities cheat sheet", ja: "BGP コミュニティ早見表" },
   medTitle: { en: "What this lab leaves out", ja: "このラボで省略しているもの" },
   med: {
     en: "MED is compared after AS_PATH (AWS does not recommend relying on it). On a Transit Gateway the order is static > prefix-list > VPC > DXGW-propagated > Connect > Private IP VPN > VPN, and a VGW does not ECMP across VPN tunnels. With SiteLink enabled, Regions stop preferring their own locations and pick the shortest AS_PATH.",
-    ja: "MED は AS_PATH の後に比較されます (AWS は MED に頼ることを推奨していません)。Transit Gateway では 静的 > プレフィックスリスト > VPC > DXGW 伝播 > Connect > Private IP VPN > VPN の順で、VGW は VPN トンネル間で ECMP しません。SiteLink を有効にすると、リージョンは自リージョンのロケーション優先をやめ、最短 AS_PATH を選びます。",
+    ja: "MED は AS_PATH の後に比較されます (AWS は MED に頼ることを推奨していません)。Transit Gateway では、静的 > プレフィックスリスト > VPC > DXGW 伝播 > Connect > Private IP VPN > VPN の順で、VGW は VPN トンネル間で ECMP しません。SiteLink を有効にすると、リージョンは自リージョンのロケーション優先をやめ、最短 AS_PATH を選びます。",
   },
 };
 
@@ -163,9 +181,10 @@ function PathRow({
         >
           {p.id} {isDx ? "· private VIF" : "· Site-to-Site VPN (BGP)"}
         </span>
-        <label className="flex items-center gap-1.5 text-xs">
+        <label className="flex min-h-8 items-center gap-1.5 text-xs">
           <input
             type="checkbox"
+            className="size-5 accent-[var(--fiber)]"
             checked={p.up}
             onChange={(e) => onChange({ ...p, up: e.target.checked })}
           />
@@ -173,7 +192,7 @@ function PathRow({
         </label>
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-[var(--muted)]">
-        <label className="flex items-center gap-1.5">
+        <label className="flex min-h-8 items-center gap-1.5">
           {t(C.prefix)}
           <select
             className={sel}
@@ -186,7 +205,7 @@ function PathRow({
         </label>
         {isDx && (
           <>
-            <label className="flex items-center gap-1.5">
+            <label className="flex min-h-8 items-center gap-1.5">
               {t(C.community)}
               <select
                 className={sel}
@@ -205,9 +224,10 @@ function PathRow({
                 ))}
               </select>
             </label>
-            <label className="flex items-center gap-1.5">
+            <label className="flex min-h-8 items-center gap-1.5">
               <input
                 type="checkbox"
+                className="size-5 accent-[var(--fiber)]"
                 checked={p.homeRegion}
                 onChange={(e) => onChange({ ...p, homeRegion: e.target.checked })}
               />
@@ -215,7 +235,7 @@ function PathRow({
             </label>
           </>
         )}
-        <label className="flex items-center gap-1.5">
+        <label className="flex min-h-8 items-center gap-1.5">
           {t(C.prepend)}
           <select
             className={sel}
@@ -267,7 +287,7 @@ function PathLab() {
       <Panel className="p-3 sm:p-4">
         <Scroll>
           <svg
-            viewBox="0 0 520 260"
+            viewBox="0 0 520 270"
             className="diagram min-w-[420px]"
             role="img"
             aria-label={t(C.lab)}
@@ -285,7 +305,7 @@ function PathLab() {
               VPC
             </text>
             <text x="60" y="142" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-              via VGW
+              {t({ en: "via VGW", ja: "VGW 経由" })}
             </text>
             <rect
               x="410"
@@ -297,7 +317,7 @@ function PathLab() {
               stroke="var(--line)"
             />
             <text x="460" y="126" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
-              on-prem
+              {t({ en: "on-prem", ja: "オンプレ" })}
             </text>
             <text x="460" y="142" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
               10.1.0.0/16
@@ -317,6 +337,15 @@ function PathLab() {
                     className={win ? "flow" : undefined}
                     opacity={win || !p.up ? 1 : 0.5}
                   />
+                  {outPath === p.id && (
+                    <path
+                      d={`M410 ${140} C350 ${140} 350 ${y + 10} 300 ${y + 10} H230 C170 ${y + 10} 170 140 110 140`}
+                      stroke="var(--violet)"
+                      strokeWidth="2.5"
+                      strokeDasharray="2 5"
+                      fill="none"
+                    />
+                  )}
                   <rect
                     x="225"
                     y={y - 14}
@@ -338,10 +367,35 @@ function PathLab() {
                 </g>
               );
             })}
+            <g fontSize="12">
+              <line
+                x1="20"
+                x2="44"
+                y1="250"
+                y2="250"
+                stroke="var(--ok)"
+                strokeWidth="4"
+              />
+              <text x="50" y="254" fill="var(--ink)">
+                {t(C.legendBack)}
+              </text>
+              <line
+                x1="270"
+                x2="294"
+                y1="250"
+                y2="250"
+                stroke="var(--violet)"
+                strokeWidth="2.5"
+                strokeDasharray="2 5"
+              />
+              <text x="300" y="254" fill="var(--ink)">
+                {t(C.legendOut)}
+              </text>
+            </g>
           </svg>
         </Scroll>
-        <div aria-live="polite" className="mt-3 px-1">
-          <p className="text-sm">
+        <div className="mt-3 px-1">
+          <p aria-live="polite" className="text-sm">
             {t(C.winner)}:{" "}
             {sel.winners.length ? (
               <span className="font-mono font-semibold text-[var(--ok)]">
@@ -381,7 +435,7 @@ function PathLab() {
             outPath && (
               <p className="mt-3 flex items-center gap-2 text-sm text-[var(--ok)]">
                 <Hikari mood="happy" size={32} />
-                {t(C.sym)}
+                {t(sel.winners.length > 1 ? C.ecmp : C.sym)}
               </p>
             )
           )}
@@ -402,6 +456,18 @@ function PathLab() {
               </li>
             ))}
           </ol>
+          {paths.some(
+            (p) => p.kind === "dx" && p.up && !p.homeRegion && !p.community,
+          ) && (
+            <p className="mt-2 rounded-2xl bg-[var(--panel-2)] px-3 py-2 text-xs text-[var(--muted)]">
+              {t(C.guess)}
+            </p>
+          )}
+          {stepIndex === -1 && (
+            <p className="mt-2 text-xs text-[var(--muted)]">
+              {t(sel.winners.length ? C.onlyOne : C.nothingUp)}
+            </p>
+          )}
         </div>
       </Panel>
     </div>
@@ -412,7 +478,7 @@ const COMM_ROWS: [string, L, L][] = [
   [
     "7224:7100",
     { en: "Low local preference", ja: "ローカルプリファレンス 低" },
-    { en: "you → private/transit VIF", ja: "お客様 → プライベート/トランジット VIF" },
+    { en: "you → private/transit VIF", ja: "自社 → プライベート/トランジット VIF" },
   ],
   [
     "7224:7200",
@@ -420,12 +486,12 @@ const COMM_ROWS: [string, L, L][] = [
       en: "Medium (implicit for same-Region locations)",
       ja: "中 (同一リージョンのロケーションの暗黙値)",
     },
-    { en: "you → private/transit VIF", ja: "お客様 → プライベート/トランジット VIF" },
+    { en: "you → private/transit VIF", ja: "自社 → プライベート/トランジット VIF" },
   ],
   [
     "7224:7300",
     { en: "High local preference", ja: "ローカルプリファレンス 高" },
-    { en: "you → private/transit VIF", ja: "お客様 → プライベート/トランジット VIF" },
+    { en: "you → private/transit VIF", ja: "自社 → プライベート/トランジット VIF" },
   ],
   [
     "7224:9100",
@@ -433,17 +499,17 @@ const COMM_ROWS: [string, L, L][] = [
       en: "Propagate your prefix to the local Region only",
       ja: "自プレフィックスをローカルリージョンのみに伝播",
     },
-    { en: "you → public VIF", ja: "お客様 → パブリック VIF" },
+    { en: "you → public VIF", ja: "自社 → パブリック VIF" },
   ],
   [
     "7224:9200",
     { en: "…to all Regions on the continent", ja: "…同じ大陸の全リージョンに伝播" },
-    { en: "you → public VIF", ja: "お客様 → パブリック VIF" },
+    { en: "you → public VIF", ja: "自社 → パブリック VIF" },
   ],
   [
     "7224:9300",
     { en: "…globally (same as no tag)", ja: "…全世界 (タグなしと同じ)" },
-    { en: "you → public VIF", ja: "お客様 → パブリック VIF" },
+    { en: "you → public VIF", ja: "自社 → パブリック VIF" },
   ],
   [
     "7224:8100",
@@ -451,12 +517,12 @@ const COMM_ROWS: [string, L, L][] = [
       en: "AWS prefix from the same Region as the location",
       ja: "ロケーションと同じリージョン由来の AWS プレフィックス",
     },
-    { en: "AWS → you, public VIF", ja: "AWS → お客様、パブリック VIF" },
+    { en: "AWS → you, public VIF", ja: "AWS → 自社、パブリック VIF" },
   ],
   [
     "7224:8200",
     { en: "AWS prefix from the same continent", ja: "同じ大陸由来の AWS プレフィックス" },
-    { en: "AWS → you, public VIF", ja: "AWS → お客様、パブリック VIF" },
+    { en: "AWS → you, public VIF", ja: "AWS → 自社、パブリック VIF" },
   ],
   [
     "NO_EXPORT",
@@ -464,7 +530,7 @@ const COMM_ROWS: [string, L, L][] = [
       en: "On every route AWS sends over a public VIF",
       ja: "パブリック VIF で AWS が送る全経路に付与",
     },
-    { en: "AWS → you, public VIF", ja: "AWS → お客様、パブリック VIF" },
+    { en: "AWS → you, public VIF", ja: "AWS → 自社、パブリック VIF" },
   ],
 ];
 
@@ -515,7 +581,7 @@ export function Routing() {
         <T
           c={{
             en: "On a public VIF AWS advertises with an AS_PATH of at least 3, prefers the home Region for identical prefixes, and replaces a private customer ASN with 7224 — so prepending with a private ASN has no effect outside AWS. Communities 7224:1–7224:65535 are reserved.",
-            ja: "パブリック VIF では、AWS は AS_PATH 長 3 以上で広告し、同一プレフィックスならホームリージョンを優先します。お客様のプライベート ASN は 7224 に置き換えられるため、プライベート ASN でのプリペンドは AWS の外では効きません。7224:1〜7224:65535 は予約済みです。",
+            ja: "パブリック VIF では、AWS は AS_PATH 長 3 以上で広告し、同一プレフィックスならホームリージョンを優先します。自社のプライベート ASN は 7224 に置き換えられるため、プライベート ASN でのプリペンドは AWS の外では効きません。7224:1〜7224:65535 は予約済みです。",
           }}
         />
       </p>

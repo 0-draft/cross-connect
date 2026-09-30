@@ -19,10 +19,10 @@ type PartId =
 
 const PARTS: Record<PartId, { name: L; body: L }> = {
   router: {
-    name: { en: "Customer router", ja: "お客様ルーター" },
+    name: { en: "Customer router", ja: "自社ルーター" },
     body: {
       en: "Your edge router. It must speak 802.1Q VLANs and BGP with MD5 authentication; BFD is optional but recommended. It terminates one BGP session per virtual interface.",
-      ja: "お客様側のエッジルーター。802.1Q VLAN と MD5 認証付き BGP が必須で、BFD は任意 (推奨)。仮想インターフェイス (VIF) ごとに 1 本の BGP セッションを張ります。",
+      ja: "自社のエッジルーター。802.1Q VLAN と MD5 認証付き BGP が必須で、BFD は任意 (推奨)。仮想インターフェイス (VIF) ごとに 1 本の BGP セッションを張ります。",
     },
   },
   carrier: {
@@ -33,17 +33,17 @@ const PARTS: Record<PartId, { name: L; body: L }> = {
     },
   },
   cage: {
-    name: { en: "Your cage / partner rack", ja: "お客様ケージ / パートナーラック" },
+    name: { en: "Your cage / partner rack", ja: "自社ケージ / パートナーラック" },
     body: {
       en: "Space in the colocation facility that belongs to you or your provider. A Direct Connect location is a third-party data center (Equinix, AT Tokyo, CoreSite…) where AWS also has routers.",
-      ja: "コロケーション施設内のお客様または事業者のスペース。Direct Connect ロケーションとは、AWS がルーターを置いている第三者のデータセンター (Equinix、AT東京、CoreSite など) のことです。",
+      ja: "コロケーション施設内の自社または事業者のスペース。Direct Connect ロケーションとは、AWS がルーターを置いている第三者のデータセンター (Equinix、AT東京、CoreSite など) のことです。",
     },
   },
   xc: {
     name: { en: "Cross connect", ja: "クロスコネクト" },
     body: {
       en: "A single-mode fiber patch between your port and the AWS port. You order it from the facility with the LOA-CFA that AWS issues. This short cable is the physical heart of Direct Connect, and the reason this site is called cross-connect.",
-      ja: "お客様ポートと AWS ポートをつなぐシングルモード光ファイバーのパッチ。AWS が発行する LOA-CFA を使って施設事業者に発注します。この数メートルのケーブルこそ Direct Connect の物理的な心臓部で、このサイト名の由来です。",
+      ja: "自社ポートと AWS ポートをつなぐシングルモード光ファイバーのパッチ。AWS が発行する LOA-CFA を使って施設事業者に発注します。この数メートルのケーブルこそ Direct Connect の物理的な心臓部で、このサイト名の由来です。",
     },
   },
   dxrouter: {
@@ -78,14 +78,14 @@ const PARTS: Record<PartId, { name: L; body: L }> = {
     name: { en: "VPCs", ja: "VPC" },
     body: {
       en: "Your private address space. Routes learned over Direct Connect are propagated into VPC route tables (or Transit Gateway route tables), and your VPC CIDRs are advertised back to your router over BGP.",
-      ja: "お客様のプライベートアドレス空間。Direct Connect で学習した経路は VPC ルートテーブル (または TGW ルートテーブル) に伝播し、逆に VPC の CIDR は BGP でお客様ルーターに広告されます。",
+      ja: "自社のプライベートアドレス空間。Direct Connect で学習した経路は VPC ルートテーブル (または TGW ルートテーブル) に伝播し、逆に VPC の CIDR は BGP で自社ルーターに広告されます。",
     },
   },
   public: {
     name: { en: "AWS public services", ja: "AWS パブリックサービス" },
     body: {
       en: "Public endpoints such as Amazon S3 and DynamoDB, reached over a public VIF using public IP addresses. AWS advertises its public prefixes to you; you advertise public prefixes you own.",
-      ja: "Amazon S3 や DynamoDB などのパブリックエンドポイント。パブリック VIF 経由でパブリック IP を使って到達します。AWS はパブリックプレフィックスを広告し、お客様は自分が保有するパブリックプレフィックスを広告します。",
+      ja: "Amazon S3 や DynamoDB などのパブリックエンドポイント。パブリック VIF 経由でパブリック IP を使って到達します。AWS はパブリックプレフィックスを広告し、自社が保有するパブリックプレフィックスを広告します。",
     },
   },
 };
@@ -98,20 +98,20 @@ const C = {
   },
   lead: {
     en: "AWS Direct Connect (DX) links your network to AWS over a standard Ethernet fiber in a colocation facility, then carries your traffic on the AWS backbone instead of the internet. Everything else — virtual interfaces, gateways, BGP — is built on that one cable.",
-    ja: "AWS Direct Connect (DX) は、コロケーション施設内の標準的なイーサネット光ファイバーでお客様のネットワークと AWS を接続し、その先はインターネットではなく AWS のバックボーンで通信を運びます。VIF もゲートウェイも BGP も、すべてこのケーブルの上に構築されます。",
+    ja: "AWS Direct Connect (DX) は、コロケーション施設内の標準的なイーサネット光ファイバーで自社のネットワークと AWS を接続し、その先はインターネットではなく AWS のバックボーンで通信を運びます。VIF もゲートウェイも BGP も、すべてこのケーブルの上に構築されます。",
   },
   diagramTitle: { en: "The end-to-end path", ja: "エンドツーエンドの経路" },
   compareTitle: {
     en: "Direct Connect vs Site-to-Site VPN vs the internet",
     ja: "Direct Connect / Site-to-Site VPN / インターネットの比較",
   },
-  premises: { en: "YOUR PREMISES", ja: "自社拠点" },
-  location: { en: "DIRECT CONNECT LOCATION", ja: "DIRECT CONNECT ロケーション" },
-  region: { en: "AWS REGION", ja: "AWS リージョン" },
+  premises: { en: "Your premises", ja: "自社拠点" },
+  location: { en: "Direct Connect location", ja: "Direct Connect ロケーション" },
+  region: { en: "AWS Region", ja: "AWS リージョン" },
   notEncTitle: { en: "Not encrypted by default", ja: "デフォルトでは暗号化されない" },
   notEnc: {
     en: "A private fiber is not an encrypted one. Add MACsec on the link (dedicated 10/100/400G) or run IPsec over the top if you need encryption in transit.",
-    ja: "専用線 = 暗号化ではありません。通信の暗号化が必要なら、リンク上の MACsec (専用 10/100/400G) か、その上での IPsec を追加します。",
+    ja: "閉域 ≠ 暗号化です。通信の暗号化が必要なら、リンク上の MACsec (専用 10/100/400G) か、その上での IPsec を追加します。",
   },
 };
 
@@ -301,9 +301,9 @@ export function PathDiagram() {
                 strokeWidth="2"
               />
               <text x="80" y="198" fontSize="12.5" textAnchor="middle" fill="var(--ink)">
-                router
+                {t({ en: "router", ja: "ルーター" })}
               </text>
-              <text x="80" y="214" fontSize="9.5" textAnchor="middle" fill="var(--muted)">
+              <text x="80" y="214" fontSize="11" textAnchor="middle" fill="var(--muted)">
                 BGP · 802.1Q
               </text>
             </Hotspot>
@@ -317,7 +317,7 @@ export function PathDiagram() {
                 textAnchor="middle"
                 fill={on("carrier") === "var(--fiber)" ? "var(--fiber)" : "var(--muted)"}
               >
-                carrier circuit
+                {t({ en: "carrier circuit", ja: "キャリア回線" })}
               </text>
             </Hotspot>
 
@@ -334,16 +334,10 @@ export function PathDiagram() {
                 strokeWidth="2"
               />
               <text x="310" y="195" fontSize="12.5" textAnchor="middle" fill="var(--ink)">
-                cage
+                {t({ en: "cage", ja: "ケージ" })}
               </text>
-              <text
-                x="310"
-                y="211"
-                fontSize="9.5"
-                textAnchor="middle"
-                fill="var(--muted)"
-              >
-                you / partner
+              <text x="310" y="211" fontSize="11" textAnchor="middle" fill="var(--muted)">
+                {t({ en: "you / partner", ja: "自社 / 事業者" })}
               </text>
             </Hotspot>
 
@@ -362,15 +356,9 @@ export function PathDiagram() {
                 textAnchor="middle"
                 fill="var(--fiber)"
               >
-                cross connect
+                {t({ en: "cross connect", ja: "クロスコネクト" })}
               </text>
-              <text
-                x="395"
-                y="276"
-                fontSize="9.5"
-                textAnchor="middle"
-                fill="var(--muted)"
-              >
+              <text x="395" y="276" fontSize="11" textAnchor="middle" fill="var(--muted)">
                 LOA-CFA · SMF
               </text>
             </Hotspot>
@@ -388,16 +376,10 @@ export function PathDiagram() {
                 strokeWidth="2"
               />
               <text x="495" y="192" fontSize="12.5" textAnchor="middle" fill="var(--aws)">
-                AWS DX router
+                {t({ en: "AWS DX router", ja: "AWS DX ルーター" })}
               </text>
-              <text
-                x="495"
-                y="208"
-                fontSize="9.5"
-                textAnchor="middle"
-                fill="var(--muted)"
-              >
-                1–400G port
+              <text x="495" y="208" fontSize="11" textAnchor="middle" fill="var(--muted)">
+                {t({ en: "1–400G port", ja: "1〜400G ポート" })}
               </text>
             </Hotspot>
 
@@ -439,7 +421,7 @@ export function PathDiagram() {
                 textAnchor="middle"
                 fill={active === "backbone" ? "var(--fiber)" : "var(--aws)"}
               >
-                AWS backbone
+                {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
               </text>
             </Hotspot>
 
@@ -458,13 +440,7 @@ export function PathDiagram() {
               <text x="750" y="194" fontSize="13.1" textAnchor="middle" fill="var(--ink)">
                 VGW / DXGW
               </text>
-              <text
-                x="750"
-                y="210"
-                fontSize="9.5"
-                textAnchor="middle"
-                fill="var(--muted)"
-              >
+              <text x="750" y="210" fontSize="11" textAnchor="middle" fill="var(--muted)">
                 TGW · Cloud WAN
               </text>
             </Hotspot>
@@ -484,13 +460,7 @@ export function PathDiagram() {
               <text x="915" y="112" fontSize="12.5" textAnchor="middle" fill="var(--ok)">
                 VPC
               </text>
-              <text
-                x="915"
-                y="128"
-                fontSize="9.5"
-                textAnchor="middle"
-                fill="var(--muted)"
-              >
+              <text x="915" y="128" fontSize="11" textAnchor="middle" fill="var(--muted)">
                 10.0.0.0/16
               </text>
             </Hotspot>
@@ -516,14 +486,8 @@ export function PathDiagram() {
               >
                 S3 · DynamoDB
               </text>
-              <text
-                x="915"
-                y="298"
-                fontSize="9.5"
-                textAnchor="middle"
-                fill="var(--muted)"
-              >
-                public IPs
+              <text x="915" y="298" fontSize="11" textAnchor="middle" fill="var(--muted)">
+                {t({ en: "public IPs", ja: "パブリック IP" })}
               </text>
             </Hotspot>
           </svg>
@@ -542,7 +506,7 @@ export function PathDiagram() {
               key={id}
               type="button"
               onClick={() => setActive(id)}
-              className={`rounded-full border px-2 py-0.5 text-xs ${
+              className={`min-h-8 rounded-full border-2 px-3 py-1 text-xs font-bold ${
                 active === id
                   ? "border-[var(--fiber)] text-[var(--fiber)]"
                   : "border-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)]"
@@ -573,7 +537,7 @@ export function Overview() {
           <T
             c={{
               en: "Think of a DX location as an airport. AWS runs the boarding gate (its router) and the flights (the backbone). Getting to the airport is up to you: your carrier circuit is the airport bus. People often assume AWS provides the whole line — it only starts at the gate.",
-              ja: "DX ロケーションは空港みたいなもの。AWS が担当するのは搭乗口 (AWS ルーター) と飛行機 (バックボーン) だけ。空港まではリムジンバス (キャリア回線) で自分で来てね。「AWS が回線を全部用意してくれる」と思われがちだけど、AWS の担当は搭乗口から先だけ。",
+              ja: "DX ロケーションは空港みたいなもの。AWS が担当するのは搭乗口 (AWS ルーター) と飛行機 (バックボーン) だけ。空港まではリムジンバス (キャリア回線) で自分で来てね。「AWS が回線を全部用意してくれる」と思われがちだけど、そこは自分の担当だよ。",
             }}
           />
         </HikariSays>

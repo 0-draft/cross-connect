@@ -28,17 +28,20 @@ export interface Plan {
 }
 
 const DEDICATED = [1, 10, 100, 400];
+const HOSTED_SUB_1G = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5];
 
 export function recommend(a: Answers): Plan {
   const resiliency: Resiliency = !a.production ? "dev" : a.needs9999 ? "maximum" : "high";
 
-  // Hosted tops out at 25G; below 1G only hosted exists. Above 400G per
-  // location you need a LAG (2 x 400G = 800G max).
+  if (!(a.gbps > 0)) throw new Error(`bandwidth must be positive, got ${a.gbps}`);
+
+  // Below 1G only hosted capacities exist (50–500 Mbps); round up to one.
+  // Above 400G per location you need a LAG (2 x 400G = 800G max).
   let connection: Conn;
   let portGbps: number;
-  if (a.gbps < 1) {
+  if (a.gbps <= 0.5) {
     connection = "hosted";
-    portGbps = a.gbps;
+    portGbps = HOSTED_SUB_1G.find((s) => s >= a.gbps) ?? 0.5;
   } else if (a.gbps > 400) {
     connection = "dedicated-lag";
     portGbps = 400;
