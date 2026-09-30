@@ -46,8 +46,8 @@ export const GLOSSARY: Entry[] = [
     en: "AWS Region",
     ja: "AWS リージョン",
     def: {
-      en: "Where your VPCs live. Each DX location is 'associated' with one Region, which AWS prefers by default when choosing paths — it is not a limit on reach.",
-      ja: "VPC が存在する場所。各 DX ロケーションは 1 つのリージョンに「関連付け」られていて、経路選択でそのリージョンが優先される。到達範囲の制限ではない。",
+      en: "Where your VPCs live. Each DX location is associated with one Region, and a Region prefers paths through its own associated locations by default. It is a preference, not a limit on reach.",
+      ja: "VPC が存在する場所。各 DX ロケーションは 1 つのリージョンに関連付けられ、リージョンはデフォルトで自分に関連付いたロケーション経由の経路を優先する。あくまで優先度で、到達範囲の制限ではない。",
     },
     see: "routing",
   },
@@ -94,7 +94,7 @@ export const GLOSSARY: Entry[] = [
     ja: "専用接続",
     def: {
       en: "A whole port on an AWS router (1/10/100/400 Gbps) ordered by you. Vendors sometimes call this 占有型; that is a marketing label, not an AWS term.",
-      ja: "AWS ルーターのポートを丸ごと使う接続 (1/10/100/400 Gbps)。お客様自身が発注する。ベンダーが「占有型」と呼ぶことがあるが AWS の用語ではない。",
+      ja: "AWS ルーターのポートを丸ごと使う接続 (1/10/100/400 Gbps)。自社が発注する。ベンダーが「占有型」と呼ぶことがあるが AWS の用語ではない。",
     },
     see: "connections",
   },
@@ -104,7 +104,7 @@ export const GLOSSARY: Entry[] = [
     ja: "ホスト接続",
     def: {
       en: "A slice of a partner's port (50 Mbps–25 Gbps) with its own AWS-policed capacity, handed to your account with exactly one VIF. Like renting a whole flat.",
-      ja: "パートナーのポートから切り出された帯域 (50 Mbps〜25 Gbps)。AWS がポリシングする専用帯域があり、VIF はちょうど 1 本。部屋を丸ごと借りるイメージ。",
+      ja: "パートナーのポートから切り出された帯域 (50 Mbps〜25 Gbps)。AWS が上限を制御する専用帯域があり、VIF はちょうど 1 本。部屋を丸ごと借りるイメージ。",
     },
     notTo: {
       id: "hosted-vif",
@@ -121,7 +121,7 @@ export const GLOSSARY: Entry[] = [
     ja: "ホスト仮想インターフェイス",
     def: {
       en: "A VIF that another account creates on its own connection and you accept. It shares that connection's bandwidth and can be oversubscribed.",
-      ja: "他のアカウントが自分の接続上に作成し、あなたが承認する VIF。その接続の帯域を共有するため、オーバーサブスクライブされ得る。",
+      ja: "他のアカウントが自分の接続上に作成し、自社側で承認する VIF。その接続の帯域を共有するため、他の利用者と帯域を奪い合うことがある。",
     },
     see: "connections",
   },
@@ -140,8 +140,8 @@ export const GLOSSARY: Entry[] = [
     en: "Direct Connect gateway",
     ja: "Direct Connect ゲートウェイ",
     def: {
-      en: "A global, free route reflector. It tells each side what the other side has, but never carries traffic between two VPCs or two VIFs on the same side.",
-      ja: "グローバルで無料のルートリフレクター。両側に相手側の経路を教えるが、同じ側の VPC 同士や VIF 同士の通信は運ばない。",
+      en: "A global, free route reflector outside the data path. It tells each side what the other side has; by design it does not forward VPC-to-VPC or VIF-to-VIF (a supernet you advertise can still hairpin traffic through your router).",
+      ja: "データ経路の外にある、グローバルで無料のルートリフレクター。両側に相手側の経路を教える。設計上 VPC 間・VIF 間の転送はしない (ただし自社が広告したスーパーネット経由で自社ルーターを折り返すことはある)。",
     },
     notTo: {
       id: "tgw",
@@ -167,8 +167,8 @@ export const GLOSSARY: Entry[] = [
     en: "Transit Gateway (TGW)",
     ja: "Transit Gateway",
     def: {
-      en: "A regional router hub for many VPCs. Reached from DX only through a transit VIF and a DX gateway.",
-      ja: "多数の VPC をつなぐリージョン単位のルーターハブ。DX からはトランジット VIF + DX ゲートウェイ経由でのみ到達できる。",
+      en: "A regional router hub for many VPCs. From DX it is reached natively through a transit VIF and a DX gateway (or with a Site-to-Site VPN over a public VIF).",
+      ja: "多数の VPC をつなぐリージョン単位のルーターハブ。DX からはトランジット VIF + DX ゲートウェイ経由で直接つながる (パブリック VIF 上の Site-to-Site VPN でも可)。",
     },
     see: "gateway",
   },

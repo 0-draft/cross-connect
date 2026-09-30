@@ -46,7 +46,7 @@ flowchart TD
 | 12 | Location vs Region | The associated Region is a default preference, not a reach limit; e.g. Equinix OS1 in Osaka is associated with Tokyo | [Remote Regions](https://docs.aws.amazon.com/directconnect/latest/UserGuide/remote_regions.html), [AWS JP blog](https://aws.amazon.com/jp/blogs/news/aws-direct-connect-osaka2-20250414/) | Overview backbone note, myth card |
 | 13 | LOA-CFA and who does what | Mistaken for a config value; it is a signed work permit the colo needs to patch a fiber into AWS's port | [AWS doc](https://docs.aws.amazon.com/directconnect/latest/UserGuide/Colocation.html), [Qiita](https://qiita.com/R61/items/feb00b25113c8a068c6a) | Ordering stepper with an owner per step, permit analogy |
 | 14 | LAG is not resiliency | The FAQ says a LAG does not make connectivity more resilient: one device, one location | [DX FAQ](https://aws.amazon.com/directconnect/faqs/) | LAG lab callout, myth card |
-| 15 | UP is not healthy | In the 2021-09-02 Tokyo DX incident, connections showed UP while dropping packets | [DevelopersIO](https://dev.classmethod.jp/articles/directconnect-redundantize/) | Resiliency callout, grey-failure step in troubleshooting |
+| 15 | UP is not healthy | In the 2021-09-02 Tokyo DX event, AWS-side devices misforwarded traffic into the Tokyo Region from every location for hours; VPN backup and DX to other Regions were unaffected. Location diversity alone did not help | [AWS event summary](https://aws.amazon.com/message/17908/), [DevelopersIO](https://dev.classmethod.jp/articles/directconnect-redundantize/) | Resiliency callout, grey-failure step in troubleshooting |
 | 16 | Invisible state | No BGP status or prefix metrics in CloudWatch until 2026-03-30; prefix overflow silently sends BGP Idle | [What's New](https://aws.amazon.com/about-aws/whats-new/2026/03/aws-direct-connect-cloudwatch-bgp-monitoring), [KC BGP down](https://repost.aws/knowledge-center/direct-connect-down-bgp) | Operations metrics table, troubleshooting tree |
 | 17 | MTU differs by VIF type | Private VIF 9001, transit VIF and TGW 8500; oversize packets drop and PMTUD can fail | [VIF doc](https://docs.aws.amazon.com/directconnect/latest/UserGuide/WorkingWithVirtualInterfaces.html) | MTU table and callout |
 | 18 | "Closed network = encrypted" (閉域 = 暗号化) | DX is plaintext by default; MACsec is hop-by-hop on dedicated ports only | [Encryption doc](https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html) | Encryption-layer diagram, myth card |
@@ -63,7 +63,7 @@ flowchart TD
 | VIF | Lanes painted on one road: each lane (VLAN) goes to a different destination | This site |
 | Hosted connection vs hosted VIF | Renting a whole flat vs renting a room in someone else's flat | NHN Techorus |
 | Allowed prefixes | VGW: a checkpoint that lets matching cars through. TGW: a signboard that announces exactly what is written on it | DevelopersIO |
-| DXGW | A switchboard operator that tells callers where to go, but never carries the call between two phones on its own side | This site |
+| DXGW | Directory assistance: it tells each side which numbers exist, but no call flows through it | This site |
 
 ## Official Japanese terms
 
@@ -116,3 +116,4 @@ The AWS Japanese documentation uses these terms, which the glossary on the site 
 - <https://zenn.dev/yama_1998/articles/02db97e12a61f5>
 - <https://zenn.dev/nttdata_tech/articles/2562c529df1c12>
 - <https://aws.amazon.com/jp/blogs/news/aws-direct-connect-osaka2-20250414/>
+- <https://aws.amazon.com/message/17908/>

@@ -213,8 +213,8 @@ export const EVENTS: { date: string; kind: Kind; text: L }[] = [
     date: "2026-06-01",
     kind: "connection",
     text: {
-      en: "VIF rate limiters (50 Mbps – 1.6 Tbps)",
-      ja: "VIF レートリミッター (50 Mbps〜1.6 Tbps)",
+      en: "VIF rate limiters: cap a VIF from 50 Mbps up to the connection or LAG capacity",
+      ja: "VIF レートリミッター: VIF ごとに 50 Mbps から接続 / LAG の容量まで上限を設定",
     },
   },
   {

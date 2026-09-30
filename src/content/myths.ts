@@ -59,8 +59,8 @@ export const MYTHS: Myth[] = [
     },
     truth: true,
     why: {
-      en: "Yes, through a Direct Connect gateway (any public Region except China). You pay the Frankfurt data-transfer rate.",
-      ja: "届く。Direct Connect ゲートウェイ経由なら中国以外のどのパブリックリージョンにも。データ転送はフランクフルト側の料金。",
+      en: "Yes, through a Direct Connect gateway (any public Region except China). Data out is priced by the pair: source Region group (Europe) and where the DX location is (Japan) — $0.06/GB.",
+      ja: "届く。Direct Connect ゲートウェイ経由なら中国以外のどのパブリックリージョンにも。データ転送料は送信元リージョン群 (欧州) と DX ロケーションの場所 (日本) の組み合わせで決まり、$0.06/GB。",
     },
   },
   {
@@ -104,7 +104,7 @@ export const MYTHS: Myth[] = [
     truth: false,
     why: {
       en: "A hosted connection has its own policed capacity; a hosted VIF is only a VIF on someone else's connection.",
-      ja: "ホスト接続は AWS がポリシングする専用帯域を持つ。ホスト VIF は他人の接続上の VIF にすぎない。",
+      ja: "ホスト接続は AWS が上限を制御する専用帯域を持つ。ホスト VIF は他人の接続上の VIF にすぎない。",
     },
   },
   {
