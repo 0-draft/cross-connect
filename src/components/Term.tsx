@@ -17,18 +17,18 @@ export function Term({ id, children }: { id: string; children?: ReactNode }) {
   const tipRef = useRef<HTMLSpanElement>(null);
   const [shift, setShift] = useState(0);
 
-  // Keep the tip inside the viewport: terms near the right edge would
-  // otherwise push the page sideways on phones.
+  // Keep the tip inside the viewport: place it under the term, then clamp
+  // its left edge so it neither spills off the right nor the left side.
   useLayoutEffect(() => {
-    if (!open || !tipRef.current) return;
-    const r = tipRef.current.getBoundingClientRect();
+    if (!open || !tipRef.current || !ref.current) return;
+    const anchor = ref.current.getBoundingClientRect().left;
+    const width = tipRef.current.offsetWidth;
     const margin = 16;
-    // Undo any shift left over from the previous opening before measuring.
-    const left = r.left - shift;
-    const over = r.right - shift - (window.innerWidth - margin);
-    setShift(over > 0 ? Math.max(-over, margin - left) : 0);
-    // Measure only when opening; the shift itself must not retrigger this.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // clientWidth, not innerWidth: on mobile the layout viewport can grow while
+    // the tip is still unclamped.
+    const maxLeft = document.documentElement.clientWidth - margin - width;
+    const target = Math.max(margin, Math.min(anchor, maxLeft));
+    setShift(target - anchor);
   }, [open]);
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export function Term({ id, children }: { id: string; children?: ReactNode }) {
           id={tipId}
           ref={tipRef}
           role="note"
-          style={{ transform: `translateX(${shift}px)` }}
+          style={{ left: shift }}
           className="sticker absolute top-full left-0 z-30 mt-2 block w-[min(20rem,80vw)] rounded-2xl border-2 border-[var(--fiber-soft)] bg-[var(--panel)] p-4 text-left text-sm leading-relaxed font-normal text-[var(--ink)]"
         >
           <span className="block font-display text-base font-semibold">{e.en}</span>
