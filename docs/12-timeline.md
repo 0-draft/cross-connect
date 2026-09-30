@@ -54,6 +54,7 @@ timeline
 | 2021-03-31 | MACsec on 10G and 100G dedicated connections | Line-rate L2 encryption | [What's New](https://aws.amazon.com/about-aws/whats-new/2021/03/aws-direct-connect-announces-macsec-encryption-for-dedicated-10gbps-and-100gbps-connections-at-select-locations/) |
 | 2021-12-01/02 | SiteLink | Site-to-site over the AWS backbone between DX locations | [What's New](https://aws.amazon.com/about-aws/whats-new/2021/12/aws-direct-connect-sitelink/), doc history |
 | 2022-06-22 | Private IP Site-to-Site VPN over DX transit VIF | IPsec over DX without public IPs | [What's New](https://aws.amazon.com/about-aws/whats-new/2022/06/aws-site-vpn-introduces-private-ip-security-privacy) |
+| 2022-08-08 | Transit VIFs on hosted connections of any speed (previously 1/2/5/10 Gbps only) | Sub-1G hosted connections can reach Transit Gateway directly | [What's New](https://aws.amazon.com/about-aws/whats-new/2022/08/aws-direct-connect-expands-transit-gateway-support-connection-speeds/) |
 | 2023-06-15 | SiteLink prefix limit documented | Scale guardrail | doc history |
 | 2023-12 | CloudWatch Network Monitor GA (later renamed Network Synthetic Monitor) | Packet loss and RTT over DX, plus the AWS Network Health Indicator | [What's New](https://aws.amazon.com/about-aws/whats-new/2023/12/amazon-cloudwatch-network-monitor-generally-available/) |
 | 2024-04-24 | 25 Gbps hosted connections | Hosted range becomes 50M to 25G | [What's New](https://aws.amazon.com/about-aws/whats-new/2024/04/aws-direct-connect-gbps-hosted-connection-capacities/) |

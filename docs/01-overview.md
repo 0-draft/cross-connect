@@ -80,7 +80,7 @@ The Direct Connect Resiliency Toolkit (the "Connection wizard" in the console) o
 | Development and Test | Separate connections on separate devices in one location | Not specified (for non-critical workloads) |
 | Classic | One-at-a-time ordering without the toolkit | 95%, no resiliency or redundancy |
 
-A campus (for example "Equinix DC1-DC6 & DC10-DC11") counts as a single Direct Connect location, so for high availability use different locations.
+Buildings that together form one Direct Connect location (for example Equinix DC2/DC11, or the Equinix SE2 and Digital Realty SEA10 sub-locations in one Seattle building) do not provide location-level diversity, so for high availability use different locations. Source: the footnotes on <https://aws.amazon.com/directconnect/locations/>.
 
 ## Pricing basics
 

@@ -10,6 +10,16 @@ _Last verified: 2026-09-30. SLA text last updated by AWS on 2026-07-24._
 - AWS does planned maintenance on DX devices. It is announced 14 days ahead (reminders at 7 days and 1 day) and runs in a window of up to 4 hours. Emergency maintenance can start right away and usually runs in a 2-hour window. If you have a single connection, your connectivity drops during that window.
 - AWS says it "will never schedule a planned maintenance event that will simultaneously take down your redundant connections". During planned maintenance it also drains traffic off the device being worked on, but only when you have a redundant path to drain onto.
 
+## Lesson from the 2021-09-02 Tokyo event
+
+On 2021-09-02 (JST 07:30–13:42), some AWS network devices in one layer between the Direct Connect locations and the Tokyo Region data centers stopped forwarding traffic correctly, but were not removed automatically. Customers saw intermittent connectivity and packet loss on DX traffic into ap-northeast-1 from every location. Site-to-Site VPN (used by some customers as DX backup), internet access to the Region, and DX traffic to other Regions were not affected. The cause was a latent defect in the device operating system triggered by a rare packet signature. Source: <https://aws.amazon.com/message/17908/>.
+
+Takeaways:
+
+- Location diversity protects against a building or device failure, not against a fault inside the AWS network path into one Region.
+- Keep a backup of a different kind (Site-to-Site VPN, or DX to another Region) for critical paths.
+- Watch for loss and latency (grey failures), not only link and BGP state; Network Synthetic Monitor helps here.
+
 ## Resiliency Toolkit models
 
 The Resiliency Toolkit is a connection wizard in the DX console. It orders the right number of dedicated connections, spreads them across devices and locations, and checks that they all have the same speed. It also names the connections, builds LAGs for speeds that are not native port speeds, and shows the SLA you can get plus the port-hour cost.

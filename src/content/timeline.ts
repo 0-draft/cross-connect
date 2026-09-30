@@ -131,6 +131,14 @@ export const EVENTS: { date: string; kind: Kind; text: L }[] = [
     },
   },
   {
+    date: "2022-08-08",
+    kind: "routing",
+    text: {
+      en: "Transit VIFs on hosted connections of any speed, including below 1G",
+      ja: "1G 未満を含む全速度のホスト接続でトランジット VIF が使えるように",
+    },
+  },
+  {
     date: "2023-12",
     kind: "ops",
     text: {

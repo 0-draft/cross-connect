@@ -55,7 +55,7 @@ A Direct Connect location is a colocation facility (for example Equinix, CoreSit
 - From any location in a public Region or GovCloud (US) you can reach public services in every other public Region with a public VIF, and VPCs in any public Region with a Direct Connect gateway. China (Beijing, Ningxia) is excluded.
 - Data transfer out of a remote Region is billed at that remote Region's DX data transfer rate.
 - AWS advises choosing the location and Region closest to your on-premises infrastructure to minimize cost, management overhead, and latency.
-- Some locations are campuses (for example "Equinix DC1-DC6 & DC10-DC11"). You can cross connect from any building of the campus, but a campus counts as one location for resiliency.
+- Some locations span several buildings or sub-locations (for example Equinix DC2/DC11, where the LOA names whichever building has capacity). The locations page states that such sub-locations "do not provide location-level diversity for maximum resiliency configurations".
 - Some locations have meet-me rooms on multiple floors; the console then offers a **Sub Location** (floor) choice.
 
 ### Speeds per location
