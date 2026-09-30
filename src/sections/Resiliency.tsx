@@ -250,17 +250,17 @@ function FailureLab() {
                       />
                       <rect
                         x={cx - devW / 2}
-                        y="150"
+                        y={narrow ? 144 : 150}
                         width={devW}
-                        height="36"
+                        height={narrow ? 48 : 36}
                         rx="6"
                         fill="var(--panel-2)"
                         stroke={color}
                       />
                       <text
                         x={cx}
-                        y="166"
-                        fontSize="11.2"
+                        y={narrow ? 164 : 166}
+                        fontSize={narrow ? 14 : 11.2}
                         textAnchor="middle"
                         fill="var(--ink)"
                       >
@@ -268,8 +268,8 @@ function FailureLab() {
                       </text>
                       <text
                         x={cx}
-                        y="179"
-                        fontSize="11.2"
+                        y={narrow ? 183 : 179}
+                        fontSize={narrow ? 14 : 11.2}
                         textAnchor="middle"
                         fill={color}
                       >
