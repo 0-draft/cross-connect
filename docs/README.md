@@ -16,3 +16,4 @@ Everything the site says is backed by these notes. Each page ends with the AWS d
 | 10 | [Pricing](10-pricing.md) | Port-hours, data transfer out, SiteLink, flat-rate pricing |
 | 11 | [Design patterns](11-design-patterns.md) | Topologies, anti-patterns, decision tree |
 | 12 | [Timeline](12-timeline.md) | Launches from 2011 to 2026 |
+| 13 | [Why DX is hard](13-why-dx-is-hard.md) | Confusion points with evidence, analogies, official Japanese terms |
