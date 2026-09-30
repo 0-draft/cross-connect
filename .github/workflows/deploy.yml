@@ -5,15 +5,14 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Only one deployment at a time, and a newer commit supersedes a queued one.
+# One deployment at a time. A running deploy is never cancelled mid-flight
+# (that can leave Pages half-applied); runs queued behind it are superseded.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   build:
@@ -36,6 +35,11 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    # Only this job needs to publish; the build job runs third-party install
+    # scripts and should not hold an OIDC token.
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
