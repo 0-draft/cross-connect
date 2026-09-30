@@ -229,54 +229,57 @@ function VerticalPath({
 }) {
   const { t } = useLang();
   return (
-    <ol className="relative space-y-3" aria-label={t(C.diagramTitle)}>
+    <div className="relative">
       <span
         aria-hidden="true"
-        className="absolute top-4 bottom-4 left-5 w-1 rounded-full bg-[var(--fiber)] opacity-40"
+        className="absolute top-4 bottom-4 left-[28px] w-1 rounded-full bg-[var(--fiber)] opacity-40"
       />
-      {ROUTE.map((z) => (
-        <li
-          key={z.zone.en}
-          className="relative rounded-2xl border-2 p-3"
-          style={{ borderColor: z.color }}
-        >
-          <p className="mb-2 pl-9 text-xs font-bold" style={{ color: z.color }}>
-            {t(z.zone)}
-          </p>
-          <ul className="space-y-1.5">
-            {z.parts.map((id) => (
-              <li key={id}>
-                <button
-                  type="button"
-                  aria-pressed={active === id}
-                  onClick={() => onPick(id)}
-                  className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-2 text-left text-sm font-bold ${
-                    active === id
-                      ? "bg-[var(--fiber-soft)] text-[var(--fiber)]"
-                      : "hover:bg-[var(--panel-2)]"
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className="h-4 w-4 shrink-0 rounded-full border-[3px] bg-[var(--panel)]"
-                    style={{ borderColor: active === id ? "var(--fiber)" : z.color }}
-                  />
-                  {t(PARTS[id].name)}
-                </button>
-                {active === id && (
-                  <p
-                    aria-live="polite"
-                    className="mt-1 mb-2 ml-9 text-sm leading-relaxed"
+      <ol className="space-y-3" aria-label={t(C.diagramTitle)}>
+        {ROUTE.map((z) => (
+          <li
+            key={z.zone.en}
+            className="relative rounded-2xl border-2 p-3"
+            style={{ borderColor: z.color }}
+          >
+            <p className="mb-2 pl-9 text-xs font-bold" style={{ color: z.color }}>
+              {t(z.zone)}
+            </p>
+            <ul className="space-y-1.5">
+              {z.parts.map((id) => (
+                <li key={id}>
+                  <button
+                    type="button"
+                    aria-expanded={active === id}
+                    aria-controls={`part-${id}`}
+                    onClick={() => onPick(id)}
+                    className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-2 text-left text-sm font-bold ${
+                      active === id
+                        ? "bg-[var(--fiber-soft)] text-[var(--fiber)]"
+                        : "hover:bg-[var(--panel-2)]"
+                    }`}
                   >
-                    {t(PARTS[id].body)}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </li>
-      ))}
-    </ol>
+                    <span
+                      aria-hidden="true"
+                      className="h-4 w-4 shrink-0 rounded-full border-[3px] bg-[var(--panel)]"
+                      style={{ borderColor: active === id ? "var(--fiber)" : z.color }}
+                    />
+                    {t(PARTS[id].name)}
+                  </button>
+                  {active === id && (
+                    <p
+                      id={`part-${id}`}
+                      className="mt-1 mb-2 ml-9 text-sm leading-relaxed"
+                    >
+                      {t(PARTS[id].body)}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 

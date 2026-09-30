@@ -100,7 +100,7 @@ function FailureLab() {
   const totalW = model.locations.length * locW + (model.locations.length - 1) * gap;
   const x0 = (W - totalW) / 2;
   const boxW = narrow ? 260 : 300;
-  const devW = narrow ? 62 : 84;
+  const devW = narrow ? 48 : 84;
 
   return (
     <Panel>
@@ -126,7 +126,7 @@ function FailureLab() {
       <Scroll>
         <svg
           viewBox={`0 0 ${W} 330`}
-          className={`diagram ${narrow ? "w-full" : "min-w-[640px]"}`}
+          className={`diagram ${narrow ? "mx-auto w-full max-w-[420px]" : "min-w-[640px]"}`}
           role="group"
           aria-label={t(C.lab)}
         >
@@ -139,13 +139,7 @@ function FailureLab() {
             fill="var(--panel-2)"
             stroke="var(--line)"
           />
-          <text
-            x={W / 2}
-            y="38"
-            fontSize={narrow ? 14 : 15}
-            textAnchor="middle"
-            fill="var(--ink)"
-          >
+          <text x={W / 2} y="38" fontSize="15" textAnchor="middle" fill="var(--ink)">
             {t({ en: "your data center(s)", ja: "自社データセンター" })}
           </text>
           <rect
@@ -157,13 +151,7 @@ function FailureLab() {
             fill="var(--panel-2)"
             stroke="var(--aws)"
           />
-          <text
-            x={W / 2}
-            y="302"
-            fontSize={narrow ? 12.5 : 15}
-            textAnchor="middle"
-            fill="var(--aws)"
-          >
+          <text x={W / 2} y="302" fontSize="15" textAnchor="middle" fill="var(--aws)">
             {t({
               en: "AWS Region · VPCs in 2+ AZs",
               ja: "AWS リージョン · VPC は 2 AZ 以上",
@@ -180,8 +168,8 @@ function FailureLab() {
                   tabIndex={0}
                   aria-pressed={dead}
                   aria-label={t({
-                    en: `DX location ${li + 1} failed`,
-                    ja: `DX ロケーション ${li + 1} を停止`,
+                    en: `Take DX location ${li + 1} down`,
+                    ja: `DX ロケーション ${li + 1} を停止する`,
                   })}
                   className="cursor-pointer"
                   onClick={() => setCutLocs((l) => flip(l, loc))}
@@ -260,7 +248,7 @@ function FailureLab() {
                       <text
                         x={cx}
                         y={narrow ? 164 : 166}
-                        fontSize={narrow ? 14 : 11.2}
+                        fontSize={narrow ? 15 : 11.2}
                         textAnchor="middle"
                         fill="var(--ink)"
                       >
@@ -269,7 +257,7 @@ function FailureLab() {
                       <text
                         x={cx}
                         y={narrow ? 183 : 179}
-                        fontSize={narrow ? 14 : 11.2}
+                        fontSize={narrow ? 15 : 11.2}
                         textAnchor="middle"
                         fill={color}
                       >
@@ -292,7 +280,7 @@ function FailureLab() {
 
                   x={x0 + li * (locW + gap) + 12}
                   y="120"
-                  fontSize="13.8"
+                  fontSize={narrow ? 15 : 13.8}
                   pointerEvents="none"
                   fill={dead ? "var(--bad)" : "var(--muted)"}
                 >
@@ -304,16 +292,17 @@ function FailureLab() {
           })}
         </svg>
       </Scroll>
-      <div aria-live="polite" className="mt-4 grid gap-4 sm:grid-cols-[auto_1fr]">
+      <div className="mt-4 grid gap-4 sm:grid-cols-[auto_1fr]">
         <div>
           <p
+            aria-live="polite"
             className="font-mono text-lg font-semibold"
             style={{ color: out.connected ? "var(--ok)" : "var(--bad)" }}
           >
             ● {t(out.connected ? C.connected : C.disconnected)}
-          </p>
-          <p className="font-mono text-sm text-[var(--muted)]">
-            {Math.round(out.capacity * 100)}% {t(C.capacity)}
+            <span className="block text-sm font-normal text-[var(--muted)]">
+              {Math.round(out.capacity * 100)}% {t(C.capacity)}
+            </span>
           </p>
           <p className="mt-2 flex flex-wrap gap-2">
             <Tag color="var(--fiber)">SLA {info.sla}</Tag>

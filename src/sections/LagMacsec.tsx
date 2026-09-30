@@ -154,7 +154,7 @@ function LagLab() {
       <Scroll>
         <svg
           viewBox={`0 0 ${W} ${h}`}
-          className={`diagram ${narrow ? "" : "min-w-[560px]"}`}
+          className={`diagram ${narrow ? "mx-auto w-full max-w-[420px]" : "min-w-[560px]"}`}
           role="group"
           aria-label={t(C.lagLab)}
         >
@@ -170,7 +170,7 @@ function LagLab() {
           <text
             x={rx0 + bw / 2}
             y="30"
-            fontSize="13.8"
+            fontSize={narrow ? 15 : 13.8}
             textAnchor="middle"
             fill="var(--muted)"
           >
@@ -179,7 +179,7 @@ function LagLab() {
           <text
             x={rx0 + bw / 2}
             y={50 + (n * rowH) / 2 + 10}
-            fontSize="13.8"
+            fontSize={narrow ? 15 : 13.8}
             textAnchor="middle"
             fill="var(--ink)"
           >
@@ -197,7 +197,7 @@ function LagLab() {
           <text
             x={ax0 + bw / 2}
             y="30"
-            fontSize="12.5"
+            fontSize={narrow ? 15 : 12.5}
             textAnchor="middle"
             fill="var(--aws)"
           >
@@ -206,7 +206,7 @@ function LagLab() {
           <text
             x={ax0 + bw / 2}
             y={50 + (n * rowH) / 2 + 10}
-            fontSize="13.8"
+            fontSize={narrow ? 15 : 13.8}
             textAnchor="middle"
             fill="var(--ink)"
           >
@@ -247,19 +247,33 @@ function LagLab() {
                   x2={ax0}
                   y1={y}
                   y2={y}
-                  stroke={isUp ? (live ? "var(--fiber)" : "var(--muted)") : "var(--bad)"}
-                  strokeWidth="3"
-                  className={live ? "flow" : undefined}
-                  strokeDasharray={isUp ? undefined : "2 8"}
+                  stroke={live ? "var(--ok)" : "var(--muted)"}
+                  strokeWidth={live ? 4 : 2}
+                  strokeDasharray={isUp ? undefined : "4 6"}
+                  opacity={isUp ? 1 : 0.6}
                 />
+                {!isUp && (
+                  <g>
+                    <circle cx={mid} cy={y} r="11" fill="var(--bad)" />
+                    <text
+                      x={mid}
+                      y={y + 5}
+                      fontSize="14"
+                      textAnchor="middle"
+                      fill="var(--on-accent)"
+                    >
+                      ✕
+                    </text>
+                  </g>
+                )}
                 <text
                   x={mid}
                   y={y - 8}
-                  fontSize="12.5"
+                  fontSize={narrow ? 15 : 12.5}
                   textAnchor="middle"
                   fill="var(--muted)"
                 >
-                  {speed}G #{i + 1} {isUp ? "" : "✕"}
+                  {speed}G #{i + 1}
                 </text>
               </g>
             );
@@ -311,91 +325,97 @@ function MacsecLab() {
         />
       </div>
       {narrow ? (
-        <svg
-          viewBox="0 0 340 380"
-          className="diagram w-full"
-          role="img"
-          aria-label={t(C.macLab)}
-        >
-          {/* top to bottom: router, DX device, Region; the IPsec bracket on the left */}
-          <rect
-            x="60"
-            y="10"
-            width="220"
-            height="50"
-            rx="10"
-            fill="var(--panel-2)"
-            stroke="var(--line)"
-          />
-          <text x="170" y="41" fontSize="15" textAnchor="middle" fill="var(--ink)">
-            {t({ en: "your router", ja: "自社ルーター" })}
-          </text>
-          <line
-            x1="170"
-            x2="170"
-            y1="60"
-            y2="170"
-            stroke={out.color}
-            strokeWidth="5"
-            className={out.color === "var(--bad)" ? undefined : "flow"}
-          />
-          <text x="182" y="105" fontSize="14" fill={out.color}>
-            MACsec (L2)
-          </text>
-          <text x="182" y="125" fontSize="13" fill={out.color}>
-            {t(out.label)}
-          </text>
-          <rect
-            x="60"
-            y="170"
-            width="220"
-            height="56"
-            rx="10"
-            fill="var(--panel-2)"
-            stroke="var(--aws)"
-          />
-          <text x="170" y="195" fontSize="15" textAnchor="middle" fill="var(--aws)">
-            {t({ en: "AWS DX device", ja: "AWS DX 機器" })}
-          </text>
-          <text x="170" y="214" fontSize="12" textAnchor="middle" fill="var(--muted)">
-            {t({ en: "DX location", ja: "DX ロケーション" })}
-          </text>
-          <line x1="170" x2="170" y1="226" y2="316" stroke="var(--aws)" strokeWidth="3" />
-          <text x="182" y="262" fontSize="13" fill="var(--muted)">
-            {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
-          </text>
-          <text x="182" y="281" fontSize="12" fill="var(--muted)">
-            {t({ en: "encrypted by AWS (L1)", ja: "AWS が物理層で暗号化" })}
-          </text>
-          <rect
-            x="60"
-            y="316"
-            width="220"
-            height="50"
-            rx="10"
-            fill="var(--panel-2)"
-            stroke="var(--aws)"
-          />
-          <text x="170" y="347" fontSize="15" textAnchor="middle" fill="var(--aws)">
-            {t({ en: "AWS Region", ja: "AWS リージョン" })}
-          </text>
-          <path
-            d="M60 35 H30 V341 H60"
-            fill="none"
-            stroke="var(--violet)"
-            strokeDasharray="4 4"
-          />
-          <text
-            x="20"
-            y="188"
-            fontSize="12"
-            textAnchor="middle"
-            fill="var(--violet)"
-            transform="rotate(-90 20 188)"
+        <div>
+          <svg
+            viewBox="0 0 340 400"
+            className="diagram mx-auto w-full max-w-[420px]"
+            role="img"
+            aria-label={t(C.macLab)}
           >
-            {t({ en: "IPsec / TLS: end-to-end", ja: "IPsec / TLS: 端から端まで" })}
-          </text>
-        </svg>
+            {/* top to bottom: router, DX device, Region; the IPsec bracket on the left */}
+            <rect
+              x="60"
+              y="10"
+              width="220"
+              height="50"
+              rx="10"
+              fill="var(--panel-2)"
+              stroke="var(--line)"
+            />
+            <text x="170" y="41" fontSize="15" textAnchor="middle" fill="var(--ink)">
+              {t({ en: "your router", ja: "自社ルーター" })}
+            </text>
+            <line
+              x1="170"
+              x2="170"
+              y1="60"
+              y2="170"
+              stroke={out.color}
+              strokeWidth="5"
+              className={out.color === "var(--bad)" ? undefined : "flow"}
+            />
+            <text x="182" y="105" fontSize="15" fill={out.color}>
+              MACsec (L2)
+            </text>
+            <rect
+              x="60"
+              y="170"
+              width="220"
+              height="56"
+              rx="10"
+              fill="var(--panel-2)"
+              stroke="var(--aws)"
+            />
+            <text x="170" y="195" fontSize="15" textAnchor="middle" fill="var(--aws)">
+              {t({ en: "AWS DX device", ja: "AWS DX 機器" })}
+            </text>
+            <text x="170" y="214" fontSize="15" textAnchor="middle" fill="var(--muted)">
+              {t({ en: "DX location", ja: "DX ロケーション" })}
+            </text>
+            <line
+              x1="170"
+              x2="170"
+              y1="226"
+              y2="316"
+              stroke="var(--aws)"
+              strokeWidth="3"
+            />
+            <text x="182" y="262" fontSize="15" fill="var(--muted)">
+              {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
+            </text>
+            <text x="182" y="281" fontSize="15" fill="var(--muted)">
+              {t({ en: "AWS encrypts (L1)", ja: "AWS が物理層で暗号化" })}
+            </text>
+            <rect
+              x="60"
+              y="316"
+              width="220"
+              height="50"
+              rx="10"
+              fill="var(--panel-2)"
+              stroke="var(--aws)"
+            />
+            <text x="170" y="347" fontSize="15" textAnchor="middle" fill="var(--aws)">
+              {t({ en: "AWS Region", ja: "AWS リージョン" })}
+            </text>
+            <path
+              d="M60 35 H30 V341 H60 M30 341 V372"
+              fill="none"
+              stroke="var(--violet)"
+              strokeDasharray="4 4"
+            />
+            <text x="30" y="392" fontSize="15" fill="var(--violet)">
+              {t({ en: "IPsec / TLS: end to end", ja: "IPsec / TLS: 端から端まで" })}
+            </text>
+          </svg>
+          <p
+            aria-live="polite"
+            className="mt-2 text-center text-sm font-bold"
+            style={{ color: out.color }}
+          >
+            MACsec: {t(out.label)}
+          </p>
+        </div>
       ) : (
         <Scroll>
           <svg

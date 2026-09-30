@@ -98,7 +98,7 @@ function ModeDiagram({ mode }: { mode: Mode }) {
     return (
       <svg
         viewBox="0 0 340 400"
-        className="diagram w-full"
+        className="diagram mx-auto w-full max-w-[420px]"
         role="img"
         aria-label={t(m.note)}
       >
@@ -128,7 +128,16 @@ function ModeDiagram({ mode }: { mode: Mode }) {
             </g>
           );
         })}
-        <text x="170" y="84" fontSize="12" textAnchor="middle" fill="var(--muted)">
+        <text
+          x="170"
+          y="84"
+          fontSize="15"
+          textAnchor="middle"
+          fill="var(--muted)"
+          paintOrder="stroke"
+          stroke="var(--panel)"
+          strokeWidth="6"
+        >
           {t(m.vif)}
         </text>
         <circle
@@ -142,7 +151,7 @@ function ModeDiagram({ mode }: { mode: Mode }) {
         <text x="170" y="148" fontSize="15" textAnchor="middle" fill="var(--fiber)">
           DXGW
         </text>
-        <text x="170" y="166" fontSize="11" textAnchor="middle" fill="var(--muted)">
+        <text x="170" y="166" fontSize="15" textAnchor="middle" fill="var(--muted)">
           ASN 64512
         </text>
         <path
@@ -175,7 +184,7 @@ function ModeDiagram({ mode }: { mode: Mode }) {
               <text
                 x="170"
                 y={y + 28}
-                fontSize="14"
+                fontSize="15"
                 textAnchor="middle"
                 fill="var(--ink)"
               >
@@ -402,7 +411,7 @@ function SiteLinkDiagram() {
       {narrow ? (
         <svg
           viewBox="0 0 340 300"
-          className="diagram w-full"
+          className="diagram mx-auto w-full max-w-[420px]"
           role="img"
           aria-label={t(on ? C.sitelinkOn : C.sitelinkOff)}
         >
@@ -431,7 +440,7 @@ function SiteLinkDiagram() {
               <text
                 x={Number(x) + 60}
                 y="38"
-                fontSize="14"
+                fontSize="15"
                 textAnchor="middle"
                 fill="var(--ink)"
               >
@@ -457,7 +466,7 @@ function SiteLinkDiagram() {
               <text
                 x={Number(x) + 60}
                 y="128"
-                fontSize="14"
+                fontSize="15"
                 textAnchor="middle"
                 fill="var(--fiber)"
               >
@@ -489,14 +498,14 @@ function SiteLinkDiagram() {
           <text
             x="170"
             y="170"
-            fontSize="12"
+            fontSize="15"
             textAnchor="middle"
             fill={on ? "var(--ok)" : "var(--bad)"}
           >
             {t(on ? C.slOn : C.slOff)}
           </text>
           <circle cx="170" cy="258" r="32" fill="var(--panel)" stroke="var(--fiber)" />
-          <text x="170" y="263" fontSize="14" textAnchor="middle" fill="var(--fiber)">
+          <text x="170" y="263" fontSize="15" textAnchor="middle" fill="var(--fiber)">
             DXGW
           </text>
         </svg>

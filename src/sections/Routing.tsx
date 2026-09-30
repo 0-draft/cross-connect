@@ -167,16 +167,20 @@ function PathRow({
 }) {
   const { t } = useLang();
   const isDx = p.kind === "dx";
+  const nameId = `path-${p.id}`;
   const sel =
     "rounded-full border border-[var(--line)] bg-[var(--panel-2)] px-1.5 py-1 font-mono text-xs";
   return (
     <div
-      className={`rounded-2xl border p-3 transition-colors ${
+      role="group"
+      aria-labelledby={nameId}
+      className={`rounded-2xl border-2 p-3 transition-colors ${
         win ? "border-[var(--ok)] bg-[var(--panel-2)]" : "border-[var(--line)]"
       } ${p.up ? "" : "opacity-60"}`}
     >
       <div className="mb-2 flex items-center justify-between gap-2">
         <span
+          id={nameId}
           className="font-mono text-sm font-semibold"
           style={{ color: isDx ? "var(--fiber)" : "var(--violet)" }}
         >
@@ -255,17 +259,111 @@ function PathRow({
   );
 }
 
+/** Phone drawing: VPC on top, on-prem at the bottom, the three paths between. */
+function NarrowPaths({
+  paths,
+  winners,
+  outPath,
+}: {
+  paths: Path[];
+  winners: string[];
+  outPath: string | null;
+}) {
+  const { t } = useLang();
+  const xs: Record<string, number> = { "DX-A": 60, "DX-B": 170, VPN: 280 };
+  return (
+    <svg
+      viewBox="0 0 340 330"
+      className="diagram mx-auto w-full max-w-[420px]"
+      role="img"
+      aria-label={t(C.lab)}
+    >
+      <rect
+        x="95"
+        y="6"
+        width="150"
+        height="50"
+        rx="10"
+        fill="var(--panel-2)"
+        stroke="var(--aws)"
+      />
+      <text x="170" y="28" fontSize="16" textAnchor="middle" fill="var(--aws)">
+        VPC
+      </text>
+      <text x="170" y="47" fontSize="14" textAnchor="middle" fill="var(--muted)">
+        {t({ en: "via VGW", ja: "VGW 経由" })}
+      </text>
+      <rect
+        x="95"
+        y="274"
+        width="150"
+        height="50"
+        rx="10"
+        fill="var(--panel-2)"
+        stroke="var(--line)"
+      />
+      <text x="170" y="296" fontSize="16" textAnchor="middle" fill="var(--ink)">
+        {t({ en: "on-prem", ja: "オンプレ" })}
+      </text>
+      <text x="170" y="315" fontSize="14" textAnchor="middle" fill="var(--muted)">
+        10.1.0.0/16
+      </text>
+      {paths.map((p) => {
+        const x = xs[p.id];
+        const win = winners.includes(p.id);
+        const color = !p.up ? "var(--bad)" : win ? "var(--ok)" : "var(--muted)";
+        return (
+          <g key={p.id}>
+            <path
+              d={`M170 56 C170 110 ${x} 110 ${x} 148 V182 C${x} 230 170 230 170 274`}
+              stroke={color}
+              strokeWidth={win ? 4 : 2}
+              fill="none"
+              strokeDasharray={p.up ? undefined : "3 6"}
+              className={win ? "flow" : undefined}
+              opacity={win || !p.up ? 1 : 0.5}
+            />
+            {outPath === p.id && (
+              <path
+                d={`M184 274 C184 236 ${x + 14} 236 ${x + 14} 182 V148 C${x + 14} 104 184 104 184 56`}
+                stroke="var(--violet)"
+                strokeWidth="2.5"
+                strokeDasharray="2 5"
+                fill="none"
+              />
+            )}
+            <rect
+              x={x - 44}
+              y="148"
+              width="88"
+              height="34"
+              rx="8"
+              fill="var(--panel)"
+              stroke={color}
+            />
+            <text x={x} y="171" fontSize="16" textAnchor="middle" fill={color}>
+              {p.id}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 function PathLab() {
   const { t } = useLang();
   const narrow = useNarrow();
-  // Labels grow on phones, where the drawing is scaled down to fit.
-  const fs = (n: number) => (narrow ? Math.round(n * (n >= 13 ? 1.6 : 1.25)) : n);
   const [paths, setPaths] = useState<Path[]>(INITIAL);
   const [outbound, setOutbound] = useState<string>("DX-A");
+  const [preset, setPreset] = useState<number | null>(0);
   const sel = selectPath(paths);
   const outPath = paths.find((p) => p.id === outbound && p.up) ? outbound : null;
   const asym = isAsymmetric(sel.winners, outPath);
-  const update = (np: Path) => setPaths((ps) => ps.map((p) => (p.id === np.id ? np : p)));
+  const update = (np: Path) => {
+    setPreset(null);
+    setPaths((ps) => ps.map((p) => (p.id === np.id ? np : p)));
+  };
   const ys: Record<string, number> = { "DX-A": 50, "DX-B": 130, VPN: 210 };
   const stepIndex = STEPS.findIndex((s) => s.id === sel.decidedBy);
 
@@ -273,12 +371,20 @@ function PathLab() {
     <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
       <div className="space-y-3">
         <div className="flex flex-wrap gap-1.5">
-          {PRESETS.map((pr) => (
+          {PRESETS.map((pr, i) => (
             <button
               key={pr.name.en}
               type="button"
-              onClick={() => setPaths(pr.paths)}
-              className="rounded-full border border-[var(--line)] px-3 py-1 text-xs hover:border-[var(--fiber)]"
+              aria-pressed={preset === i}
+              onClick={() => {
+                setPaths(pr.paths);
+                setPreset(i);
+              }}
+              className={`min-h-8 rounded-full border-2 px-3 py-1 text-xs font-bold ${
+                preset === i
+                  ? "border-[var(--fiber)] bg-[var(--fiber-soft)] text-[var(--fiber)]"
+                  : "border-[var(--line)] hover:border-[var(--fiber)]"
+              }`}
             >
               {t(pr.name)}
             </button>
@@ -288,101 +394,93 @@ function PathLab() {
           <PathRow key={p.id} p={p} win={sel.winners.includes(p.id)} onChange={update} />
         ))}
       </div>
-      <Panel className="p-3 sm:p-4">
-        <svg
-          viewBox="0 0 520 240"
-          className="diagram w-full"
-          role="img"
-          aria-label={t(C.lab)}
-        >
-          <rect
-            x="10"
-            y="100"
-            width="100"
-            height="60"
-            rx="8"
-            fill="var(--panel-2)"
-            stroke="var(--aws)"
-          />
-          <text x="60" y="126" fontSize={fs(13.8)} textAnchor="middle" fill="var(--aws)">
-            VPC
-          </text>
-          <text
-            x="60"
-            y="142"
-            fontSize={fs(11.2)}
-            textAnchor="middle"
-            fill="var(--muted)"
+      <Panel className="order-first p-3 sm:p-4 lg:order-none">
+        {narrow ? (
+          <NarrowPaths paths={paths} winners={sel.winners} outPath={outPath} />
+        ) : (
+          <svg
+            viewBox="0 0 520 240"
+            className="diagram w-full"
+            role="img"
+            aria-label={t(C.lab)}
           >
-            {t({ en: "via VGW", ja: "VGW 経由" })}
-          </text>
-          <rect
-            x="410"
-            y="100"
-            width="100"
-            height="60"
-            rx="8"
-            fill="var(--panel-2)"
-            stroke="var(--line)"
-          />
-          <text x="460" y="126" fontSize={fs(13.8)} textAnchor="middle" fill="var(--ink)">
-            {t({ en: "on-prem", ja: "オンプレ" })}
-          </text>
-          <text
-            x="460"
-            y="142"
-            fontSize={fs(11.2)}
-            textAnchor="middle"
-            fill="var(--muted)"
-          >
-            10.1.0.0/16
-          </text>
-          {paths.map((p) => {
-            const y = ys[p.id];
-            const win = sel.winners.includes(p.id);
-            const color = !p.up ? "var(--bad)" : win ? "var(--ok)" : "var(--muted)";
-            return (
-              <g key={p.id}>
-                <path
-                  d={`M110 130 C170 130 170 ${y} 230 ${y} H300 C350 ${y} 350 130 410 130`}
-                  stroke={color}
-                  strokeWidth={win ? 4 : 2}
-                  fill="none"
-                  strokeDasharray={p.up ? undefined : "3 6"}
-                  className={win ? "flow" : undefined}
-                  opacity={win || !p.up ? 1 : 0.5}
-                />
-                {outPath === p.id && (
+            <rect
+              x="10"
+              y="100"
+              width="100"
+              height="60"
+              rx="8"
+              fill="var(--panel-2)"
+              stroke="var(--aws)"
+            />
+            <text x="60" y="126" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
+              VPC
+            </text>
+            <text x="60" y="142" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
+              {t({ en: "via VGW", ja: "VGW 経由" })}
+            </text>
+            <rect
+              x="410"
+              y="100"
+              width="100"
+              height="60"
+              rx="8"
+              fill="var(--panel-2)"
+              stroke="var(--line)"
+            />
+            <text x="460" y="126" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
+              {t({ en: "on-prem", ja: "オンプレ" })}
+            </text>
+            <text x="460" y="142" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
+              10.1.0.0/16
+            </text>
+            {paths.map((p) => {
+              const y = ys[p.id];
+              const win = sel.winners.includes(p.id);
+              const color = !p.up ? "var(--bad)" : win ? "var(--ok)" : "var(--muted)";
+              return (
+                <g key={p.id}>
                   <path
-                    d={`M410 ${140} C350 ${140} 350 ${y + 10} 300 ${y + 10} H230 C170 ${y + 10} 170 140 110 140`}
-                    stroke="var(--violet)"
-                    strokeWidth="2.5"
-                    strokeDasharray="2 5"
+                    d={`M110 130 C170 130 170 ${y} 230 ${y} H300 C350 ${y} 350 130 410 130`}
+                    stroke={color}
+                    strokeWidth={win ? 4 : 2}
                     fill="none"
+                    strokeDasharray={p.up ? undefined : "3 6"}
+                    className={win ? "flow" : undefined}
+                    opacity={win || !p.up ? 1 : 0.5}
                   />
-                )}
-                <rect
-                  x="225"
-                  y={y - 14}
-                  width="80"
-                  height="28"
-                  rx="6"
-                  fill="var(--panel)"
-                  stroke={color}
-                />
-                <text
-                  x="265"
-                  y={y + 4}
-                  fontSize={fs(13.8)}
-                  textAnchor="middle"
-                  fill={color}
-                >
-                  {p.id}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
+                  {outPath === p.id && (
+                    <path
+                      d={`M410 ${140} C350 ${140} 350 ${y + 10} 300 ${y + 10} H230 C170 ${y + 10} 170 140 110 140`}
+                      stroke="var(--violet)"
+                      strokeWidth="2.5"
+                      strokeDasharray="2 5"
+                      fill="none"
+                    />
+                  )}
+                  <rect
+                    x="225"
+                    y={y - 14}
+                    width="80"
+                    height="28"
+                    rx="6"
+                    fill="var(--panel)"
+                    stroke={color}
+                  />
+                  <text
+                    x="265"
+                    y={y + 4}
+                    fontSize="13.8"
+                    textAnchor="middle"
+                    fill={color}
+                  >
+                    {p.id}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        )}
         <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs">
           <span className="flex items-center gap-2">
             <span aria-hidden="true" className="h-1 w-6 rounded bg-[var(--ok)]" />
@@ -425,23 +523,25 @@ function PathLab() {
               ))}
             </select>
           </div>
-          {asym ? (
-            <div className="mt-3 flex items-start gap-2 rounded-2xl bg-[var(--bad-soft)] p-3 text-sm">
-              <Hikari mood="worried" size={40} className="shrink-0" />
-              <p>
-                <strong className="text-[var(--bad)]">{t(C.asymTitle)}</strong>{" "}
-                {t(C.asym)}
-              </p>
-            </div>
-          ) : (
-            sel.winners.length > 0 &&
-            outPath && (
-              <p className="mt-3 flex items-center gap-2 text-sm text-[var(--ok)]">
-                <Hikari mood="happy" size={32} />
-                {t(sel.winners.length > 1 ? C.ecmp : C.sym)}
-              </p>
-            )
-          )}
+          <div aria-live="polite">
+            {asym ? (
+              <div className="mt-3 flex items-start gap-2 rounded-2xl bg-[var(--bad-soft)] p-3 text-sm">
+                <Hikari mood="worried" size={40} className="shrink-0" />
+                <p>
+                  <strong className="text-[var(--bad)]">{t(C.asymTitle)}</strong>{" "}
+                  {t(C.asym)}
+                </p>
+              </div>
+            ) : (
+              sel.winners.length > 0 &&
+              outPath && (
+                <p className="mt-3 flex items-center gap-2 text-sm text-[var(--ok)]">
+                  <Hikari mood="happy" size={32} />
+                  {t(sel.winners.length > 1 ? C.ecmp : C.sym)}
+                </p>
+              )
+            )}
+          </div>
           <p className="mt-3 mb-1 text-sm font-bold text-[var(--muted)]">{t(C.order)}</p>
           <ol className="space-y-1 text-sm">
             {STEPS.map((s, i) => (

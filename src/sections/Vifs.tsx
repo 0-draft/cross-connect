@@ -118,24 +118,45 @@ const LANE_DEST: Record<Vif, L[]> = {
 function VifLanes({ vif }: { vif: Vif }) {
   const { t } = useLang();
   return (
-    <ol className="space-y-2" aria-label={t(INFO[vif].what)}>
-      {(["private", "public", "transit"] as Vif[]).map((v, i) => (
-        <li
-          key={v}
-          className="rounded-2xl border-2 p-3 transition-opacity"
-          style={{ borderColor: COLOR[v], opacity: v === vif ? 1 : 0.4 }}
-        >
-          <p className="font-mono text-sm font-bold" style={{ color: COLOR[v] }}>
-            VLAN {101 + i} · {v} VIF
-          </p>
-          <ul className="mt-1 space-y-0.5 text-sm">
-            {LANE_DEST[v].map((d) => (
-              <li key={d.en}>{t(d)}</li>
-            ))}
-          </ul>
-        </li>
-      ))}
-    </ol>
+    <div>
+      <p className="mb-2 flex flex-wrap items-center gap-1.5 text-sm font-bold">
+        <span className="rounded-full bg-[var(--panel-2)] px-2.5 py-0.5">
+          {t({ en: "your router", ja: "自社ルーター" })}
+        </span>
+        →
+        <span className="rounded-full bg-[var(--panel-2)] px-2.5 py-0.5">
+          {t({ en: "1 connection (802.1Q)", ja: "接続 1 本 (802.1Q)" })}
+        </span>
+        →
+      </p>
+      <ol className="space-y-2" aria-label={t(INFO[vif].what)}>
+        {(["private", "public", "transit"] as Vif[]).map((v, i) => (
+          <li
+            key={v}
+            aria-current={v === vif ? "true" : undefined}
+            className="rounded-2xl border-2 p-3 transition-colors"
+            style={{
+              borderColor: v === vif ? COLOR[v] : "var(--line)",
+              background: v === vif ? "var(--panel-2)" : "transparent",
+            }}
+          >
+            <p className="font-mono text-sm font-bold" style={{ color: COLOR[v] }}>
+              VLAN {101 + i} · {v} VIF
+            </p>
+            <ul
+              className={`mt-1 space-y-0.5 text-sm ${v === vif ? "" : "text-[var(--muted)]"}`}
+            >
+              {LANE_DEST[v].map((d) => (
+                <li key={d.en}>{t(d)}</li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-3 text-sm font-bold" style={{ color: COLOR[vif] }}>
+        {t(INFO[vif].what)}
+      </p>
+    </div>
   );
 }
 

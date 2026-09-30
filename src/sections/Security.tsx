@@ -92,70 +92,79 @@ function LayerDiagram() {
           />
           <svg
             viewBox="0 0 340 360"
-            className="diagram mt-3 w-full"
+            className="diagram mx-auto mt-3 w-full max-w-[420px]"
             role="img"
             aria-label={t(C.layers)}
           >
             {(() => {
-              // Map the horizontal path positions (60..890) onto a vertical axis.
+              // Map the horizontal path positions (60..890) onto a vertical axis,
+              // then draw every layer as its own vertical pill so their reach
+              // can be compared, as on the wide layout.
               const y = (x: number) => 20 + ((x - 60) / 830) * 320;
-              const l = LAYERS[focus];
+              const order: Layer[] = ["macsec", "ipsec", "tls"];
               return (
                 <g>
                   <line
-                    x1="60"
-                    x2="60"
+                    x1="30"
+                    x2="30"
                     y1={y(60)}
                     y2={y(890)}
                     stroke="var(--line)"
                     strokeWidth="3"
                   />
                   <line
-                    x1="60"
-                    x2="60"
+                    x1="30"
+                    x2="30"
                     y1={y(150)}
                     y2={y(450)}
                     stroke="var(--fiber)"
                     strokeWidth="4"
                   />
                   <line
-                    x1="60"
-                    x2="60"
+                    x1="30"
+                    x2="30"
                     y1={y(450)}
                     y2={y(790)}
                     stroke="var(--aws)"
                     strokeWidth="4"
                   />
-                  <rect
-                    x="36"
-                    y={y(l.from) - 8}
-                    width="48"
-                    height={y(l.to) - y(l.from) + 16}
-                    rx="24"
-                    fill={l.color}
-                    opacity="0.22"
-                    stroke={l.color}
-                    strokeWidth="2.5"
-                  />
+                  {order.map((k, i) => {
+                    const l = LAYERS[k];
+                    const on = k === focus;
+                    return (
+                      <rect
+                        key={k}
+                        x={56 + i * 26}
+                        y={y(l.from) - 8}
+                        width="18"
+                        height={y(l.to) - y(l.from) + 16}
+                        rx="9"
+                        fill={l.color}
+                        opacity={on ? 0.9 : 0.25}
+                        stroke={l.color}
+                        strokeWidth={on ? 0 : 1.5}
+                      />
+                    );
+                  })}
                   {nodes.map(([x, label]) => (
                     <g key={label}>
                       <circle
-                        cx="60"
+                        cx="30"
                         cy={y(x)}
                         r="8"
                         fill="var(--panel)"
                         stroke="var(--ink)"
                         strokeWidth="2"
                       />
-                      <text x="100" y={y(x) + 5} fontSize="15" fill="var(--ink)">
+                      <text x="146" y={y(x) + 5} fontSize="15" fill="var(--ink)">
                         {label}
                       </text>
                     </g>
                   ))}
                   <text
-                    x="100"
-                    y={(y(150) + y(450)) / 2 + 5}
-                    fontSize="12"
+                    x="146"
+                    y={(y(150) + y(450)) / 2 + 2}
+                    fontSize="15"
                     fill="var(--fiber)"
                   >
                     {t({
@@ -164,12 +173,20 @@ function LayerDiagram() {
                     })}
                   </text>
                   <text
-                    x="100"
-                    y={(y(450) + y(790)) / 2 + 5}
-                    fontSize="12"
+                    x="146"
+                    y={(y(450) + y(790)) / 2 - 6}
+                    fontSize="15"
                     fill="var(--aws)"
                   >
                     {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
+                  </text>
+                  <text
+                    x="146"
+                    y={(y(450) + y(790)) / 2 + 14}
+                    fontSize="15"
+                    fill="var(--muted)"
+                  >
+                    {t({ en: "encrypted by AWS (L1)", ja: "AWS が物理層で暗号化" })}
                   </text>
                 </g>
               );
@@ -373,7 +390,7 @@ export function Security() {
               {PICK.map(([need, pick]) => (
                 <tr key={need.en} className="border-b border-[var(--line)] align-top">
                   <td className="py-2.5 pr-4">{t(need)}</td>
-                  <td className="py-2.5 font-mono whitespace-nowrap text-[var(--fiber)]">
+                  <td className="py-2.5 font-mono text-[var(--fiber)] sm:whitespace-nowrap">
                     {pick}
                   </td>
                 </tr>

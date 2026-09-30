@@ -92,11 +92,11 @@ describe("App", () => {
       const overview = document.querySelector("section#overview") as HTMLElement;
       const xc = within(overview).getByRole("button", {
         name: "Cross connect",
-        pressed: true,
+        expanded: true,
       });
       expect(within(overview).getByText(/single-mode fiber patch/)).toBeInTheDocument();
       await userEvent.click(within(overview).getByRole("button", { name: "VPCs" }));
-      expect(xc).toHaveAttribute("aria-pressed", "false");
+      expect(xc).toHaveAttribute("aria-expanded", "false");
       expect(
         within(overview).getByText(/Your private address space/),
       ).toBeInTheDocument();

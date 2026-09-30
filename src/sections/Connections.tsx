@@ -74,7 +74,9 @@ function SpeedLadder() {
   if (narrow)
     return (
       <Panel>
-        <p className="mb-3 text-xs font-bold text-[var(--muted)]">{t(C.speeds)}</p>
+        <p className="mb-3 text-xs font-bold text-[var(--muted)]">
+          {t({ en: "Available speeds", ja: "提供帯域" })}
+        </p>
         {rows.map(([label, speeds, color]) => (
           <div key={label.en} className="mb-3">
             <p className="mb-1.5 text-sm font-bold" style={{ color }}>
@@ -93,6 +95,12 @@ function SpeedLadder() {
             </p>
           </div>
         ))}
+        <p className="text-xs text-[var(--muted)]">
+          {t({
+            en: "400G: US locations only. 25G hosted: only where 100G ports exist.",
+            ja: "400G は米国のロケーションのみ。ホスト接続 25G は 100G ポートがある拠点のみ。",
+          })}
+        </p>
       </Panel>
     );
   return (
