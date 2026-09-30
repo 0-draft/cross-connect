@@ -21,7 +21,9 @@ export function Term({ id, children }: { id: string; children?: ReactNode }) {
   // its left edge so it neither spills off the right nor the left side.
   useLayoutEffect(() => {
     if (!open || !tipRef.current || !ref.current) return;
-    const anchor = ref.current.getBoundingClientRect().left;
+    // A wrapped term has several line boxes; the tip hangs off the first.
+    const anchor =
+      ref.current.getClientRects()[0]?.left ?? ref.current.getBoundingClientRect().left;
     const width = tipRef.current.offsetWidth;
     const margin = 16;
     // clientWidth, not innerWidth: on mobile the layout viewport can grow while

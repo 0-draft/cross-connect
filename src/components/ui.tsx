@@ -73,7 +73,7 @@ export function Section({
     <section
       id={id}
       aria-labelledby={`${id}-title`}
-      className="relative py-14 pl-11 sm:py-20 sm:pl-16"
+      className="relative py-14 pl-10 sm:py-20 sm:pl-16"
     >
       <span
         aria-hidden="true"
@@ -137,7 +137,7 @@ export function Panel({
 }) {
   return (
     <div
-      className={`sticker rounded-3xl border-2 border-[var(--line)] bg-[var(--panel)] p-5 sm:p-6 ${className}`}
+      className={`sticker rounded-3xl border-2 border-[var(--line)] bg-[var(--panel)] p-4 sm:p-6 ${className}`}
     >
       {children}
     </div>
@@ -182,7 +182,7 @@ export function Tag({ children, color }: { children: ReactNode; color?: string }
 
 /** Horizontally scrollable wrapper for wide diagrams and tables. */
 export function Scroll({ children }: { children: ReactNode }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const ref = useRef<HTMLDivElement>(null);
   const [overflows, setOverflows] = useState(false);
 
@@ -195,8 +195,11 @@ export function Scroll({ children }: { children: ReactNode }) {
     if (typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(check);
     ro.observe(el);
+    // Content can widen without the container resizing (language switch,
+    // late web fonts, a lab changing state).
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
     return () => ro.disconnect();
-  }, []);
+  }, [lang]);
 
   return (
     <div>
@@ -242,7 +245,7 @@ export function Segmented<V extends string>({
       role="radiogroup"
       aria-label={label}
       onKeyDown={onKeyDown}
-      className="inline-flex flex-wrap gap-1 rounded-full border-2 border-[var(--line)] bg-[var(--panel-2)] p-1"
+      className="flex w-full gap-1 rounded-2xl border-2 border-[var(--line)] bg-[var(--panel-2)] p-1 sm:inline-flex sm:w-auto sm:flex-wrap sm:rounded-full"
     >
       {options.map((o) => (
         <button
@@ -252,7 +255,7 @@ export function Segmented<V extends string>({
           aria-checked={value === o.value}
           tabIndex={value === o.value ? 0 : -1}
           onClick={() => onChange(o.value)}
-          className={`min-h-8 rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
+          className={`min-h-9 flex-1 rounded-xl px-2 py-1.5 text-sm leading-tight font-bold transition-colors sm:flex-none sm:rounded-full sm:px-3.5 ${
             value === o.value
               ? "bg-[var(--fiber)] text-[var(--on-accent)]"
               : "text-[var(--muted)] hover:bg-[var(--panel)] hover:text-[var(--ink)]"
