@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", "IBM Plex Sans JP", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  --color-fiber: #ff9f1c;
+  --color-aws: #4cc9f0;
+  --color-ok: #3ddc84;
+  --color-bad: #ff5d73;
+  --color-violet: #b79cff;
+}
+
+/* Theme tokens: light is the base, dark overrides. */
+:root {
+  --bg: #f6f4ef;
+  --panel: #ffffff;
+  --panel-2: #efece4;
+  --ink: #16181d;
+  --muted: #5b6070;
+  --line: #d9d4c7;
+  --grid: rgba(22, 24, 29, 0.05);
+  --fiber: #e07a00;
+  --aws: #0a84b8;
+  --ok: #138a4c;
+  --bad: #d12c47;
+  --violet: #6b4fd8;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0e13;
+    --panel: #11151c;
+    --panel-2: #171c25;
+    --ink: #e8e6e1;
+    --muted: #8d93a3;
+    --line: #262d3a;
+    --grid: rgba(232, 230, 225, 0.04);
+    --fiber: #ff9f1c;
+    --aws: #4cc9f0;
+    --ok: #3ddc84;
+    --bad: #ff5d73;
+    --violet: #b79cff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b0e13;
+  --panel: #11151c;
+  --panel-2: #171c25;
+  --ink: #e8e6e1;
+  --muted: #8d93a3;
+  --line: #262d3a;
+  --grid: rgba(232, 230, 225, 0.04);
+  --fiber: #ff9f1c;
+  --aws: #4cc9f0;
+  --ok: #3ddc84;
+  --bad: #ff5d73;
+  --violet: #b79cff;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+:lang(ja) body,
+html:lang(ja) {
+  font-feature-settings: "palt";
+}
+
+/* Light travelling down a fibre. */
+@keyframes flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.flow {
+  stroke-dasharray: 6 6;
+  animation: flow 0.8s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .flow {
+    animation: none;
+  }
+}
+
+.diagram text {
+  font-family: var(--font-mono);
+}
+
+/* Grid items default to min-width: auto, which lets a wide diagram push the
+   whole page sideways on phones. Diagrams scroll inside their own box. */
+.grid > * {
+  min-width: 0;
+}
