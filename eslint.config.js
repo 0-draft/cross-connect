@@ -1,11 +1,12 @@
 import js from "@eslint/js";
+import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 
-export default tseslint.config(
-  { ignores: ["dist", "node_modules", "coverage"] },
+export default defineConfig(
+  globalIgnores(["dist", "node_modules", "coverage"]),
   js.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   reactHooks.configs.flat.recommended,
@@ -29,8 +30,16 @@ export default tseslint.config(
     },
   },
   {
-    // Config files run in Node and sit outside the app's tsconfig project.
-    files: ["*.config.{js,ts}"],
+    // vite.config.ts runs in Node and is type-checked via tsconfig.node.json.
+    files: ["vite.config.ts"],
+    languageOptions: {
+      globals: globals.node,
+      parserOptions: { projectService: false, project: "./tsconfig.node.json" },
+    },
+  },
+  {
+    // Plain JS configs have no type information to lint against.
+    files: ["*.config.js"],
     languageOptions: { globals: globals.node },
     extends: [tseslint.configs.disableTypeChecked],
   },
