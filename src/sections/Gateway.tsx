@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, Segmented, T, Tag } from "../components/ui";
 import { parseCidr } from "../lib/cidr";
 import { type Association, advertised } from "../lib/dxgw";
@@ -185,7 +186,7 @@ function PrefixLab() {
   const v = parseCidr(vpc);
   const a = parseCidr(allowed);
   const inputCls =
-    "w-full rounded border border-[var(--line)] bg-[var(--panel-2)] px-3 py-2 font-mono text-sm";
+    "w-full rounded-full border border-[var(--line)] bg-[var(--panel-2)] px-3 py-2 font-mono text-sm";
 
   return (
     <Panel>
@@ -217,7 +218,7 @@ function PrefixLab() {
                 key={p}
                 type="button"
                 onClick={() => setAllowed(p)}
-                className="rounded border border-[var(--line)] px-2 py-0.5 font-mono text-xs text-[var(--muted)] hover:text-[var(--ink)]"
+                className="rounded-full border border-[var(--line)] px-2 py-0.5 text-xs font-bold text-[var(--muted)] hover:text-[var(--ink)]"
               >
                 {p}
               </button>
@@ -231,9 +232,9 @@ function PrefixLab() {
           return (
             <div
               key={kind}
-              className="rounded-lg border border-[var(--line)] bg-[var(--panel-2)] p-4"
+              className="rounded-2xl border border-[var(--line)] bg-[var(--panel-2)] p-4"
             >
-              <p className="mb-2 font-mono text-xs text-[var(--muted)]">
+              <p className="mb-2 text-xs font-bold text-[var(--muted)]">
                 {kind === "vgw" ? "VGW association" : "TGW association"} → {t(C.receives)}
               </p>
               <p className="font-mono text-lg">
@@ -421,7 +422,24 @@ export function Gateway() {
   const { t } = useLang();
   const [mode, setMode] = useState<Mode>("vgw");
   return (
-    <Section id="gateway" index="05" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="gateway"
+      index="05"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["aws", "routing"]}
+    >
+      <div className="mb-8 max-w-3xl">
+        <HikariSays mood="thinking">
+          <T
+            c={{
+              en: "A DX gateway is a switchboard operator, not a road. It tells each side what the other side has, but it never carries a call between two phones on the same side — no VPC-to-VPC, no VIF-to-VIF. And “allowed prefixes” changes job depending on who is behind it: a checkpoint for a VGW, a signboard for a Transit Gateway.",
+              ja: "DX ゲートウェイは道路じゃなくて電話交換手。両側に「相手側には何があるか」を教えるけど、同じ側どうしの電話はつながない (VPC 間も VIF 間もダメ)。そして「許可されたプレフィックス」は相手によって役割が変わる。VGW なら検問所、Transit Gateway なら看板。",
+            }}
+          />
+        </HikariSays>
+      </div>
       <h3 className="mb-2 text-xl font-semibold">{t(C.modes)}</h3>
       <p className="mb-4 text-sm text-[var(--muted)]">{t(C.modesNote)}</p>
       <div className="mb-4">

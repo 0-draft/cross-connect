@@ -245,7 +245,14 @@ export function Patterns() {
     ]);
 
   return (
-    <Section id="patterns" index="11" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="patterns"
+      index="11"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["aws", "routing", "money"]}
+    >
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel>
           <Yn
@@ -278,7 +285,7 @@ export function Patterns() {
             <select
               value={a.gbps}
               onChange={(e) => set("gbps", Number(e.target.value))}
-              className="rounded border border-[var(--line)] bg-[var(--panel-2)] px-2 py-1 font-mono text-sm"
+              className="rounded-full border border-[var(--line)] bg-[var(--panel-2)] px-2 py-1 font-mono text-sm"
             >
               {[0.2, 0.5, 1, 5, 10, 40, 100, 200, 400, 800].map((g) => (
                 <option key={g} value={g}>
@@ -312,9 +319,7 @@ export function Patterns() {
           />
         </Panel>
         <Panel className="border-[var(--fiber)]">
-          <p className="mb-4 font-mono text-xs text-[var(--fiber)] uppercase">
-            {t(C.plan)}
-          </p>
+          <p className="mb-4 text-sm font-bold text-[var(--fiber)]">{t(C.plan)}</p>
           <ul aria-live="polite" className="space-y-3">
             {lines.map(([k, v, color], i) => (
               <li
@@ -334,7 +339,7 @@ export function Patterns() {
         {ANTI.map(([bad, why]) => (
           <li
             key={bad.en}
-            className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-4"
+            className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4"
           >
             <p className="mb-1 font-semibold text-[var(--bad)]">✕ {t(bad)}</p>
             <p className="text-sm text-[var(--muted)]">{t(why)}</p>

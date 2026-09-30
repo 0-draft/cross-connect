@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, Segmented, T, Tag } from "../components/ui";
 import {
   MODELS,
@@ -38,7 +39,7 @@ const C = {
   slaTitle: { en: "SLA fine print", ja: "SLA の注意点" },
   sla: {
     en: "99.99% needs ≥ 4 connections in ≥ 2 locations (≥ 2 per location) on unique AWS devices, Enterprise Support and a Well-Architected Review; 99.9% needs ≥ 2 connections in ≥ 2 locations and Enterprise Support. 'Unavailable' means no traffic for 120 consecutive seconds. Hosted connections and hosted VIFs are not covered. A multi-building campus counts as one location.",
-    ja: "99.99% には 2 拠点以上に計 4 本以上 (拠点あたり 2 本以上)・全接続が別々の AWS 機器・Enterprise Support・Well-Architected レビューが必要。99.9% には 2 拠点以上に 2 本以上と Enterprise Support が必要。「利用不可」は 120 秒連続で通信できない状態。ホスト型接続とホスト型 VIF は対象外。複数棟のキャンパスは 1 ロケーション扱い。",
+    ja: "99.99% には 2 拠点以上に計 4 本以上 (拠点あたり 2 本以上)・全接続が別々の AWS 機器・Enterprise Support・Well-Architected レビューが必要。99.9% には 2 拠点以上に 2 本以上と Enterprise Support が必要。「利用不可」は 120 秒連続で通信できない状態。ホスト接続とホスト VIF は対象外。複数棟のキャンパスは 1 ロケーション扱い。",
   },
   detect: { en: "Detecting failure fast", ja: "障害を素早く検知する" },
   test: { en: "Prove it before it happens", ja: "本番障害の前に試す" },
@@ -110,7 +111,7 @@ function FailureLab() {
         <button
           type="button"
           onClick={() => pick(id)}
-          className="rounded border border-[var(--line)] px-3 py-1.5 text-sm text-[var(--muted)] hover:text-[var(--ink)]"
+          className="rounded-full border border-[var(--line)] px-3 py-1.5 text-sm text-[var(--muted)] hover:text-[var(--ink)]"
         >
           {t(C.reset)}
         </button>
@@ -292,9 +293,7 @@ function FailureLab() {
           </p>
         </div>
         <div className="text-sm">
-          <p className="mb-1 font-mono text-xs text-[var(--muted)] uppercase">
-            {t(C.survives)}
-          </p>
+          <p className="mb-1 text-sm font-bold text-[var(--muted)]">{t(C.survives)}</p>
           <ul className="space-y-0.5">
             {(
               [
@@ -365,7 +364,24 @@ const TEST: [string, L][] = [
 export function Resiliency() {
   const { t } = useLang();
   return (
-    <Section id="resiliency" index="07" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="resiliency"
+      index="07"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["physical", "ops"]}
+    >
+      <div className="mb-8 max-w-3xl">
+        <HikariSays mood="worried">
+          <T
+            c={{
+              en: "On 2021-09-02, a Direct Connect problem in Tokyo left connections showing UP while they dropped packets. Redundancy only helps if the backup path is truly separate — and if something notices the primary is sick. Build for a whole building failing, and test it.",
+              ja: "2021-09-02 の東京リージョンの Direct Connect 障害では、接続が UP 表示のままパケットを落としていた。冗長化が効くのは、予備の経路が本当に別物で、しかも主経路の不調に誰かが気づけるときだけ。建物ごと落ちる前提で組んで、ちゃんと試そう。",
+            }}
+          />
+        </HikariSays>
+      </div>
       <FailureLab />
       <div className="mt-6 max-w-3xl">
         <Callout tone="warn" title={C.slaTitle}>
@@ -384,7 +400,7 @@ export function Resiliency() {
             <dl className="space-y-4 text-sm">
               {items.map(([k, v]) => (
                 <div key={k}>
-                  <dt className="font-mono text-xs text-[var(--fiber)] uppercase">{k}</dt>
+                  <dt className="text-sm font-bold text-[var(--fiber)]">{k}</dt>
                   <dd className="mt-1 leading-relaxed">{t(v)}</dd>
                 </div>
               ))}

@@ -3,6 +3,7 @@ import type { L } from "../i18n/lang";
 export const UI = {
   navLabel: { en: "Sections", ja: "セクション" },
   language: { en: "Language", ja: "言語" },
+  route: { en: "All stops", ja: "もくじ" },
   clickHint: {
     en: "Click any part of the diagram.",
     ja: "図の各パーツをクリックすると解説が出ます。",

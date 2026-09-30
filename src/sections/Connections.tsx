@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, T, Tag } from "../components/ui";
 
 const C = {
@@ -11,18 +12,26 @@ const C = {
   },
   lead: {
     en: "A connection is the physical layer. Either AWS gives you a whole port on its router (dedicated), or a Direct Connect Delivery Partner carves a policed slice out of its own interconnect and hands it to your account (hosted).",
-    ja: "接続 (Connection) は物理レイヤーです。AWS ルーターのポートを丸ごと借りる「専用接続」か、Direct Connect Delivery Partner が自社の相互接続から帯域を切り出してお客様アカウントに渡す「ホスト型接続」かのどちらかです。",
+    ja: "接続 (Connection) は物理レイヤーです。AWS ルーターのポートを丸ごと借りる「専用接続」か、Direct Connect Delivery Partner が自社の相互接続から帯域を切り出してお客様アカウントに渡す「ホスト接続」かのどちらかです。",
   },
   speeds: { en: "Available speeds (log scale)", ja: "提供帯域 (対数スケール)" },
   dedicated: { en: "Dedicated", ja: "専用接続" },
-  hosted: { en: "Hosted", ja: "ホスト型接続" },
+  hosted: { en: "Hosted", ja: "ホスト接続" },
   ordering: { en: "Ordering a dedicated connection", ja: "専用接続の発注フロー" },
   physical: { en: "Physical and link requirements", ja: "物理・リンク要件" },
   mtu: { en: "MTU per VIF type", ja: "VIF 種別ごとの MTU" },
-  hvTitle: { en: "Hosted connection ≠ hosted VIF", ja: "ホスト型接続 ≠ ホスト型 VIF" },
+  hvTitle: {
+    en: "Hosted connection ≠ hosted VIF",
+    ja: "ホスト接続 ≠ ホスト仮想インターフェイス (ホスト型 VIF)",
+  },
   hv: {
     en: "A hosted connection has its own AWS-policed capacity and one VIF. A hosted VIF is just a VIF on someone else's connection with no capacity of its own, so it can be oversubscribed. AWS no longer accepts new partner integrations built on hosted VIFs; use hosted VIFs only to share your own dedicated connection with another of your accounts.",
-    ja: "ホスト型接続は AWS がポリシングする専用帯域と VIF 1 本を持ちます。ホスト型 VIF は他人の接続上に作られた VIF にすぎず、帯域の割り当てがないためオーバーサブスクライブされ得ます。AWS はホスト型 VIF ベースの新規パートナー統合を受け付けていません。自社の専用接続を自社の別アカウントに共有する用途に限りましょう。",
+    ja: "ホスト接続は AWS がポリシングする専用帯域と VIF 1 本を持ちます。ホスト仮想インターフェイス (ホスト型 VIF) は他人の接続上に作られた VIF にすぎず、帯域の割り当てがないためオーバーサブスクライブされ得ます。AWS はホスト VIF ベースの新規パートナー統合を受け付けていません。自社の専用接続を自社の別アカウントに共有する用途に限りましょう。",
+  },
+  jpTitle: { en: "If you are in Japan", ja: "日本で使うなら" },
+  jp: {
+    en: "Japan has five DX locations: Equinix TY2, AT Tokyo CC1 and NEC Inzai around Tokyo, Equinix OS1 and Telehouse OSAKA2 in Osaka (all 1G, 10G and 100G). Watch out: OS1 is associated with the Tokyo Region, OSAKA2 with the Osaka Region, which changes AWS's default path preference. Many companies reach DX through a carrier's closed-network service; DX is still inside it, and the carrier owns everything up to the AWS port.",
+    ja: "国内の DX ロケーションは 5 つ。東京近郊の Equinix TY2・AT東京 CC1・NEC 印西、大阪の Equinix OS1・Telehouse OSAKA2 (いずれも 1G / 10G / 100G)。注意: OS1 の関連リージョンは東京、OSAKA2 は大阪で、AWS がデフォルトで優先する経路が変わります。キャリアの閉域網サービス経由で使う会社も多いですが、その中身も DX で、AWS ポートまではキャリアの担当範囲です。",
   },
   jumboTitle: {
     en: "Jumbo frames take the connection down briefly",
@@ -52,7 +61,7 @@ function SpeedLadder() {
   ];
   return (
     <Panel>
-      <p className="mb-2 font-mono text-xs text-[var(--muted)]">{t(C.speeds)}</p>
+      <p className="mb-2 text-xs font-bold text-[var(--muted)]">{t(C.speeds)}</p>
       <Scroll>
         <svg
           viewBox="0 0 1000 170"
@@ -148,8 +157,19 @@ const TYPE_ROWS: { k: L; d: L; h: L }[] = [
   },
 ];
 
-const STEPS: { title: L; body: L; when: L }[] = [
+type Who = "you" | "aws" | "colo";
+const WHO: Record<Who, { label: L; color: string }> = {
+  you: { label: { en: "You do this", ja: "自社が行う" }, color: "var(--fiber)" },
+  aws: { label: { en: "AWS does this", ja: "AWS が行う" }, color: "var(--aws)" },
+  colo: {
+    label: { en: "The facility / carrier does this", ja: "施設事業者 / キャリアが行う" },
+    color: "var(--violet)",
+  },
+};
+
+const STEPS: { title: L; body: L; when: L; who: Who }[] = [
   {
+    who: "you",
     title: { en: "Request", ja: "リクエスト" },
     when: { en: "Day 0", ja: "0 日目" },
     body: {
@@ -158,6 +178,7 @@ const STEPS: { title: L; body: L; when: L }[] = [
     },
   },
   {
+    who: "aws",
     title: { en: "Port provisioning", ja: "ポート払い出し" },
     when: { en: "≤ 72 business hours", ja: "最大 72 営業時間" },
     body: {
@@ -166,6 +187,7 @@ const STEPS: { title: L; body: L; when: L }[] = [
     },
   },
   {
+    who: "aws",
     title: { en: "LOA-CFA", ja: "LOA-CFA" },
     when: { en: "Download", ja: "ダウンロード" },
     body: {
@@ -174,6 +196,7 @@ const STEPS: { title: L; body: L; when: L }[] = [
     },
   },
   {
+    who: "colo",
     title: { en: "Cross connect", ja: "クロスコネクト" },
     when: { en: "Within 90 days", ja: "90 日以内" },
     body: {
@@ -182,6 +205,7 @@ const STEPS: { title: L; body: L; when: L }[] = [
     },
   },
   {
+    who: "aws",
     title: { en: "Link up & billing", ja: "リンクアップと課金" },
     when: { en: "Day 90 at the latest", ja: "遅くとも 90 日目" },
     body: {
@@ -190,6 +214,7 @@ const STEPS: { title: L; body: L; when: L }[] = [
     },
   },
   {
+    who: "you",
     title: { en: "VIF + BGP", ja: "VIF + BGP" },
     when: { en: "Minutes", ja: "数分" },
     body: {
@@ -211,7 +236,7 @@ function Ordering() {
               type="button"
               aria-current={i === n ? "step" : undefined}
               onClick={() => setI(n)}
-              className={`w-full rounded-lg border px-2 py-2 text-left transition-colors ${
+              className={`w-full rounded-2xl border px-2 py-2 text-left transition-colors ${
                 i === n
                   ? "border-[var(--fiber)] bg-[var(--panel-2)]"
                   : n < i
@@ -228,7 +253,10 @@ function Ordering() {
         ))}
       </ol>
       <div aria-live="polite">
-        <Tag color="var(--fiber)">{t(STEPS[i].when)}</Tag>
+        <span className="flex flex-wrap gap-2">
+          <Tag color="var(--fiber)">{t(STEPS[i].when)}</Tag>
+          <Tag color={WHO[STEPS[i].who].color}>{t(WHO[STEPS[i].who].label)}</Tag>
+        </span>
         <p className="mt-2 leading-relaxed">{t(STEPS[i].body)}</p>
       </div>
     </Panel>
@@ -286,7 +314,24 @@ const MTU: [string, string, string, string][] = [
 export function Connections() {
   const { t } = useLang();
   return (
-    <Section id="connections" index="02" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="connections"
+      index="02"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["physical"]}
+    >
+      <div className="mb-8 max-w-3xl">
+        <HikariSays mood="thinking">
+          <T
+            c={{
+              en: "The LOA-CFA is not a setting you type anywhere. It is a signed work permit: “you may plug a fiber into AWS port X on patch panel Y.” You hand it to the building's staff (or your carrier), and they install the cross connect — not AWS.",
+              ja: "LOA-CFA はどこかに入力する設定値じゃないよ。「パッチパネル Y の AWS ポート X にファイバーを挿してよし」という署名入りの工事許可証。これを施設 (またはキャリア) に渡すと、AWS ではなく施設の人がクロスコネクトを敷設してくれる。",
+            }}
+          />
+        </HikariSays>
+      </div>
       <SpeedLadder />
       <div className="mt-6">
         <Scroll>
@@ -318,6 +363,12 @@ export function Connections() {
       <div className="mt-6 max-w-3xl">
         <Callout title={C.hvTitle}>
           <T c={C.hv} />
+        </Callout>
+      </div>
+
+      <div className="mt-6 max-w-3xl">
+        <Callout title={C.jpTitle}>
+          <T c={C.jp} />
         </Callout>
       </div>
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, T } from "../components/ui";
 import { UI } from "../content/ui";
 
@@ -21,7 +22,7 @@ const PARTS: Record<PartId, { name: L; body: L }> = {
     name: { en: "Customer router", ja: "お客様ルーター" },
     body: {
       en: "Your edge router. It must speak 802.1Q VLANs and BGP with MD5 authentication; BFD is optional but recommended. It terminates one BGP session per virtual interface.",
-      ja: "お客様側のエッジルーター。802.1Q VLAN と MD5 認証付き BGP が必須で、BFD は任意 (推奨)。仮想インターフェース (VIF) ごとに 1 本の BGP セッションを張ります。",
+      ja: "お客様側のエッジルーター。802.1Q VLAN と MD5 認証付き BGP が必須で、BFD は任意 (推奨)。仮想インターフェイス (VIF) ごとに 1 本の BGP セッションを張ります。",
     },
   },
   carrier: {
@@ -53,7 +54,7 @@ const PARTS: Record<PartId, { name: L; body: L }> = {
     },
   },
   vif: {
-    name: { en: "Virtual interfaces (VIFs)", ja: "仮想インターフェース (VIF)" },
+    name: { en: "Virtual interfaces (VIFs)", ja: "仮想インターフェイス (VIF)" },
     body: {
       en: "Logical channels on the connection: each VIF is one 802.1Q VLAN plus one BGP session. Private VIFs reach VPCs, public VIFs reach AWS public endpoints, transit VIFs reach Transit Gateway or Cloud WAN through a Direct Connect gateway.",
       ja: "接続上の論理チャネル。VIF は 802.1Q VLAN 1 本と BGP セッション 1 本の組。プライベート VIF は VPC へ、パブリック VIF は AWS のパブリックエンドポイントへ、トランジット VIF は Direct Connect ゲートウェイ経由で Transit Gateway / Cloud WAN へ届きます。",
@@ -131,7 +132,7 @@ const ROWS: { k: L; dx: L; vpn: L; net: L }[] = [
     k: { en: "Bandwidth", ja: "帯域" },
     dx: {
       en: "Dedicated 1/10/100/400 Gbps; hosted 50 Mbps–25 Gbps; LAG up to 800 Gbps",
-      ja: "専用 1/10/100/400 Gbps、ホスト型 50 Mbps〜25 Gbps、LAG で最大 800 Gbps",
+      ja: "専用 1/10/100/400 Gbps、ホスト接続 50 Mbps〜25 Gbps、LAG で最大 800 Gbps",
     },
     vpn: {
       en: "1.25 Gbps per tunnel; 5 Gbps Large Bandwidth Tunnels (TGW / Cloud WAN, Nov 2025)",
@@ -215,7 +216,7 @@ export function PathDiagram() {
   return (
     <div className="grid gap-4">
       <Panel className="p-3 sm:p-4">
-        <p className="mb-2 font-mono text-xs text-[var(--muted)]">
+        <p className="mb-2 text-xs font-bold text-[var(--muted)]">
           {t(C.diagramTitle)} — <T c={UI.clickHint} />
         </p>
         <Scroll>
@@ -529,7 +530,7 @@ export function PathDiagram() {
         </Scroll>
       </Panel>
       <Panel>
-        <p className="mb-1 font-mono text-xs text-[var(--fiber)] uppercase">
+        <p className="mb-1 text-sm font-bold text-[var(--fiber)]">
           {t(PARTS[active].name)}
         </p>
         <p aria-live="polite" className="leading-relaxed">
@@ -541,7 +542,7 @@ export function PathDiagram() {
               key={id}
               type="button"
               onClick={() => setActive(id)}
-              className={`rounded border px-2 py-0.5 text-xs ${
+              className={`rounded-full border px-2 py-0.5 text-xs ${
                 active === id
                   ? "border-[var(--fiber)] text-[var(--fiber)]"
                   : "border-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)]"
@@ -559,13 +560,30 @@ export function PathDiagram() {
 export function Overview() {
   const { t } = useLang();
   return (
-    <Section id="overview" index="01" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="overview"
+      index="01"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["physical", "routing", "aws"]}
+    >
+      <div className="mb-8 max-w-3xl">
+        <HikariSays mood="happy">
+          <T
+            c={{
+              en: "Think of a DX location as an airport. AWS runs the boarding gate (its router) and the flights (the backbone). Getting to the airport is up to you: your carrier circuit is the airport bus. People often assume AWS provides the whole line — it only starts at the gate.",
+              ja: "DX ロケーションは空港みたいなもの。AWS が担当するのは搭乗口 (AWS ルーター) と飛行機 (バックボーン) だけ。空港まではリムジンバス (キャリア回線) で自分で来てね。「AWS が回線を全部用意してくれる」と思われがちだけど、AWS の担当は搭乗口から先だけ。",
+            }}
+          />
+        </HikariSays>
+      </div>
       <PathDiagram />
       <h3 className="mt-14 mb-4 text-xl font-semibold">{t(C.compareTitle)}</h3>
       <Scroll>
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-[var(--line)] text-left font-mono text-xs text-[var(--muted)]">
+            <tr className="border-b border-[var(--line)] text-left text-xs font-bold text-[var(--muted)]">
               <th className="py-2 pr-4" />
               <th className="py-2 pr-4 text-[var(--fiber)]">Direct Connect</th>
               <th className="py-2 pr-4">Site-to-Site VPN</th>

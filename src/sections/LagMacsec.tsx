@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, Segmented, T, Tag } from "../components/ui";
 import {
   type MacsecMode,
@@ -131,7 +132,7 @@ function LagLab() {
           <select
             value={minLinks}
             onChange={(e) => setMinLinks(Number(e.target.value))}
-            className="rounded border border-[var(--line)] bg-[var(--panel-2)] px-2 py-1 font-mono"
+            className="rounded-full border border-[var(--line)] bg-[var(--panel-2)] px-2 py-1 font-mono"
           >
             {Array.from({ length: n + 1 }, (_, i) => (
               <option key={i} value={i}>
@@ -398,7 +399,24 @@ const KEYS: [string, L][] = [
 export function LagMacsec() {
   const { t } = useLang();
   return (
-    <Section id="lag-macsec" index="03" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="lag-macsec"
+      index="03"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["physical", "link"]}
+    >
+      <div className="mb-8 max-w-3xl">
+        <HikariSays mood="thinking">
+          <T
+            c={{
+              en: "A LAG is four lanes merged into one wide road — but it is still one bridge. If the bridge (the AWS device, or the building) goes, every lane goes with it. The Direct Connect FAQ says it outright: a LAG does not make your connectivity more resilient.",
+              ja: "LAG は 4 車線を束ねた広い道路。でも橋は 1 本のまま。橋 (AWS 機器や建物) が落ちたら全車線いっしょに止まる。Direct Connect の FAQ にもはっきり「LAG で冗長性は上がらない」と書いてあるよ。",
+            }}
+          />
+        </HikariSays>
+      </div>
       <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
         <div>
           <h3 className="mb-3 text-xl font-semibold">{t(C.lagLab)}</h3>
@@ -459,7 +477,7 @@ export function LagMacsec() {
             <T
               c={{
                 en: "XPN (64-bit packet numbers) is mandatory at 100G+, otherwise the 32-bit counter would force a rekey every few minutes. SCI must be on; dot1q-in-clear is not supported. Hosted connections cannot use MACsec.",
-                ja: "100G 以上では XPN (64 ビットのパケット番号) が必須。32 ビットだと数分ごとに鍵更新が必要になるため。SCI は必須、dot1q-in-clear は非対応。ホスト型接続では MACsec 不可。",
+                ja: "100G 以上では XPN (64 ビットのパケット番号) が必須。32 ビットだと数分ごとに鍵更新が必要になるため。SCI は必須、dot1q-in-clear は非対応。ホスト接続では MACsec 不可。",
               }}
             />
           </p>

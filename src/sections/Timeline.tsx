@@ -18,7 +18,7 @@ export function Timeline() {
   const [filter, setFilter] = useState<Kind | "all">("all");
   const shown = EVENTS.filter((e) => filter === "all" || e.kind === filter);
   return (
-    <Section id="timeline" index="12" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section id="timeline" index="13" kicker={C.kicker} title={C.title} lead={C.lead}>
       <div className="mb-6 flex flex-wrap gap-1.5" role="group" aria-label={t(C.kicker)}>
         {(["all", ...Object.keys(KIND_LABEL)] as (Kind | "all")[]).map((k) => (
           <button
@@ -49,7 +49,7 @@ export function Timeline() {
               style={{ background: KIND_COLOR[e.kind] }}
               aria-hidden="true"
             />
-            <time className="font-mono text-xs text-[var(--muted)]">{e.date}</time>
+            <time className="text-xs font-bold text-[var(--muted)]">{e.date}</time>
             <p className="mt-0.5">{t(e.text)}</p>
           </li>
         ))}

@@ -6,8 +6,10 @@ import {
   type Decision,
   type LocalPrefCommunity,
   type Path,
+  isAsymmetric,
   selectPath,
 } from "../lib/routing";
+import { Hikari, HikariSays } from "../components/Hikari";
 
 const C = {
   kicker: { en: "BGP & routing", ja: "BGP とルーティング" },
@@ -31,6 +33,23 @@ const C = {
   prepend: { en: "AS_PATH prepend", ja: "AS_PATH プリペンド" },
   home: { en: "location in VPC's Region", ja: "VPC と同じリージョンのロケーション" },
   winner: { en: "Traffic goes via", ja: "トラフィックの経路" },
+  outbound: {
+    en: "Your router sends outbound traffic via",
+    ja: "自社ルーターが行きの通信に使う経路",
+  },
+  asymTitle: { en: "Asymmetric!", ja: "非対称ルーティング!" },
+  asym: {
+    en: "Packets leave over one link and come back over another. A stateful firewall that sees only one direction will drop them. Make both sides agree: communities toward AWS, local preference on your router.",
+    ja: "行きと帰りで別の回線を通っています。片方向しか見えないステートフル FW は通信を落とします。AWS 向けにはコミュニティ、自社ルーターにはローカルプリファレンスで、両方の向きをそろえましょう。",
+  },
+  sym: {
+    en: "Both directions use the same path.",
+    ja: "行きも帰りも同じ経路。",
+  },
+  twoWays: {
+    en: "There are two directions and two deciders. AWS picks the way back to you from what you advertise (communities, prefix length, AS_PATH). Your own router picks the way to AWS with its local preference. Change one and forget the other, and traffic goes out one door and comes back through another.",
+    ja: "向きは 2 つ、決める人も 2 人。帰り (AWS → 自社) は、あなたの広告内容 (コミュニティ・プレフィックス長・AS_PATH) を見て AWS が決めます。行き (自社 → AWS) は自社ルーターがローカルプリファレンスで決めます。片方だけ変えると、出ていくドアと戻ってくるドアが別々になります。",
+  },
   none: { en: "No path — unreachable", ja: "経路なし — 到達不可" },
   commTitle: { en: "BGP communities cheat sheet", ja: "BGP コミュニティ早見表" },
   medTitle: { en: "What this lab leaves out", ja: "このラボで省略しているもの" },
@@ -130,10 +149,10 @@ function PathRow({
   const { t } = useLang();
   const isDx = p.kind === "dx";
   const sel =
-    "rounded border border-[var(--line)] bg-[var(--panel-2)] px-1.5 py-1 font-mono text-xs";
+    "rounded-full border border-[var(--line)] bg-[var(--panel-2)] px-1.5 py-1 font-mono text-xs";
   return (
     <div
-      className={`rounded-lg border p-3 transition-colors ${
+      className={`rounded-2xl border p-3 transition-colors ${
         win ? "border-[var(--ok)] bg-[var(--panel-2)]" : "border-[var(--line)]"
       } ${p.up ? "" : "opacity-60"}`}
     >
@@ -218,7 +237,10 @@ function PathRow({
 function PathLab() {
   const { t } = useLang();
   const [paths, setPaths] = useState<Path[]>(INITIAL);
+  const [outbound, setOutbound] = useState<string>("DX-A");
   const sel = selectPath(paths);
+  const outPath = paths.find((p) => p.id === outbound && p.up) ? outbound : null;
+  const asym = isAsymmetric(sel.winners, outPath);
   const update = (np: Path) => setPaths((ps) => ps.map((p) => (p.id === np.id ? np : p)));
   const ys: Record<string, number> = { "DX-A": 50, "DX-B": 130, VPN: 210 };
   const stepIndex = STEPS.findIndex((s) => s.id === sel.decidedBy);
@@ -329,9 +351,41 @@ function PathLab() {
               <span className="font-semibold text-[var(--bad)]">{t(C.none)}</span>
             )}
           </p>
-          <p className="mt-3 mb-1 font-mono text-xs text-[var(--muted)] uppercase">
-            {t(C.order)}
-          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <label htmlFor="outbound" className="text-[var(--muted)]">
+              {t(C.outbound)}
+            </label>
+            <select
+              id="outbound"
+              value={outbound}
+              onChange={(e) => setOutbound(e.target.value)}
+              className="rounded-full border-2 border-[var(--line)] bg-[var(--panel-2)] px-3 py-1 font-mono text-xs"
+            >
+              {paths.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.id}
+                </option>
+              ))}
+            </select>
+          </div>
+          {asym ? (
+            <div className="mt-3 flex items-start gap-2 rounded-2xl bg-[var(--bad-soft)] p-3 text-sm">
+              <Hikari mood="worried" size={40} className="shrink-0" />
+              <p>
+                <strong className="text-[var(--bad)]">{t(C.asymTitle)}</strong>{" "}
+                {t(C.asym)}
+              </p>
+            </div>
+          ) : (
+            sel.winners.length > 0 &&
+            outPath && (
+              <p className="mt-3 flex items-center gap-2 text-sm text-[var(--ok)]">
+                <Hikari mood="happy" size={32} />
+                {t(C.sym)}
+              </p>
+            )
+          )}
+          <p className="mt-3 mb-1 text-sm font-bold text-[var(--muted)]">{t(C.order)}</p>
           <ol className="space-y-1 text-sm">
             {STEPS.map((s, i) => (
               <li
@@ -417,9 +471,21 @@ const COMM_ROWS: [string, L, L][] = [
 export function Routing() {
   const { t } = useLang();
   return (
-    <Section id="routing" index="06" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="routing"
+      index="06"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["routing"]}
+    >
       <h3 className="mb-2 text-xl font-semibold">{t(C.lab)}</h3>
       <p className="mb-5 max-w-3xl text-sm text-[var(--muted)]">{t(C.labLead)}</p>
+      <div className="mb-6 max-w-3xl">
+        <HikariSays mood="thinking">
+          <T c={C.twoWays} />
+        </HikariSays>
+      </div>
       <PathLab />
       <div className="mt-6 max-w-3xl">
         <Callout title={C.medTitle}>

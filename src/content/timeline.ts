@@ -40,7 +40,7 @@ export const EVENTS: { date: string; kind: Kind; text: L }[] = [
     kind: "connection",
     text: {
       en: "Hosted connections: sub-1G capacity through partners",
-      ja: "ホスト型接続: パートナー経由の 1G 未満の帯域",
+      ja: "ホスト接続: パートナー経由の 1G 未満の帯域",
     },
   },
   {
@@ -141,7 +141,7 @@ export const EVENTS: { date: string; kind: Kind; text: L }[] = [
   {
     date: "2024-04-24",
     kind: "connection",
-    text: { en: "Hosted connections up to 25 Gbps", ja: "ホスト型接続が最大 25 Gbps に" },
+    text: { en: "Hosted connections up to 25 Gbps", ja: "ホスト接続が最大 25 Gbps に" },
   },
   {
     date: "2024-07-01",

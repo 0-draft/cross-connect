@@ -1,60 +1,108 @@
+import { useEffect, useRef, useState } from "react";
 import { useLang } from "../i18n/useLang";
+import { Hikari } from "./Hikari";
 import { NAV } from "../content/nav";
 import { UI } from "../content/ui";
 
-export function Header() {
-  const { lang, setLang, t } = useLang();
+/** The route map: every stop on one card, instead of a nav bar that overflows. */
+function RouteMenu() {
+  const { t } = useLang();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   return (
-    <header className="sticky top-0 z-20 border-b border-[var(--line)] bg-[var(--bg)]/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3 sm:px-6">
-        <a
-          href="#top"
-          className="flex shrink-0 items-center gap-2 font-mono text-sm font-semibold"
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls="route-menu"
+        onClick={() => setOpen((o) => !o)}
+        className="rounded-full border-2 border-[var(--line)] bg-[var(--panel)] px-4 py-1.5 text-sm font-bold hover:border-[var(--fiber)]"
+      >
+        {t(UI.route)}
+      </button>
+      {open && (
+        <nav
+          id="route-menu"
+          aria-label={t(UI.navLabel)}
+          className="sticker absolute top-full right-0 mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-3xl border-2 border-[var(--line)] bg-[var(--panel)] p-3"
         >
-          <svg viewBox="0 0 32 32" className="h-6 w-6" aria-hidden="true">
-            <path
-              d="M5 22 C12 22 12 10 19 10 L27 10"
-              stroke="var(--fiber)"
-              strokeWidth="3"
-              fill="none"
-              strokeLinecap="round"
-            />
-            <circle cx="5" cy="22" r="3" fill="var(--fiber)" />
-            <circle cx="27" cy="10" r="3" fill="var(--aws)" />
-          </svg>
-          cross-connect
-        </a>
-        <nav aria-label={t(UI.navLabel)} className="hidden min-w-0 flex-1 xl:block">
-          <ul className="flex gap-3.5 overflow-x-auto text-[0.8rem] text-[var(--muted)]">
-            {NAV.map((n) => (
-              <li key={n.id} className="shrink-0">
-                <a href={`#${n.id}`} className="hover:text-[var(--ink)]">
+          <ol className="grid grid-cols-2 gap-1">
+            {NAV.map((n, i) => (
+              <li key={n.id}>
+                <a
+                  href={`#${n.id}`}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 rounded-2xl px-2 py-1.5 text-sm hover:bg-[var(--fiber-soft)]"
+                >
+                  <span
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-[var(--fiber)] text-xs font-bold text-[var(--fiber)]"
+                    aria-hidden="true"
+                  >
+                    {i === 0 ? "?" : i}
+                  </span>
                   {t(n.label)}
                 </a>
               </li>
             ))}
-          </ul>
+          </ol>
         </nav>
-        <div
-          role="group"
-          aria-label={t(UI.language)}
-          className="ml-auto flex shrink-0 rounded-md border border-[var(--line)] p-0.5 font-mono text-xs"
+      )}
+    </div>
+  );
+}
+
+export function Header() {
+  const { lang, setLang, t } = useLang();
+  return (
+    <header className="sticky top-0 z-20 border-b-2 border-[var(--line)] bg-[var(--bg)]/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5 sm:px-6">
+        <a
+          href="#top"
+          className="flex shrink-0 items-center gap-2 font-display text-lg font-semibold"
         >
-          {(["en", "ja"] as const).map((l) => (
-            <button
-              key={l}
-              type="button"
-              aria-pressed={lang === l}
-              onClick={() => setLang(l)}
-              className={`rounded px-2.5 py-1 ${
-                lang === l
-                  ? "bg-[var(--fiber)] font-semibold text-black"
-                  : "text-[var(--muted)] hover:text-[var(--ink)]"
-              }`}
-            >
-              {l === "en" ? "EN" : "日本語"}
-            </button>
-          ))}
+          <Hikari size={30} />
+          cross-connect
+        </a>
+        <div className="ml-auto flex items-center gap-2">
+          <RouteMenu />
+          <div
+            role="group"
+            aria-label={t(UI.language)}
+            className="flex shrink-0 rounded-full border-2 border-[var(--line)] bg-[var(--panel)] p-0.5 text-xs"
+          >
+            {(["en", "ja"] as const).map((l) => (
+              <button
+                key={l}
+                type="button"
+                aria-pressed={lang === l}
+                onClick={() => setLang(l)}
+                className={`rounded-full px-3 py-1 ${
+                  lang === l
+                    ? "bg-[var(--fiber)] font-bold text-[var(--on-accent)]"
+                    : "text-[var(--muted)] hover:text-[var(--ink)]"
+                }`}
+              >
+                {l === "en" ? "EN" : "日本語"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </header>

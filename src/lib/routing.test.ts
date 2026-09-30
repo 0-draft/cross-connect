@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type Path, localPrefValue, selectPath } from "./routing";
+import { type Path, isAsymmetric, localPrefValue, selectPath } from "./routing";
 
 const dx = (id: string, over: Partial<Path> = {}): Path => ({
   id,
@@ -90,5 +90,16 @@ describe("selectPath", () => {
   it("load-balances across equal paths", () => {
     const r = selectPath([dx("a"), dx("b"), dx("c", { prepend: 1 })]);
     expect(r).toEqual({ winners: ["a", "b"], decidedBy: "ecmp" });
+  });
+});
+
+describe("isAsymmetric", () => {
+  it("flags when your router and AWS pick different paths", () => {
+    expect(isAsymmetric(["DX-A"], "DX-A")).toBe(false);
+    expect(isAsymmetric(["DX-A"], "DX-B")).toBe(true);
+    // ECMP on the AWS side still includes your choice.
+    expect(isAsymmetric(["DX-A", "DX-B"], "DX-B")).toBe(false);
+    expect(isAsymmetric([], "DX-A")).toBe(false);
+    expect(isAsymmetric(["DX-A"], null)).toBe(false);
   });
 });

@@ -98,3 +98,14 @@ export function selectPath(paths: Path[]): Selection {
   // "these are equal", so report ECMP.
   return { winners: c.map((p) => p.id), decidedBy: "ecmp" };
 }
+
+/**
+ * The two directions are decided by different routers: AWS picks the return
+ * path from what you advertise, your router picks the outbound path from its
+ * own local preference. If they disagree, flows are asymmetric and a stateful
+ * firewall that only sees one direction drops them.
+ */
+export function isAsymmetric(awsWinners: string[], onPremChoice: string | null): boolean {
+  if (!onPremChoice || awsWinners.length === 0) return false;
+  return !awsWinners.includes(onPremChoice);
+}

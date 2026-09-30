@@ -5,6 +5,9 @@ import App from "./App";
 import { LangProvider } from "./i18n/LangContext";
 import { NAV } from "./content/nav";
 import { EVENTS } from "./content/timeline";
+import { GLOSSARY, GLOSSARY_BY_ID } from "./content/glossary";
+import { MYTHS } from "./content/myths";
+import { TRAPS } from "./content/traps";
 
 const renderApp = (initial?: "en" | "ja") =>
   render(
@@ -24,11 +27,11 @@ describe("App", () => {
     renderApp();
     expect(document.documentElement.lang).toBe("en");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /router and a VPC/,
+      /Follow one photon/,
     );
     await userEvent.click(screen.getByRole("button", { name: "日本語" }));
     expect(document.documentElement.lang).toBe("ja");
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("自社ルーター");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("光の粒");
     expect(localStorage.getItem("cross-connect:lang")).toBe("ja");
   });
 
@@ -53,5 +56,38 @@ describe("App", () => {
       expect(e.text.en.length).toBeGreaterThan(0);
       expect(e.text.ja.length).toBeGreaterThan(0);
     }
+  });
+
+  it("glossary entries are complete and cross-links resolve", () => {
+    const ids = new Set(NAV.map((n) => n.id));
+    for (const e of GLOSSARY) {
+      expect(e.def.en && e.def.ja && e.en && e.ja).toBeTruthy();
+      expect(ids.has(e.see)).toBe(true);
+      if (e.notTo) expect(GLOSSARY_BY_ID[e.notTo.id]).toBeDefined();
+    }
+    for (const x of TRAPS) expect(ids.has(x.stop)).toBe(true);
+  });
+
+  it("a glossary term opens and closes with Escape", async () => {
+    renderApp();
+    const why = document.querySelector("section#why") as HTMLElement;
+    const btn = within(why).getByRole("button", { name: "LOA-CFA" });
+    await userEvent.click(btn);
+    expect(btn).toHaveAttribute("aria-expanded", "true");
+    expect(within(why).getByRole("note")).toHaveTextContent(/work permit/);
+    await userEvent.keyboard("{Escape}");
+    expect(btn).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("the myth quiz scores answers", async () => {
+    renderApp();
+    const quiz = document.querySelector("section#myths") as HTMLElement;
+    // Q1 (encrypted by default) is a myth.
+    const [, myth] = within(quiz).getAllByRole("button", { name: "Myth" });
+    expect(MYTHS[0].truth).toBe(false);
+    await userEvent.click(within(quiz).getAllByRole("button", { name: "Myth" })[0]);
+    expect(within(quiz).getByText(/^Right!/)).toBeInTheDocument();
+    expect(within(quiz).getByText(/1 of 1 correct/)).toBeInTheDocument();
+    expect(myth).toBeDefined();
   });
 });

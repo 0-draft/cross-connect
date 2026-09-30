@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Section, Segmented, T } from "../components/ui";
 import {
   type ConnType,
@@ -103,7 +104,7 @@ function Calculator() {
   const r = estimate({ type, mbps: safeMbps, count, dxGeo, source, gbOut: tb * 1024 });
   const share = r.total > 0 ? r.port / r.total : 0;
   const field =
-    "rounded border border-[var(--line)] bg-[var(--panel-2)] px-2 py-1.5 text-sm";
+    "rounded-full border border-[var(--line)] bg-[var(--panel-2)] px-2 py-1.5 text-sm";
 
   return (
     <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
@@ -116,7 +117,7 @@ function Calculator() {
               value={type}
               options={[
                 { value: "dedicated", label: t({ en: "Dedicated", ja: "専用" }) },
-                { value: "hosted", label: t({ en: "Hosted", ja: "ホスト型" }) },
+                { value: "hosted", label: t({ en: "Hosted", ja: "ホスト接続" }) },
               ]}
               onChange={(v) => {
                 setType(v);
@@ -243,7 +244,24 @@ export function Pricing() {
   const { t } = useLang();
   const be = breakEvenGb(10.96, 2.25, 2, 0.02);
   return (
-    <Section id="pricing" index="10" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="pricing"
+      index="10"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["money"]}
+    >
+      <div className="mb-8 max-w-3xl">
+        <HikariSays mood="happy">
+          <T
+            c={{
+              en: "Three different bills: AWS charges the connection owner for port-hours and the sending account for data out; the colocation facility bills the cross connect; your carrier or partner bills the circuit. Data coming into AWS is always free.",
+              ja: "請求書は 3 種類。AWS は接続のオーナーにポート時間を、送信元アカウントにデータ転送料を請求。クロスコネクト代はデータセンター事業者から、回線代はキャリアやパートナーから。AWS に入ってくるデータはいつでも無料。",
+            }}
+          />
+        </HikariSays>
+      </div>
       <h3 className="mb-4 text-xl font-semibold">{t(C.calc)}</h3>
       <Calculator />
       <p className="mt-4 max-w-3xl text-sm text-[var(--muted)]">{t(C.notAws)}</p>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, T } from "../components/ui";
 
 const C = {
@@ -49,7 +50,7 @@ const LAYERS: Record<
     to: 790,
     body: {
       en: "Your router ↔ Transit Gateway (Private IP VPN over a transit VIF, since 2022-06, no public IPs) or ↔ VGW/TGW public endpoints over a public VIF. Works on any connection, including 1G and hosted. Per-tunnel throughput limits apply.",
-      ja: "お客様ルーター ↔ Transit Gateway (トランジット VIF 上の Private IP VPN、2022-06〜、パブリック IP 不要)、またはパブリック VIF 経由で VGW / TGW のパブリックエンドポイント。1G やホスト型を含むあらゆる接続で使えるが、トンネルあたりのスループット上限あり。",
+      ja: "お客様ルーター ↔ Transit Gateway (トランジット VIF 上の Private IP VPN、2022-06〜、パブリック IP 不要)、またはパブリック VIF 経由で VGW / TGW のパブリックエンドポイント。1G やホスト接続を含むあらゆる接続で使えるが、トンネルあたりのスループット上限あり。",
     },
   },
   tls: {
@@ -180,7 +181,7 @@ const PICK: [L, string][] = [
     "MACsec",
   ],
   [
-    { en: "1G dedicated or any hosted connection", ja: "1G 専用接続またはホスト型接続" },
+    { en: "1G dedicated or any hosted connection", ja: "1G 専用接続またはホスト接続" },
     "IPsec",
   ],
   [
@@ -227,7 +228,24 @@ const CHECKS: L[] = [
 export function Security() {
   const { t } = useLang();
   return (
-    <Section id="security" index="08" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="security"
+      index="08"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["link", "routing"]}
+    >
+      <div className="mb-8 max-w-3xl">
+        <HikariSays mood="worried">
+          <T
+            c={{
+              en: "“It's a closed network, so it's safe” is the most common assumption — and closed is not encrypted. Your frames cross the cross connect, maybe a carrier network, and the AWS device in plain text unless you add a layer that encrypts.",
+              ja: "「閉域網だから安全」はいちばん多い思い込み。閉域 ≠ 暗号化。暗号化レイヤーを足さない限り、フレームはクロスコネクトも、キャリア網も、AWS の機器も平文のまま通るよ。",
+            }}
+          />
+        </HikariSays>
+      </div>
       <h3 className="mb-4 text-xl font-semibold">{t(C.layers)}</h3>
       <LayerDiagram />
       <div className="mt-12 grid gap-8 lg:grid-cols-2">

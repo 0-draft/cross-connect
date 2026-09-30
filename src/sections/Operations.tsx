@@ -1,7 +1,8 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
-import { Panel, Scroll, Section, Tag } from "../components/ui";
+import { HikariSays } from "../components/Hikari";
+import { Panel, Scroll, Section, Tag, T } from "../components/ui";
 
 const C = {
   kicker: { en: "Operations", ja: "運用" },
@@ -104,7 +105,7 @@ const TREE: Record<NodeId, Q | A> = {
     steps: [
       {
         en: "VLAN ID on your sub-interface matches the VIF, and 802.1Q is trunked through every device in the path.",
-        ja: "サブインターフェースの VLAN ID が VIF と一致し、経路上の全機器で 802.1Q が通っているか。",
+        ja: "サブインターフェイスの VLAN ID が VIF と一致し、経路上の全機器で 802.1Q が通っているか。",
       },
       {
         en: "Peer IPs and mask match the VIF configuration.",
@@ -219,7 +220,7 @@ function Troubleshoot() {
               <button
                 type="button"
                 onClick={() => setTrail(trail.slice(0, i + 1))}
-                className="rounded border border-[var(--line)] px-2 py-0.5 text-[var(--muted)] hover:text-[var(--ink)]"
+                className="rounded-full border border-[var(--line)] px-2 py-0.5 text-[var(--muted)] hover:text-[var(--ink)]"
               >
                 {"q" in node ? `Q${i + 1}` : node.layer}
               </button>
@@ -235,14 +236,14 @@ function Troubleshoot() {
               <button
                 type="button"
                 onClick={() => go(cur.yes)}
-                className="rounded-lg bg-[var(--ok)] px-5 py-2 font-semibold text-black"
+                className="rounded-2xl bg-[var(--ok)] px-5 py-2 font-semibold text-[var(--on-accent)]"
               >
                 {t(C.yes)}
               </button>
               <button
                 type="button"
                 onClick={() => go(cur.no)}
-                className="rounded-lg bg-[var(--bad)] px-5 py-2 font-semibold text-black"
+                className="rounded-2xl bg-[var(--bad)] px-5 py-2 font-semibold text-[var(--on-accent)]"
               >
                 {t(C.no)}
               </button>
@@ -263,7 +264,7 @@ function Troubleshoot() {
             <button
               type="button"
               onClick={() => setTrail(["q1"])}
-              className="mt-4 rounded border border-[var(--line)] px-3 py-1.5 text-sm hover:border-[var(--ink)]"
+              className="mt-4 rounded-full border border-[var(--line)] px-3 py-1.5 text-sm hover:border-[var(--ink)]"
             >
               {t(C.restart)}
             </button>
@@ -340,7 +341,24 @@ const METRICS: [string, L, L][] = [
 export function Operations() {
   const { t } = useLang();
   return (
-    <Section id="operations" index="09" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="operations"
+      index="09"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["ops"]}
+    >
+      <div className="mb-8 max-w-3xl">
+        <HikariSays mood="thinking">
+          <T
+            c={{
+              en: "Until March 2026 there was no CloudWatch metric for BGP state at all, so a session could quietly go Idle — for example after someone advertised a 101st prefix. Now you can alarm on it. Do.",
+              ja: "2026 年 3 月までは BGP の状態を示す CloudWatch メトリクスがなかったので、たとえば 101 本目の経路を広告しただけでセッションが静かに Idle になっても気づけなかった。今はアラームを設定できる。設定しよう。",
+            }}
+          />
+        </HikariSays>
+      </div>
       <h3 className="mb-4 text-xl font-semibold">{t(C.tree)}</h3>
       <Troubleshoot />
       <h3 className="mt-14 mb-4 text-xl font-semibold">{t(C.metrics)}</h3>

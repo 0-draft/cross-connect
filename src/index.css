@@ -1,61 +1,82 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "IBM Plex Sans", "IBM Plex Sans JP", system-ui, sans-serif;
+  --font-sans: "M PLUS Rounded 1c", system-ui, sans-serif;
+  --font-display: "Fredoka", "M PLUS Rounded 1c", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
-  --color-fiber: #ff9f1c;
-  --color-aws: #4cc9f0;
-  --color-ok: #3ddc84;
-  --color-bad: #ff5d73;
-  --color-violet: #b79cff;
 }
 
-/* Theme tokens: light is the base, dark overrides. */
+/* Theme tokens: light is the base, dark overrides. Text-bearing accents are
+   darkened in light mode so they keep 4.5:1 contrast on the lavender page. */
 :root {
-  --bg: #f6f4ef;
+  --bg: #f8f6ff;
   --panel: #ffffff;
-  --panel-2: #efece4;
-  --ink: #16181d;
-  --muted: #5b6070;
-  --line: #d9d4c7;
-  --grid: rgba(22, 24, 29, 0.05);
-  --fiber: #e07a00;
-  --aws: #0a84b8;
-  --ok: #138a4c;
-  --bad: #d12c47;
-  --violet: #6b4fd8;
+  --panel-2: #f1edff;
+  --ink: #29224f;
+  --muted: #655f8a;
+  --line: #e3ddf7;
+  --dot: rgba(41, 34, 79, 0.09);
+  --fiber: #d12f75;
+  --fiber-soft: #ffd3e6;
+  --aws: #1f6fc0;
+  --aws-soft: #d6ebff;
+  --ok: #13815a;
+  --ok-soft: #d2f5e6;
+  --bad: #cf3446;
+  --bad-soft: #ffdfe2;
+  --violet: #6d45d6;
+  --violet-soft: #e6ddff;
+  --sun: #ffc93c;
+  --on-accent: #ffffff;
+  --shadow: #e3ddf7;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0b0e13;
-    --panel: #11151c;
-    --panel-2: #171c25;
-    --ink: #e8e6e1;
-    --muted: #8d93a3;
-    --line: #262d3a;
-    --grid: rgba(232, 230, 225, 0.04);
-    --fiber: #ff9f1c;
-    --aws: #4cc9f0;
-    --ok: #3ddc84;
-    --bad: #ff5d73;
-    --violet: #b79cff;
+    --bg: #16132b;
+    --panel: #1f1b3a;
+    --panel-2: #29244a;
+    --ink: #f4f1ff;
+    --muted: #aaa4cf;
+    --line: #3a3463;
+    --dot: rgba(244, 241, 255, 0.07);
+    --fiber: #ff86bd;
+    --fiber-soft: #4a2242;
+    --aws: #7cc2ff;
+    --aws-soft: #1d3355;
+    --ok: #5ee3a8;
+    --ok-soft: #173d33;
+    --bad: #ff8590;
+    --bad-soft: #4a2230;
+    --violet: #bba4ff;
+    --violet-soft: #332a5c;
+    --sun: #ffd666;
+    --on-accent: #16132b;
+    --shadow: #0e0c1f;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0b0e13;
-  --panel: #11151c;
-  --panel-2: #171c25;
-  --ink: #e8e6e1;
-  --muted: #8d93a3;
-  --line: #262d3a;
-  --grid: rgba(232, 230, 225, 0.04);
-  --fiber: #ff9f1c;
-  --aws: #4cc9f0;
-  --ok: #3ddc84;
-  --bad: #ff5d73;
-  --violet: #b79cff;
+  --bg: #16132b;
+  --panel: #1f1b3a;
+  --panel-2: #29244a;
+  --ink: #f4f1ff;
+  --muted: #aaa4cf;
+  --line: #3a3463;
+  --dot: rgba(244, 241, 255, 0.07);
+  --fiber: #ff86bd;
+  --fiber-soft: #4a2242;
+  --aws: #7cc2ff;
+  --aws-soft: #1d3355;
+  --ok: #5ee3a8;
+  --ok-soft: #173d33;
+  --bad: #ff8590;
+  --bad-soft: #4a2230;
+  --violet: #bba4ff;
+  --violet-soft: #332a5c;
+  --sun: #ffd666;
+  --on-accent: #16132b;
+  --shadow: #0e0c1f;
   color-scheme: dark;
 }
 
@@ -65,17 +86,32 @@ html {
 }
 body {
   background-color: var(--bg);
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background-image: radial-gradient(var(--dot) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
-:lang(ja) body,
-html:lang(ja) {
+html:lang(ja) body {
   font-feature-settings: "palt";
+  line-break: strict;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+:focus-visible {
+  outline: 3px solid var(--fiber);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* A sticker-like drop shadow for panels: flat, offset, no blur. */
+.sticker {
+  box-shadow: 0 4px 0 var(--shadow);
 }
 
 /* Light travelling down a fibre. */
@@ -88,17 +124,46 @@ html:lang(ja) {
   stroke-dasharray: 6 6;
   animation: flow 0.8s linear infinite;
 }
+
+/* Hikari bobs gently; only the mascot moves on its own. */
+@keyframes bob {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.bob {
+  animation: bob 2.4s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+.blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 4s infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  .flow {
+  .flow,
+  .bob,
+  .blink {
     animation: none;
   }
 }
 
 .diagram text {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-weight: 500;
 }
 
 /* Grid items default to min-width: auto, which lets a wide diagram push the

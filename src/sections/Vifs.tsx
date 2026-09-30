@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, Segmented, T } from "../components/ui";
 
 type Vif = "private" | "public" | "transit";
@@ -12,21 +13,21 @@ const COLOR: Record<Vif, string> = {
 };
 
 const C = {
-  kicker: { en: "Virtual interfaces", ja: "仮想インターフェース" },
+  kicker: { en: "Virtual interfaces", ja: "仮想インターフェイス" },
   title: {
     en: "One VLAN, one BGP session, one kind of destination",
     ja: "VLAN 1 本、BGP 1 本、行き先は 1 種類",
   },
   lead: {
     en: "A connection is only a pipe. Nothing flows until you create a virtual interface (VIF) on it: an 802.1Q VLAN plus an eBGP session. The VIF type decides what you can reach.",
-    ja: "接続はただの土管です。仮想インターフェース (VIF) — 802.1Q VLAN と eBGP セッションの組 — を作るまで何も流れません。VIF の種類で到達先が決まります。",
+    ja: "接続はただの土管です。仮想インターフェイス (VIF) — 802.1Q VLAN と eBGP セッションの組 — を作るまで何も流れません。VIF の種類で到達先が決まります。",
   },
   pick: { en: "VIF type", ja: "VIF 種別" },
   params: { en: "Parameters you choose", ja: "作成時に決めるパラメータ" },
   limitsTitle: { en: "Per-connection limits", ja: "接続あたりの上限" },
   limits: {
     en: "A dedicated connection or LAG takes up to 51 VIFs: 50 private/public plus up to 4 transit. A hosted connection takes exactly one. Routes you advertise on a private or transit VIF are capped at 100 per address family by default (up to 1,000 with inbound prefix controls since 2026-08); above the limit the BGP session goes Idle. Public VIFs accept 1,000.",
-    ja: "専用接続 / LAG あたり VIF は最大 51 (プライベート/パブリック 50 + トランジット最大 4)。ホスト型接続は 1 本だけ。プライベート / トランジット VIF でお客様が広告できる経路はアドレスファミリーごとにデフォルト 100 (2026-08 以降、inbound prefix controls で最大 1,000)。超えると BGP は Idle になります。パブリック VIF は 1,000。",
+    ja: "専用接続 / LAG あたり VIF は最大 51 (プライベート/パブリック 50 + トランジット最大 4)。ホスト接続は 1 本だけ。プライベート / トランジット VIF でお客様が広告できる経路はアドレスファミリーごとにデフォルト 100 (2026-08 以降、inbound prefix controls で最大 1,000)。超えると BGP は Idle になります。パブリック VIF は 1,000。",
   },
 };
 
@@ -354,7 +355,24 @@ export function Vifs() {
     [{ en: "MTU", ja: "MTU" }, info.mtu],
   ];
   return (
-    <Section id="vifs" index="04" kicker={C.kicker} title={C.title} lead={C.lead}>
+    <Section
+      id="vifs"
+      index="04"
+      kicker={C.kicker}
+      title={C.title}
+      lead={C.lead}
+      layers={["link", "routing", "aws"]}
+    >
+      <div className="mb-8 max-w-3xl">
+        <HikariSays mood="happy">
+          <T
+            c={{
+              en: "A connection is a road; VIFs are lanes painted on it. Each lane has its own number (a VLAN ID), its own conversation with AWS (a BGP session), and goes to one kind of place. Adding a lane costs nothing, but a road only has room for 51.",
+              ja: "接続は道路、VIF はその上に引いた車線。車線ごとに番号 (VLAN ID) があって、AWS との会話 (BGP セッション) も別々、行き先の種類も 1 つずつ。車線を増やすのは無料だけど、1 本の道路に引けるのは 51 本まで。",
+            }}
+          />
+        </HikariSays>
+      </div>
       <div className="mb-4">
         <Segmented
           label={t(C.pick)}
@@ -378,7 +396,7 @@ export function Vifs() {
           >
             {rows.map(([k, v]) => (
               <div key={k.en}>
-                <dt className="font-mono text-xs uppercase" style={{ color: COLOR[vif] }}>
+                <dt className="text-sm font-bold" style={{ color: COLOR[vif] }}>
                   {t(k)}
                 </dt>
                 <dd>{v}</dd>
@@ -441,7 +459,7 @@ export function Vifs() {
         ).map(([k, v]) => (
           <li
             key={k}
-            className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-4"
+            className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4"
           >
             <p className="mb-1 font-mono text-xs text-[var(--fiber)]">{k}</p>
             <p>{t(v)}</p>
