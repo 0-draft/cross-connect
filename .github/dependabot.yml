@@ -11,6 +11,9 @@ updates:
       # past that cannot install. Lift once the lint toolchain widens its range.
       - dependency-name: typescript
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # Match the Node major the site builds with (.nvmrc).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     groups:
       react:
         patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
@@ -27,6 +30,8 @@ updates:
           - globals
       test:
         patterns: ["vitest", "@vitest/*", "@testing-library/*", "jsdom"]
+      types:
+        patterns: ["@types/node"]
 
   - package-ecosystem: github-actions
     directory: /
