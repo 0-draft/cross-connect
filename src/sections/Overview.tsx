@@ -4,6 +4,7 @@ import { useLang } from "../i18n/useLang";
 import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, T } from "../components/ui";
 import { UI } from "../content/ui";
+import { useNarrow } from "../components/useNarrow";
 
 type PartId =
   | "router"
@@ -208,8 +209,80 @@ function Hotspot({
   );
 }
 
+const ROUTE: { zone: L; color: string; parts: PartId[] }[] = [
+  { zone: C.premises, color: "var(--violet)", parts: ["router", "carrier"] },
+  { zone: C.location, color: "var(--fiber)", parts: ["cage", "xc", "dxrouter", "vif"] },
+  {
+    zone: C.region,
+    color: "var(--aws)",
+    parts: ["backbone", "gateway", "vpc", "public"],
+  },
+];
+
+/** The same path, top to bottom, for phone screens. */
+function VerticalPath({
+  active,
+  onPick,
+}: {
+  active: PartId;
+  onPick: (id: PartId) => void;
+}) {
+  const { t } = useLang();
+  return (
+    <ol className="relative space-y-3" aria-label={t(C.diagramTitle)}>
+      <span
+        aria-hidden="true"
+        className="absolute top-4 bottom-4 left-5 w-1 rounded-full bg-[var(--fiber)] opacity-40"
+      />
+      {ROUTE.map((z) => (
+        <li
+          key={z.zone.en}
+          className="relative rounded-2xl border-2 p-3"
+          style={{ borderColor: z.color }}
+        >
+          <p className="mb-2 pl-9 text-xs font-bold" style={{ color: z.color }}>
+            {t(z.zone)}
+          </p>
+          <ul className="space-y-1.5">
+            {z.parts.map((id) => (
+              <li key={id}>
+                <button
+                  type="button"
+                  aria-pressed={active === id}
+                  onClick={() => onPick(id)}
+                  className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-2 text-left text-sm font-bold ${
+                    active === id
+                      ? "bg-[var(--fiber-soft)] text-[var(--fiber)]"
+                      : "hover:bg-[var(--panel-2)]"
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-4 w-4 shrink-0 rounded-full border-[3px] bg-[var(--panel)]"
+                    style={{ borderColor: active === id ? "var(--fiber)" : z.color }}
+                  />
+                  {t(PARTS[id].name)}
+                </button>
+                {active === id && (
+                  <p
+                    aria-live="polite"
+                    className="mt-1 mb-2 ml-9 text-sm leading-relaxed"
+                  >
+                    {t(PARTS[id].body)}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function PathDiagram() {
   const { t } = useLang();
+  const narrow = useNarrow();
   const [active, setActive] = useState<PartId>("xc");
   const on = (id: PartId) => (active === id ? "var(--fiber)" : "var(--line)");
 
@@ -219,304 +292,445 @@ export function PathDiagram() {
         <p className="mb-2 text-xs font-bold text-[var(--muted)]">
           {t(C.diagramTitle)} — <T c={UI.clickHint} />
         </p>
-        <Scroll>
-          <svg
-            viewBox="0 0 1000 380"
-            className="diagram min-w-[720px]"
-            role="group"
-            aria-label={t(C.diagramTitle)}
-          >
-            {/* zones */}
-            <rect x="10" y="30" width="150" height="330" rx="10" fill="var(--panel-2)" />
-            <rect
-              x="215"
-              y="30"
-              width="360"
-              height="330"
-              rx="10"
-              fill="none"
-              stroke="var(--line)"
-              strokeDasharray="4 4"
-            />
-            <rect
-              x="660"
-              y="30"
-              width="330"
-              height="330"
-              rx="10"
-              fill="none"
-              stroke="var(--aws)"
-              strokeOpacity="0.5"
-            />
-            <text x="22" y="52" fontSize="12.5" fill="var(--muted)">
-              {t(C.premises)}
-            </text>
-            <text x="227" y="52" fontSize="12.5" fill="var(--muted)">
-              {t(C.location)}
-            </text>
-            <text x="672" y="52" fontSize="12.5" fill="var(--aws)">
-              {t(C.region)}
-            </text>
-
-            {/* fibres (drawn first so boxes sit on top) */}
-            <path
-              d="M125 200 H265"
-              stroke="var(--fiber)"
-              strokeWidth="3"
-              className="flow"
-            />
-            <path
-              d="M355 200 H435"
-              stroke="var(--fiber)"
-              strokeWidth="3"
-              className="flow"
-            />
-            <path
-              d="M555 200 C610 200 620 200 700 200"
-              stroke="var(--aws)"
-              strokeWidth="3"
-              className="flow"
-            />
-            <path
-              d="M800 185 C840 140 850 120 860 115"
-              stroke="var(--aws)"
-              strokeWidth="2"
-            />
-            <path
-              d="M800 215 C840 260 850 280 860 285"
-              stroke="var(--aws)"
-              strokeWidth="2"
-            />
-
-            <Hotspot id="router" active={active} onPick={setActive}>
-              <rect
-                className="hl"
-                x="35"
-                y="170"
-                width="90"
-                height="60"
-                rx="8"
-                fill="var(--panel)"
-                stroke={on("router")}
-                strokeWidth="2"
-              />
-              <text x="80" y="198" fontSize="12.5" textAnchor="middle" fill="var(--ink)">
-                {t({ en: "router", ja: "ルーター" })}
-              </text>
-              <text x="80" y="214" fontSize="11" textAnchor="middle" fill="var(--muted)">
-                BGP · 802.1Q
-              </text>
-            </Hotspot>
-
-            <Hotspot id="carrier" active={active} onPick={setActive}>
-              <rect x="135" y="175" width="120" height="50" fill="transparent" />
-              <text
-                x="190"
-                y="190"
-                fontSize="12.5"
-                textAnchor="middle"
-                fill={on("carrier") === "var(--fiber)" ? "var(--fiber)" : "var(--muted)"}
-              >
-                {t({ en: "carrier circuit", ja: "キャリア回線" })}
-              </text>
-            </Hotspot>
-
-            <Hotspot id="cage" active={active} onPick={setActive}>
-              <rect
-                className="hl"
-                x="265"
-                y="150"
-                width="90"
-                height="100"
-                rx="6"
-                fill="var(--panel)"
-                stroke={on("cage")}
-                strokeWidth="2"
-              />
-              <text x="310" y="195" fontSize="12.5" textAnchor="middle" fill="var(--ink)">
-                {t({ en: "cage", ja: "ケージ" })}
-              </text>
-              <text x="310" y="211" fontSize="11" textAnchor="middle" fill="var(--muted)">
-                {t({ en: "you / partner", ja: "自社 / 事業者" })}
-              </text>
-            </Hotspot>
-
-            <Hotspot id="xc" active={active} onPick={setActive}>
-              <rect x="358" y="160" width="74" height="80" fill="transparent" />
-              <path
-                d="M355 200 C380 150 410 250 435 200"
-                stroke={active === "xc" ? "var(--fiber)" : "var(--muted)"}
-                strokeWidth={active === "xc" ? 4 : 2}
-                fill="none"
-              />
-              <text
-                x="395"
-                y="262"
-                fontSize="12.5"
-                textAnchor="middle"
-                fill="var(--fiber)"
-              >
-                {t({ en: "cross connect", ja: "クロスコネクト" })}
-              </text>
-              <text x="395" y="276" fontSize="11" textAnchor="middle" fill="var(--muted)">
-                LOA-CFA · SMF
-              </text>
-            </Hotspot>
-
-            <Hotspot id="dxrouter" active={active} onPick={setActive}>
-              <rect
-                className="hl"
-                x="435"
-                y="150"
-                width="120"
-                height="100"
-                rx="6"
-                fill="var(--panel)"
-                stroke={on("dxrouter")}
-                strokeWidth="2"
-              />
-              <text x="495" y="192" fontSize="12.5" textAnchor="middle" fill="var(--aws)">
-                {t({ en: "AWS DX router", ja: "AWS DX ルーター" })}
-              </text>
-              <text x="495" y="208" fontSize="11" textAnchor="middle" fill="var(--muted)">
-                {t({ en: "1–400G port", ja: "1〜400G ポート" })}
-              </text>
-            </Hotspot>
-
-            <Hotspot id="vif" active={active} onPick={setActive}>
-              <rect
-                className="hl"
-                x="230"
-                y="290"
-                width="330"
-                height="64"
-                rx="6"
-                fill="var(--panel)"
-                stroke={on("vif")}
-                strokeWidth="2"
-              />
-              {[
-                ["VLAN 101 · private", "var(--ok)"],
-                ["VLAN 102 · public", "var(--violet)"],
-                ["VLAN 103 · transit", "var(--aws)"],
-              ].map(([label, color], i) => (
-                <text
-                  key={label}
-                  x={i === 1 ? 400 : 245}
-                  y={i === 2 ? 340 : 314}
-                  fontSize="12.5"
-                  fill={color}
-                >
-                  {label}
-                </text>
-              ))}
-            </Hotspot>
-
-            <Hotspot id="backbone" active={active} onPick={setActive}>
-              <rect x="560" y="170" width="130" height="60" fill="transparent" />
-              <text
-                x="625"
-                y="188"
-                fontSize="12.5"
-                textAnchor="middle"
-                fill={active === "backbone" ? "var(--fiber)" : "var(--aws)"}
-              >
-                {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
-              </text>
-            </Hotspot>
-
-            <Hotspot id="gateway" active={active} onPick={setActive}>
-              <rect
-                className="hl"
-                x="700"
-                y="160"
-                width="100"
-                height="80"
-                rx="8"
-                fill="var(--panel)"
-                stroke={on("gateway")}
-                strokeWidth="2"
-              />
-              <text x="750" y="194" fontSize="13.1" textAnchor="middle" fill="var(--ink)">
-                VGW / DXGW
-              </text>
-              <text x="750" y="210" fontSize="11" textAnchor="middle" fill="var(--muted)">
-                TGW · Cloud WAN
-              </text>
-            </Hotspot>
-
-            <Hotspot id="vpc" active={active} onPick={setActive}>
-              <rect
-                className="hl"
-                x="860"
-                y="80"
-                width="110"
-                height="70"
-                rx="8"
-                fill="var(--panel)"
-                stroke={on("vpc")}
-                strokeWidth="2"
-              />
-              <text x="915" y="112" fontSize="12.5" textAnchor="middle" fill="var(--ok)">
-                VPC
-              </text>
-              <text x="915" y="128" fontSize="11" textAnchor="middle" fill="var(--muted)">
-                10.0.0.0/16
-              </text>
-            </Hotspot>
-
-            <Hotspot id="public" active={active} onPick={setActive}>
-              <rect
-                className="hl"
-                x="860"
-                y="250"
-                width="110"
-                height="70"
-                rx="8"
-                fill="var(--panel)"
-                stroke={on("public")}
-                strokeWidth="2"
-              />
-              <text
-                x="915"
-                y="282"
-                fontSize="12.5"
-                textAnchor="middle"
-                fill="var(--violet)"
-              >
-                S3 · DynamoDB
-              </text>
-              <text x="915" y="298" fontSize="11" textAnchor="middle" fill="var(--muted)">
-                {t({ en: "public IPs", ja: "パブリック IP" })}
-              </text>
-            </Hotspot>
-          </svg>
-        </Scroll>
-      </Panel>
-      <Panel>
-        <p className="mb-1 text-sm font-bold text-[var(--fiber)]">
-          {t(PARTS[active].name)}
-        </p>
-        <p aria-live="polite" className="leading-relaxed">
-          {t(PARTS[active].body)}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {(Object.keys(PARTS) as PartId[]).map((id) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setActive(id)}
-              className={`min-h-8 rounded-full border-2 px-3 py-1 text-xs font-bold ${
-                active === id
-                  ? "border-[var(--fiber)] text-[var(--fiber)]"
-                  : "border-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)]"
-              }`}
+        {narrow ? (
+          <VerticalPath active={active} onPick={setActive} />
+        ) : (
+          <Scroll>
+            <svg
+              viewBox="0 0 1000 380"
+              className="diagram min-w-[720px]"
+              role="group"
+              aria-label={t(C.diagramTitle)}
             >
-              {t(PARTS[id].name)}
-            </button>
-          ))}
-        </div>
+              {/* zones */}
+              <rect
+                x="10"
+                y="30"
+                width="150"
+                height="330"
+                rx="10"
+                fill="var(--panel-2)"
+              />
+              <rect
+                x="215"
+                y="30"
+                width="360"
+                height="330"
+                rx="10"
+                fill="none"
+                stroke="var(--line)"
+                strokeDasharray="4 4"
+              />
+              <rect
+                x="660"
+                y="30"
+                width="330"
+                height="330"
+                rx="10"
+                fill="none"
+                stroke="var(--aws)"
+                strokeOpacity="0.5"
+              />
+              <text x="22" y="52" fontSize="12.5" fill="var(--muted)">
+                {t(C.premises)}
+              </text>
+              <text x="227" y="52" fontSize="12.5" fill="var(--muted)">
+                {t(C.location)}
+              </text>
+              <text x="672" y="52" fontSize="12.5" fill="var(--aws)">
+                {t(C.region)}
+              </text>
+
+              {/* the office the router lives in, so the column reads as a place */}
+              <g aria-hidden="true">
+                <path
+                  d="M40 118 L85 84 L130 118"
+                  fill="var(--violet-soft)"
+                  stroke="var(--violet)"
+                  strokeWidth="2.5"
+                  strokeLinejoin="round"
+                />
+                <rect
+                  x="48"
+                  y="116"
+                  width="74"
+                  height="40"
+                  rx="6"
+                  fill="var(--panel)"
+                  stroke="var(--violet)"
+                  strokeWidth="2"
+                />
+                <rect
+                  x="60"
+                  y="126"
+                  width="14"
+                  height="12"
+                  rx="2"
+                  fill="var(--aws-soft)"
+                />
+                <rect
+                  x="96"
+                  y="126"
+                  width="14"
+                  height="12"
+                  rx="2"
+                  fill="var(--aws-soft)"
+                />
+                <line
+                  x1="85"
+                  x2="85"
+                  y1="156"
+                  y2="170"
+                  stroke="var(--violet)"
+                  strokeWidth="2"
+                  strokeDasharray="3 3"
+                />
+                <text
+                  x="85"
+                  y="300"
+                  fontSize="12"
+                  textAnchor="middle"
+                  fill="var(--muted)"
+                >
+                  {t({ en: "office / DC", ja: "オフィス / DC" })}
+                </text>
+              </g>
+              {/* fibres (drawn first so boxes sit on top) */}
+              <path
+                d="M125 200 H265"
+                stroke="var(--fiber)"
+                strokeWidth="3"
+                className="flow"
+              />
+              <path
+                d="M355 200 H435"
+                stroke="var(--fiber)"
+                strokeWidth="3"
+                className="flow"
+              />
+              <path
+                d="M555 200 C610 200 620 200 700 200"
+                stroke="var(--aws)"
+                strokeWidth="3"
+                className="flow"
+              />
+              <path
+                d="M800 185 C840 140 850 120 860 115"
+                stroke="var(--aws)"
+                strokeWidth="2"
+              />
+              <path
+                d="M800 215 C840 260 850 280 860 285"
+                stroke="var(--aws)"
+                strokeWidth="2"
+              />
+
+              <Hotspot id="router" active={active} onPick={setActive}>
+                <rect
+                  className="hl"
+                  x="35"
+                  y="170"
+                  width="90"
+                  height="60"
+                  rx="8"
+                  fill="var(--panel)"
+                  stroke={on("router")}
+                  strokeWidth="2"
+                />
+                <text
+                  x="80"
+                  y="198"
+                  fontSize="12.5"
+                  textAnchor="middle"
+                  fill="var(--ink)"
+                >
+                  {t({ en: "router", ja: "ルーター" })}
+                </text>
+                <text
+                  x="80"
+                  y="214"
+                  fontSize="11"
+                  textAnchor="middle"
+                  fill="var(--muted)"
+                >
+                  BGP · 802.1Q
+                </text>
+              </Hotspot>
+
+              <Hotspot id="carrier" active={active} onPick={setActive}>
+                <rect x="135" y="175" width="120" height="50" fill="transparent" />
+                <text
+                  x="190"
+                  y="190"
+                  fontSize="12.5"
+                  textAnchor="middle"
+                  fill={
+                    on("carrier") === "var(--fiber)" ? "var(--fiber)" : "var(--muted)"
+                  }
+                >
+                  {t({ en: "carrier circuit", ja: "キャリア回線" })}
+                </text>
+              </Hotspot>
+
+              <Hotspot id="cage" active={active} onPick={setActive}>
+                <rect
+                  className="hl"
+                  x="265"
+                  y="150"
+                  width="90"
+                  height="100"
+                  rx="6"
+                  fill="var(--panel)"
+                  stroke={on("cage")}
+                  strokeWidth="2"
+                />
+                <text
+                  x="310"
+                  y="195"
+                  fontSize="12.5"
+                  textAnchor="middle"
+                  fill="var(--ink)"
+                >
+                  {t({ en: "cage", ja: "ケージ" })}
+                </text>
+                <text
+                  x="310"
+                  y="211"
+                  fontSize="11"
+                  textAnchor="middle"
+                  fill="var(--muted)"
+                >
+                  {t({ en: "you / partner", ja: "自社 / 事業者" })}
+                </text>
+              </Hotspot>
+
+              <Hotspot id="xc" active={active} onPick={setActive}>
+                <rect x="358" y="160" width="74" height="80" fill="transparent" />
+                <path
+                  d="M355 200 C380 150 410 250 435 200"
+                  stroke={active === "xc" ? "var(--fiber)" : "var(--muted)"}
+                  strokeWidth={active === "xc" ? 4 : 2}
+                  fill="none"
+                />
+                <text
+                  x="395"
+                  y="262"
+                  fontSize="12.5"
+                  textAnchor="middle"
+                  fill="var(--fiber)"
+                >
+                  {t({ en: "cross connect", ja: "クロスコネクト" })}
+                </text>
+                <text
+                  x="395"
+                  y="276"
+                  fontSize="11"
+                  textAnchor="middle"
+                  fill="var(--muted)"
+                >
+                  LOA-CFA · SMF
+                </text>
+              </Hotspot>
+
+              <Hotspot id="dxrouter" active={active} onPick={setActive}>
+                <rect
+                  className="hl"
+                  x="435"
+                  y="150"
+                  width="120"
+                  height="100"
+                  rx="6"
+                  fill="var(--panel)"
+                  stroke={on("dxrouter")}
+                  strokeWidth="2"
+                />
+                <text
+                  x="495"
+                  y="192"
+                  fontSize="12.5"
+                  textAnchor="middle"
+                  fill="var(--aws)"
+                >
+                  {t({ en: "AWS DX router", ja: "AWS DX ルーター" })}
+                </text>
+                <text
+                  x="495"
+                  y="208"
+                  fontSize="11"
+                  textAnchor="middle"
+                  fill="var(--muted)"
+                >
+                  {t({ en: "1–400G port", ja: "1〜400G ポート" })}
+                </text>
+              </Hotspot>
+
+              <Hotspot id="vif" active={active} onPick={setActive}>
+                <rect
+                  className="hl"
+                  x="230"
+                  y="290"
+                  width="330"
+                  height="64"
+                  rx="6"
+                  fill="var(--panel)"
+                  stroke={on("vif")}
+                  strokeWidth="2"
+                />
+                {[
+                  ["VLAN 101 · private", "var(--ok)"],
+                  ["VLAN 102 · public", "var(--violet)"],
+                  ["VLAN 103 · transit", "var(--aws)"],
+                ].map(([label, color], i) => (
+                  <text
+                    key={label}
+                    x={i === 1 ? 400 : 245}
+                    y={i === 2 ? 340 : 314}
+                    fontSize="12.5"
+                    fill={color}
+                  >
+                    {label}
+                  </text>
+                ))}
+              </Hotspot>
+
+              <Hotspot id="backbone" active={active} onPick={setActive}>
+                <rect x="560" y="170" width="130" height="60" fill="transparent" />
+                <text
+                  x="625"
+                  y="188"
+                  fontSize="12.5"
+                  textAnchor="middle"
+                  fill={active === "backbone" ? "var(--fiber)" : "var(--aws)"}
+                >
+                  {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
+                </text>
+              </Hotspot>
+
+              <Hotspot id="gateway" active={active} onPick={setActive}>
+                <rect
+                  className="hl"
+                  x="700"
+                  y="160"
+                  width="100"
+                  height="80"
+                  rx="8"
+                  fill="var(--panel)"
+                  stroke={on("gateway")}
+                  strokeWidth="2"
+                />
+                <text
+                  x="750"
+                  y="194"
+                  fontSize="13.1"
+                  textAnchor="middle"
+                  fill="var(--ink)"
+                >
+                  VGW / DXGW
+                </text>
+                <text
+                  x="750"
+                  y="210"
+                  fontSize="11"
+                  textAnchor="middle"
+                  fill="var(--muted)"
+                >
+                  TGW · Cloud WAN
+                </text>
+              </Hotspot>
+
+              <Hotspot id="vpc" active={active} onPick={setActive}>
+                <rect
+                  className="hl"
+                  x="860"
+                  y="80"
+                  width="110"
+                  height="70"
+                  rx="8"
+                  fill="var(--panel)"
+                  stroke={on("vpc")}
+                  strokeWidth="2"
+                />
+                <text
+                  x="915"
+                  y="112"
+                  fontSize="12.5"
+                  textAnchor="middle"
+                  fill="var(--ok)"
+                >
+                  VPC
+                </text>
+                <text
+                  x="915"
+                  y="128"
+                  fontSize="11"
+                  textAnchor="middle"
+                  fill="var(--muted)"
+                >
+                  10.0.0.0/16
+                </text>
+              </Hotspot>
+
+              <Hotspot id="public" active={active} onPick={setActive}>
+                <rect
+                  className="hl"
+                  x="860"
+                  y="250"
+                  width="110"
+                  height="70"
+                  rx="8"
+                  fill="var(--panel)"
+                  stroke={on("public")}
+                  strokeWidth="2"
+                />
+                <text
+                  x="915"
+                  y="282"
+                  fontSize="12.5"
+                  textAnchor="middle"
+                  fill="var(--violet)"
+                >
+                  S3 · DynamoDB
+                </text>
+                <text
+                  x="915"
+                  y="298"
+                  fontSize="11"
+                  textAnchor="middle"
+                  fill="var(--muted)"
+                >
+                  {t({ en: "public IPs", ja: "パブリック IP" })}
+                </text>
+              </Hotspot>
+            </svg>
+          </Scroll>
+        )}
       </Panel>
+      {!narrow && (
+        <Panel>
+          <p className="mb-1 text-sm font-bold text-[var(--fiber)]">
+            {t(PARTS[active].name)}
+          </p>
+          <p aria-live="polite" className="leading-relaxed">
+            {t(PARTS[active].body)}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {(Object.keys(PARTS) as PartId[]).map((id) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActive(id)}
+                className={`min-h-8 rounded-full border-2 px-3 py-1 text-xs font-bold ${
+                  active === id
+                    ? "border-[var(--fiber)] text-[var(--fiber)]"
+                    : "border-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)]"
+                }`}
+              >
+                {t(PARTS[id].name)}
+              </button>
+            ))}
+          </div>
+        </Panel>
+      )}
     </div>
   );
 }

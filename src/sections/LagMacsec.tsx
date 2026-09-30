@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
 import { HikariSays } from "../components/Hikari";
+import { useNarrow } from "../components/useNarrow";
 import { Callout, Panel, Scroll, Section, Segmented, T, Tag } from "../components/ui";
 import {
   type MacsecMode,
@@ -99,6 +100,7 @@ const LAG_RULES: L[] = [
 
 function LagLab() {
   const { t } = useLang();
+  const narrow = useNarrow();
   const [speed, setSpeed] = useState<PortSpeed>(10);
   const [cut, setCut] = useState<number[]>([]);
   const [minLinks, setMinLinks] = useState(0);
@@ -114,6 +116,12 @@ function LagLab() {
   const toggle = (i: number) =>
     setCut((c) => (c.includes(i) ? c.filter((x) => x !== i) : [...c, i]));
 
+  // Phones get a narrower drawing instead of a shrunken one.
+  const W = narrow ? 360 : 760;
+  const bw = narrow ? 104 : 150;
+  const rx0 = narrow ? 8 : 20;
+  const ax0 = W - rx0 - bw;
+  const mid = (rx0 + bw + ax0) / 2;
   const rowH = 40;
   const top = 70;
   const h = top + n * rowH + 30;
@@ -145,25 +153,31 @@ function LagLab() {
       <p className="mb-2 text-xs text-[var(--muted)]">{t(C.clickMember)}</p>
       <Scroll>
         <svg
-          viewBox={`0 0 760 ${h}`}
-          className="diagram min-w-[560px]"
+          viewBox={`0 0 ${W} ${h}`}
+          className={`diagram ${narrow ? "" : "min-w-[560px]"}`}
           role="group"
           aria-label={t(C.lagLab)}
         >
           <rect
-            x="20"
+            x={rx0}
             y="40"
-            width="150"
+            width={bw}
             height={n * rowH + 20}
             rx="8"
             fill="var(--panel-2)"
             stroke="var(--line)"
           />
-          <text x="95" y="30" fontSize="13.8" textAnchor="middle" fill="var(--muted)">
+          <text
+            x={rx0 + bw / 2}
+            y="30"
+            fontSize="13.8"
+            textAnchor="middle"
+            fill="var(--muted)"
+          >
             {t({ en: "your router", ja: "自社ルーター" })}
           </text>
           <text
-            x="95"
+            x={rx0 + bw / 2}
             y={50 + (n * rowH) / 2 + 10}
             fontSize="13.8"
             textAnchor="middle"
@@ -172,19 +186,25 @@ function LagLab() {
             Port-channel
           </text>
           <rect
-            x="590"
+            x={ax0}
             y="40"
-            width="150"
+            width={bw}
             height={n * rowH + 20}
             rx="8"
             fill="var(--panel-2)"
             stroke="var(--aws)"
           />
-          <text x="665" y="30" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
+          <text
+            x={ax0 + bw / 2}
+            y="30"
+            fontSize="12.5"
+            textAnchor="middle"
+            fill="var(--aws)"
+          >
             {t({ en: "one AWS device", ja: "AWS 機器 1 台" })}
           </text>
           <text
-            x="665"
+            x={ax0 + bw / 2}
             y={50 + (n * rowH) / 2 + 10}
             fontSize="13.8"
             textAnchor="middle"
@@ -215,10 +235,16 @@ function LagLab() {
                 }}
                 className="cursor-pointer"
               >
-                <rect x="170" y={y - 14} width="420" height="28" fill="transparent" />
+                <rect
+                  x={rx0 + bw}
+                  y={y - 14}
+                  width={ax0 - rx0 - bw}
+                  height="28"
+                  fill="transparent"
+                />
                 <line
-                  x1="170"
-                  x2="590"
+                  x1={rx0 + bw}
+                  x2={ax0}
                   y1={y}
                   y2={y}
                   stroke={isUp ? (live ? "var(--fiber)" : "var(--muted)") : "var(--bad)"}
@@ -227,7 +253,7 @@ function LagLab() {
                   strokeDasharray={isUp ? undefined : "2 8"}
                 />
                 <text
-                  x="380"
+                  x={mid}
                   y={y - 8}
                   fontSize="12.5"
                   textAnchor="middle"
@@ -257,6 +283,7 @@ function LagLab() {
 
 function MacsecLab() {
   const { t } = useLang();
+  const narrow = useNarrow();
   const [mode, setMode] = useState<MacsecMode>("should_encrypt");
   const [sessionUp, setSessionUp] = useState(true);
   const out = OUTCOME[macsecOutcome(mode, sessionUp)];
@@ -283,90 +310,191 @@ function MacsecLab() {
           onChange={(v) => setSessionUp(v === "up")}
         />
       </div>
-      <Scroll>
+      {narrow ? (
         <svg
-          viewBox="0 55 900 150"
-          className="diagram min-w-[640px]"
+          viewBox="0 0 340 380"
+          className="diagram w-full"
           role="img"
           aria-label={t(C.macLab)}
         >
+          {/* top to bottom: router, DX device, Region; the IPsec bracket on the left */}
           <rect
-            x="10"
-            y="70"
-            width="130"
-            height="60"
-            rx="8"
+            x="60"
+            y="10"
+            width="220"
+            height="50"
+            rx="10"
             fill="var(--panel-2)"
             stroke="var(--line)"
           />
-          <text x="75" y="104" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
+          <text x="170" y="41" fontSize="15" textAnchor="middle" fill="var(--ink)">
             {t({ en: "your router", ja: "自社ルーター" })}
           </text>
-          <rect
-            x="360"
-            y="70"
-            width="140"
-            height="60"
-            rx="8"
-            fill="var(--panel-2)"
-            stroke="var(--aws)"
-          />
-          <text x="430" y="98" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
-            {t({ en: "AWS DX device", ja: "AWS DX 機器" })}
-          </text>
-          <text x="430" y="114" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-            {t({ en: "DX location", ja: "DX ロケーション" })}
-          </text>
-          <rect
-            x="740"
-            y="70"
-            width="150"
-            height="60"
-            rx="8"
-            fill="var(--panel-2)"
-            stroke="var(--aws)"
-          />
-          <text x="815" y="104" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
-            {t({ en: "AWS Region", ja: "AWS リージョン" })}
-          </text>
-
           <line
-            x1="140"
-            x2="360"
-            y1="100"
-            y2="100"
+            x1="170"
+            x2="170"
+            y1="60"
+            y2="170"
             stroke={out.color}
             strokeWidth="5"
             className={out.color === "var(--bad)" ? undefined : "flow"}
           />
-          <text x="250" y="88" fontSize="12.5" textAnchor="middle" fill={out.color}>
+          <text x="182" y="105" fontSize="14" fill={out.color}>
             MACsec (L2)
           </text>
-          <text x="250" y="126" fontSize="12.5" textAnchor="middle" fill={out.color}>
+          <text x="182" y="125" fontSize="13" fill={out.color}>
             {t(out.label)}
           </text>
-          <line x1="500" x2="740" y1="100" y2="100" stroke="var(--aws)" strokeWidth="3" />
-          <text x="620" y="88" fontSize="12.5" textAnchor="middle" fill="var(--muted)">
+          <rect
+            x="60"
+            y="170"
+            width="220"
+            height="56"
+            rx="10"
+            fill="var(--panel-2)"
+            stroke="var(--aws)"
+          />
+          <text x="170" y="195" fontSize="15" textAnchor="middle" fill="var(--aws)">
+            {t({ en: "AWS DX device", ja: "AWS DX 機器" })}
+          </text>
+          <text x="170" y="214" fontSize="12" textAnchor="middle" fill="var(--muted)">
+            {t({ en: "DX location", ja: "DX ロケーション" })}
+          </text>
+          <line x1="170" x2="170" y1="226" y2="316" stroke="var(--aws)" strokeWidth="3" />
+          <text x="182" y="262" fontSize="13" fill="var(--muted)">
             {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
           </text>
-          <text x="620" y="126" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-            {t({ en: "AWS physical-layer encryption", ja: "AWS が物理層で暗号化" })}
+          <text x="182" y="281" fontSize="12" fill="var(--muted)">
+            {t({ en: "encrypted by AWS (L1)", ja: "AWS が物理層で暗号化" })}
           </text>
-
+          <rect
+            x="60"
+            y="316"
+            width="220"
+            height="50"
+            rx="10"
+            fill="var(--panel-2)"
+            stroke="var(--aws)"
+          />
+          <text x="170" y="347" fontSize="15" textAnchor="middle" fill="var(--aws)">
+            {t({ en: "AWS Region", ja: "AWS リージョン" })}
+          </text>
           <path
-            d="M75 150 V175 H815 V150"
+            d="M60 35 H30 V341 H60"
             fill="none"
             stroke="var(--violet)"
             strokeDasharray="4 4"
           />
-          <text x="445" y="192" fontSize="12.5" textAnchor="middle" fill="var(--violet)">
-            {t({
-              en: "IPsec / TLS = end-to-end (optional, on top)",
-              ja: "IPsec / TLS = エンドツーエンド (上に重ねる)",
-            })}
+          <text
+            x="20"
+            y="188"
+            fontSize="12"
+            textAnchor="middle"
+            fill="var(--violet)"
+            transform="rotate(-90 20 188)"
+          >
+            {t({ en: "IPsec / TLS: end-to-end", ja: "IPsec / TLS: 端から端まで" })}
           </text>
         </svg>
-      </Scroll>
+      ) : (
+        <Scroll>
+          <svg
+            viewBox="0 55 900 150"
+            className="diagram min-w-[640px]"
+            role="img"
+            aria-label={t(C.macLab)}
+          >
+            <rect
+              x="10"
+              y="70"
+              width="130"
+              height="60"
+              rx="8"
+              fill="var(--panel-2)"
+              stroke="var(--line)"
+            />
+            <text x="75" y="104" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
+              {t({ en: "your router", ja: "自社ルーター" })}
+            </text>
+            <rect
+              x="360"
+              y="70"
+              width="140"
+              height="60"
+              rx="8"
+              fill="var(--panel-2)"
+              stroke="var(--aws)"
+            />
+            <text x="430" y="98" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
+              {t({ en: "AWS DX device", ja: "AWS DX 機器" })}
+            </text>
+            <text x="430" y="114" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
+              {t({ en: "DX location", ja: "DX ロケーション" })}
+            </text>
+            <rect
+              x="740"
+              y="70"
+              width="150"
+              height="60"
+              rx="8"
+              fill="var(--panel-2)"
+              stroke="var(--aws)"
+            />
+            <text x="815" y="104" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
+              {t({ en: "AWS Region", ja: "AWS リージョン" })}
+            </text>
+
+            <line
+              x1="140"
+              x2="360"
+              y1="100"
+              y2="100"
+              stroke={out.color}
+              strokeWidth="5"
+              className={out.color === "var(--bad)" ? undefined : "flow"}
+            />
+            <text x="250" y="88" fontSize="12.5" textAnchor="middle" fill={out.color}>
+              MACsec (L2)
+            </text>
+            <text x="250" y="126" fontSize="12.5" textAnchor="middle" fill={out.color}>
+              {t(out.label)}
+            </text>
+            <line
+              x1="500"
+              x2="740"
+              y1="100"
+              y2="100"
+              stroke="var(--aws)"
+              strokeWidth="3"
+            />
+            <text x="620" y="88" fontSize="12.5" textAnchor="middle" fill="var(--muted)">
+              {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
+            </text>
+            <text x="620" y="126" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
+              {t({ en: "AWS physical-layer encryption", ja: "AWS が物理層で暗号化" })}
+            </text>
+
+            <path
+              d="M75 150 V175 H815 V150"
+              fill="none"
+              stroke="var(--violet)"
+              strokeDasharray="4 4"
+            />
+            <text
+              x="445"
+              y="192"
+              fontSize="12.5"
+              textAnchor="middle"
+              fill="var(--violet)"
+            >
+              {t({
+                en: "IPsec / TLS = end-to-end (optional, on top)",
+                ja: "IPsec / TLS = エンドツーエンド (上に重ねる)",
+              })}
+            </text>
+          </svg>
+        </Scroll>
+      )}
     </Panel>
   );
 }

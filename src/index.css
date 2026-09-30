@@ -171,3 +171,8 @@ h4 {
 .grid > * {
   min-width: 0;
 }
+
+/* Break Japanese headings at phrase boundaries, not mid-word. */
+html:lang(ja) :is(h1, h2, h3, h4) {
+  word-break: auto-phrase;
+}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { useNarrow } from "../components/useNarrow";
 import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, Segmented, T, Tag } from "../components/ui";
 import { parseCidr } from "../lib/cidr";
@@ -91,7 +92,100 @@ const MODES: Record<Mode, { vif: L; targets: string[]; note: L }> = {
 
 function ModeDiagram({ mode }: { mode: Mode }) {
   const { t } = useLang();
+  const narrow = useNarrow();
   const m = MODES[mode];
+  if (narrow)
+    return (
+      <svg
+        viewBox="0 0 340 400"
+        className="diagram w-full"
+        role="img"
+        aria-label={t(m.note)}
+      >
+        {[0, 1].map((i) => {
+          const x = 20 + i * 170;
+          return (
+            <g key={i}>
+              <rect
+                x={x}
+                y="10"
+                width="130"
+                height="44"
+                rx="10"
+                fill="var(--panel-2)"
+                stroke="var(--line)"
+              />
+              <text x={x + 65} y="38" fontSize="15" textAnchor="middle" fill="var(--ink)">
+                DC {i + 1}
+              </text>
+              <path
+                d={`M${x + 65} 54 C${x + 65} 100 170 90 170 112`}
+                stroke="var(--fiber)"
+                strokeWidth="3"
+                fill="none"
+                className="flow"
+              />
+            </g>
+          );
+        })}
+        <text x="170" y="84" fontSize="12" textAnchor="middle" fill="var(--muted)">
+          {t(m.vif)}
+        </text>
+        <circle
+          cx="170"
+          cy="150"
+          r="40"
+          fill="var(--panel)"
+          stroke="var(--fiber)"
+          strokeWidth="2.5"
+        />
+        <text x="170" y="148" fontSize="15" textAnchor="middle" fill="var(--fiber)">
+          DXGW
+        </text>
+        <text x="170" y="166" fontSize="11" textAnchor="middle" fill="var(--muted)">
+          ASN 64512
+        </text>
+        <path
+          d="M170 190 V208 H14 V364"
+          stroke="var(--aws)"
+          strokeWidth="2"
+          fill="none"
+        />
+        {m.targets.map((label, i) => {
+          const y = 230 + i * 56;
+          return (
+            <g key={label}>
+              <line
+                x1="14"
+                x2="30"
+                y1={y + 22}
+                y2={y + 22}
+                stroke="var(--aws)"
+                strokeWidth="2"
+              />
+              <rect
+                x="30"
+                y={y}
+                width="290"
+                height="44"
+                rx="10"
+                fill="var(--panel)"
+                stroke="var(--aws)"
+              />
+              <text
+                x="170"
+                y={y + 28}
+                fontSize="14"
+                textAnchor="middle"
+                fill="var(--ink)"
+              >
+                {label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    );
   return (
     <Scroll>
       <svg
@@ -290,6 +384,7 @@ function PrefixLab() {
 
 function SiteLinkDiagram() {
   const { t } = useLang();
+  const narrow = useNarrow();
   const [on, setOn] = useState(false);
   return (
     <Panel>
@@ -304,105 +399,227 @@ function SiteLinkDiagram() {
           onChange={(v) => setOn(v === "on")}
         />
       </div>
-      <Scroll>
+      {narrow ? (
         <svg
-          viewBox="0 0 900 230"
-          className="diagram min-w-[640px]"
+          viewBox="0 0 340 300"
+          className="diagram w-full"
           role="img"
           aria-label={t(on ? C.sitelinkOn : C.sitelinkOff)}
         >
-          <rect
-            x="10"
-            y="20"
-            width="130"
-            height="50"
-            rx="8"
-            fill="var(--panel-2)"
-            stroke="var(--line)"
-          />
-          <text x="75" y="50" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
-            {t({ en: "DC Tokyo", ja: "東京 DC" })}
-          </text>
-          <rect
-            x="760"
-            y="20"
-            width="130"
-            height="50"
-            rx="8"
-            fill="var(--panel-2)"
-            stroke="var(--line)"
-          />
-          <text x="825" y="50" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
-            {t({ en: "DC London", ja: "ロンドン DC" })}
-          </text>
-          <rect
-            x="180"
-            y="20"
-            width="140"
-            height="50"
-            rx="8"
-            fill="var(--panel)"
-            stroke="var(--fiber)"
-          />
-          <text x="250" y="50" fontSize="12.5" textAnchor="middle" fill="var(--fiber)">
-            {t({ en: "DX loc · Tokyo", ja: "DX ロケーション 東京" })}
-          </text>
-          <rect
-            x="580"
-            y="20"
-            width="140"
-            height="50"
-            rx="8"
-            fill="var(--panel)"
-            stroke="var(--fiber)"
-          />
-          <text x="650" y="50" fontSize="12.5" textAnchor="middle" fill="var(--fiber)">
-            {t({ en: "DX loc · London", ja: "DX ロケーション ロンドン" })}
-          </text>
-          <line x1="140" x2="180" y1="45" y2="45" stroke="var(--fiber)" strokeWidth="3" />
-          <line x1="720" x2="760" y1="45" y2="45" stroke="var(--fiber)" strokeWidth="3" />
-          <circle cx="450" cy="170" r="40" fill="var(--panel)" stroke="var(--fiber)" />
-          <text x="450" y="174" fontSize="13.8" textAnchor="middle" fill="var(--fiber)">
-            DXGW
-          </text>
-          <path
-            d="M250 70 C250 150 370 170 410 170"
-            stroke="var(--line)"
-            strokeWidth="2"
-            fill="none"
-          />
-          <path
-            d="M650 70 C650 150 530 170 490 170"
-            stroke="var(--line)"
-            strokeWidth="2"
-            fill="none"
-          />
+          {[
+            [
+              20,
+              t({ en: "DC Tokyo", ja: "東京 DC" }),
+              t({ en: "DX loc Tokyo", ja: "DX 東京" }),
+            ],
+            [
+              200,
+              t({ en: "DC London", ja: "ロンドン DC" }),
+              t({ en: "DX loc London", ja: "DX ロンドン" }),
+            ],
+          ].map(([x, dc, loc]) => (
+            <g key={String(x)}>
+              <rect
+                x={Number(x)}
+                y="10"
+                width="120"
+                height="44"
+                rx="10"
+                fill="var(--panel-2)"
+                stroke="var(--line)"
+              />
+              <text
+                x={Number(x) + 60}
+                y="38"
+                fontSize="14"
+                textAnchor="middle"
+                fill="var(--ink)"
+              >
+                {dc}
+              </text>
+              <line
+                x1={Number(x) + 60}
+                x2={Number(x) + 60}
+                y1="54"
+                y2="100"
+                stroke="var(--fiber)"
+                strokeWidth="3"
+              />
+              <rect
+                x={Number(x)}
+                y="100"
+                width="120"
+                height="44"
+                rx="10"
+                fill="var(--panel)"
+                stroke="var(--fiber)"
+              />
+              <text
+                x={Number(x) + 60}
+                y="128"
+                fontSize="14"
+                textAnchor="middle"
+                fill="var(--fiber)"
+              >
+                {loc}
+              </text>
+              <path
+                d={`M${Number(x) + 60} 144 C${Number(x) + 60} 220 170 200 170 226`}
+                stroke="var(--line)"
+                strokeWidth="2"
+                fill="none"
+              />
+            </g>
+          ))}
           {on ? (
-            <path d="M320 45 H580" stroke="var(--ok)" strokeWidth="4" className="flow" />
+            <path d="M140 122 H200" stroke="var(--ok)" strokeWidth="4" className="flow" />
           ) : (
             <g>
               <path
-                d="M320 45 H580"
+                d="M140 122 H200"
                 stroke="var(--bad)"
                 strokeWidth="2"
-                strokeDasharray="3 8"
+                strokeDasharray="3 6"
               />
-              <text x="450" y="38" fontSize="20" textAnchor="middle" fill="var(--bad)">
+              <text x="170" y="116" fontSize="16" textAnchor="middle" fill="var(--bad)">
                 ✕
               </text>
             </g>
           )}
           <text
-            x="450"
-            y="70"
-            fontSize="12.5"
+            x="170"
+            y="170"
+            fontSize="12"
             textAnchor="middle"
             fill={on ? "var(--ok)" : "var(--bad)"}
           >
             {t(on ? C.slOn : C.slOff)}
           </text>
+          <circle cx="170" cy="258" r="32" fill="var(--panel)" stroke="var(--fiber)" />
+          <text x="170" y="263" fontSize="14" textAnchor="middle" fill="var(--fiber)">
+            DXGW
+          </text>
         </svg>
-      </Scroll>
+      ) : (
+        <Scroll>
+          <svg
+            viewBox="0 0 900 230"
+            className="diagram min-w-[640px]"
+            role="img"
+            aria-label={t(on ? C.sitelinkOn : C.sitelinkOff)}
+          >
+            <rect
+              x="10"
+              y="20"
+              width="130"
+              height="50"
+              rx="8"
+              fill="var(--panel-2)"
+              stroke="var(--line)"
+            />
+            <text x="75" y="50" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
+              {t({ en: "DC Tokyo", ja: "東京 DC" })}
+            </text>
+            <rect
+              x="760"
+              y="20"
+              width="130"
+              height="50"
+              rx="8"
+              fill="var(--panel-2)"
+              stroke="var(--line)"
+            />
+            <text x="825" y="50" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
+              {t({ en: "DC London", ja: "ロンドン DC" })}
+            </text>
+            <rect
+              x="180"
+              y="20"
+              width="140"
+              height="50"
+              rx="8"
+              fill="var(--panel)"
+              stroke="var(--fiber)"
+            />
+            <text x="250" y="50" fontSize="12.5" textAnchor="middle" fill="var(--fiber)">
+              {t({ en: "DX loc · Tokyo", ja: "DX 東京" })}
+            </text>
+            <rect
+              x="580"
+              y="20"
+              width="140"
+              height="50"
+              rx="8"
+              fill="var(--panel)"
+              stroke="var(--fiber)"
+            />
+            <text x="650" y="50" fontSize="12.5" textAnchor="middle" fill="var(--fiber)">
+              {t({ en: "DX loc · London", ja: "DX ロンドン" })}
+            </text>
+            <line
+              x1="140"
+              x2="180"
+              y1="45"
+              y2="45"
+              stroke="var(--fiber)"
+              strokeWidth="3"
+            />
+            <line
+              x1="720"
+              x2="760"
+              y1="45"
+              y2="45"
+              stroke="var(--fiber)"
+              strokeWidth="3"
+            />
+            <circle cx="450" cy="170" r="40" fill="var(--panel)" stroke="var(--fiber)" />
+            <text x="450" y="174" fontSize="13.8" textAnchor="middle" fill="var(--fiber)">
+              DXGW
+            </text>
+            <path
+              d="M250 70 C250 150 370 170 410 170"
+              stroke="var(--line)"
+              strokeWidth="2"
+              fill="none"
+            />
+            <path
+              d="M650 70 C650 150 530 170 490 170"
+              stroke="var(--line)"
+              strokeWidth="2"
+              fill="none"
+            />
+            {on ? (
+              <path
+                d="M320 45 H580"
+                stroke="var(--ok)"
+                strokeWidth="4"
+                className="flow"
+              />
+            ) : (
+              <g>
+                <path
+                  d="M320 45 H580"
+                  stroke="var(--bad)"
+                  strokeWidth="2"
+                  strokeDasharray="3 8"
+                />
+                <text x="450" y="38" fontSize="20" textAnchor="middle" fill="var(--bad)">
+                  ✕
+                </text>
+              </g>
+            )}
+            <text
+              x="450"
+              y="70"
+              fontSize="12.5"
+              textAnchor="middle"
+              fill={on ? "var(--ok)" : "var(--bad)"}
+            >
+              {t(on ? C.slOn : C.slOff)}
+            </text>
+          </svg>
+        </Scroll>
+      )}
       <p aria-live="polite" className="mt-3 text-sm leading-relaxed">
         {t(on ? C.sitelinkOn : C.sitelinkOff)}
       </p>

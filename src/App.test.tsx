@@ -79,6 +79,42 @@ describe("App", () => {
     expect(pub).toHaveFocus();
   });
 
+  it("switches wide diagrams to phone layouts on narrow screens", async () => {
+    const original = Object.getOwnPropertyDescriptor(window, "matchMedia");
+    window.matchMedia = ((q: string) => ({
+      matches: q.includes("max-width"),
+      media: q,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })) as unknown as typeof window.matchMedia;
+    try {
+      renderApp();
+      const overview = document.querySelector("section#overview") as HTMLElement;
+      const xc = within(overview).getByRole("button", {
+        name: "Cross connect",
+        pressed: true,
+      });
+      expect(within(overview).getByText(/single-mode fiber patch/)).toBeInTheDocument();
+      await userEvent.click(within(overview).getByRole("button", { name: "VPCs" }));
+      expect(xc).toHaveAttribute("aria-pressed", "false");
+      expect(
+        within(overview).getByText(/Your private address space/),
+      ).toBeInTheDocument();
+    } finally {
+      if (original) Object.defineProperty(window, "matchMedia", original);
+      else delete (window as { matchMedia?: unknown }).matchMedia;
+    }
+  });
+
+  it("each section lists the traps it untangles", () => {
+    renderApp();
+    const routing = document.querySelector("section#routing") as HTMLElement;
+    expect(within(routing).getByText("Untangles these traps")).toBeInTheDocument();
+    expect(
+      within(routing).getByRole("link", { name: /Why is my traffic on the VPN/ }),
+    ).toHaveAttribute("href", "#traps");
+  });
+
   it("has both languages for every timeline entry", () => {
     for (const e of EVENTS) {
       expect(e.text.en.length).toBeGreaterThan(0);

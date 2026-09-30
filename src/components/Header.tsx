@@ -78,7 +78,8 @@ export function Header() {
           className="flex shrink-0 items-center gap-2 font-display text-lg font-semibold"
         >
           <Hikari size={30} />
-          cross-connect
+          {/* The wordmark gives way to the controls on the narrowest phones. */}
+          <span className="max-[420px]:sr-only">cross-connect</span>
         </a>
         <div className="ml-auto flex items-center gap-2">
           <RouteMenu />

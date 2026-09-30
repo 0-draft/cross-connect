@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { useNarrow } from "../components/useNarrow";
 import { Callout, Panel, Scroll, Section, T, Tag } from "../components/ui";
 import {
   type Decision,
@@ -181,7 +182,7 @@ function PathRow({
         >
           {p.id} {isDx ? "· private VIF" : "· Site-to-Site VPN (BGP)"}
         </span>
-        <label className="flex min-h-8 items-center gap-1.5 text-xs">
+        <label className="flex min-h-8 items-center gap-1.5 text-xs whitespace-nowrap">
           <input
             type="checkbox"
             className="size-5 accent-[var(--fiber)]"
@@ -256,6 +257,9 @@ function PathRow({
 
 function PathLab() {
   const { t } = useLang();
+  const narrow = useNarrow();
+  // Labels grow on phones, where the drawing is scaled down to fit.
+  const fs = (n: number) => (narrow ? Math.round(n * (n >= 13 ? 1.6 : 1.25)) : n);
   const [paths, setPaths] = useState<Path[]>(INITIAL);
   const [outbound, setOutbound] = useState<string>("DX-A");
   const sel = selectPath(paths);
@@ -285,115 +289,114 @@ function PathLab() {
         ))}
       </div>
       <Panel className="p-3 sm:p-4">
-        <Scroll>
-          <svg
-            viewBox="0 0 520 270"
-            className="diagram min-w-[420px]"
-            role="img"
-            aria-label={t(C.lab)}
+        <svg
+          viewBox="0 0 520 240"
+          className="diagram w-full"
+          role="img"
+          aria-label={t(C.lab)}
+        >
+          <rect
+            x="10"
+            y="100"
+            width="100"
+            height="60"
+            rx="8"
+            fill="var(--panel-2)"
+            stroke="var(--aws)"
+          />
+          <text x="60" y="126" fontSize={fs(13.8)} textAnchor="middle" fill="var(--aws)">
+            VPC
+          </text>
+          <text
+            x="60"
+            y="142"
+            fontSize={fs(11.2)}
+            textAnchor="middle"
+            fill="var(--muted)"
           >
-            <rect
-              x="10"
-              y="100"
-              width="100"
-              height="60"
-              rx="8"
-              fill="var(--panel-2)"
-              stroke="var(--aws)"
-            />
-            <text x="60" y="126" fontSize="13.8" textAnchor="middle" fill="var(--aws)">
-              VPC
-            </text>
-            <text x="60" y="142" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-              {t({ en: "via VGW", ja: "VGW 経由" })}
-            </text>
-            <rect
-              x="410"
-              y="100"
-              width="100"
-              height="60"
-              rx="8"
-              fill="var(--panel-2)"
-              stroke="var(--line)"
-            />
-            <text x="460" y="126" fontSize="13.8" textAnchor="middle" fill="var(--ink)">
-              {t({ en: "on-prem", ja: "オンプレ" })}
-            </text>
-            <text x="460" y="142" fontSize="11.2" textAnchor="middle" fill="var(--muted)">
-              10.1.0.0/16
-            </text>
-            {paths.map((p) => {
-              const y = ys[p.id];
-              const win = sel.winners.includes(p.id);
-              const color = !p.up ? "var(--bad)" : win ? "var(--ok)" : "var(--muted)";
-              return (
-                <g key={p.id}>
+            {t({ en: "via VGW", ja: "VGW 経由" })}
+          </text>
+          <rect
+            x="410"
+            y="100"
+            width="100"
+            height="60"
+            rx="8"
+            fill="var(--panel-2)"
+            stroke="var(--line)"
+          />
+          <text x="460" y="126" fontSize={fs(13.8)} textAnchor="middle" fill="var(--ink)">
+            {t({ en: "on-prem", ja: "オンプレ" })}
+          </text>
+          <text
+            x="460"
+            y="142"
+            fontSize={fs(11.2)}
+            textAnchor="middle"
+            fill="var(--muted)"
+          >
+            10.1.0.0/16
+          </text>
+          {paths.map((p) => {
+            const y = ys[p.id];
+            const win = sel.winners.includes(p.id);
+            const color = !p.up ? "var(--bad)" : win ? "var(--ok)" : "var(--muted)";
+            return (
+              <g key={p.id}>
+                <path
+                  d={`M110 130 C170 130 170 ${y} 230 ${y} H300 C350 ${y} 350 130 410 130`}
+                  stroke={color}
+                  strokeWidth={win ? 4 : 2}
+                  fill="none"
+                  strokeDasharray={p.up ? undefined : "3 6"}
+                  className={win ? "flow" : undefined}
+                  opacity={win || !p.up ? 1 : 0.5}
+                />
+                {outPath === p.id && (
                   <path
-                    d={`M110 130 C170 130 170 ${y} 230 ${y} H300 C350 ${y} 350 130 410 130`}
-                    stroke={color}
-                    strokeWidth={win ? 4 : 2}
+                    d={`M410 ${140} C350 ${140} 350 ${y + 10} 300 ${y + 10} H230 C170 ${y + 10} 170 140 110 140`}
+                    stroke="var(--violet)"
+                    strokeWidth="2.5"
+                    strokeDasharray="2 5"
                     fill="none"
-                    strokeDasharray={p.up ? undefined : "3 6"}
-                    className={win ? "flow" : undefined}
-                    opacity={win || !p.up ? 1 : 0.5}
                   />
-                  {outPath === p.id && (
-                    <path
-                      d={`M410 ${140} C350 ${140} 350 ${y + 10} 300 ${y + 10} H230 C170 ${y + 10} 170 140 110 140`}
-                      stroke="var(--violet)"
-                      strokeWidth="2.5"
-                      strokeDasharray="2 5"
-                      fill="none"
-                    />
-                  )}
-                  <rect
-                    x="225"
-                    y={y - 14}
-                    width="80"
-                    height="28"
-                    rx="6"
-                    fill="var(--panel)"
-                    stroke={color}
-                  />
-                  <text
-                    x="265"
-                    y={y + 4}
-                    fontSize="13.8"
-                    textAnchor="middle"
-                    fill={color}
-                  >
-                    {p.id}
-                  </text>
-                </g>
-              );
-            })}
-            <g fontSize="12">
-              <line
-                x1="20"
-                x2="44"
-                y1="250"
-                y2="250"
-                stroke="var(--ok)"
-                strokeWidth="4"
-              />
-              <text x="50" y="254" fill="var(--ink)">
-                {t(C.legendBack)}
-              </text>
-              <line
-                x1="270"
-                x2="294"
-                y1="250"
-                y2="250"
-                stroke="var(--violet)"
-                strokeWidth="2.5"
-                strokeDasharray="2 5"
-              />
-              <text x="300" y="254" fill="var(--ink)">
-                {t(C.legendOut)}
-              </text>
-            </g>
-          </svg>
-        </Scroll>
+                )}
+                <rect
+                  x="225"
+                  y={y - 14}
+                  width="80"
+                  height="28"
+                  rx="6"
+                  fill="var(--panel)"
+                  stroke={color}
+                />
+                <text
+                  x="265"
+                  y={y + 4}
+                  fontSize={fs(13.8)}
+                  textAnchor="middle"
+                  fill={color}
+                >
+                  {p.id}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+        <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs">
+          <span className="flex items-center gap-2">
+            <span aria-hidden="true" className="h-1 w-6 rounded bg-[var(--ok)]" />
+            {t(C.legendBack)}
+          </span>
+          <span className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="w-6 border-t-[3px] border-dotted border-[var(--violet)]"
+            />
+            {t(C.legendOut)}
+          </span>
+        </p>
+
         <div className="mt-3 px-1">
           <p aria-live="polite" className="text-sm">
             {t(C.winner)}:{" "}

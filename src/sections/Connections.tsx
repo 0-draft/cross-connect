@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
 import { HikariSays } from "../components/Hikari";
+import { useNarrow } from "../components/useNarrow";
 import { Callout, Panel, Scroll, Section, T, Tag } from "../components/ui";
 
 const C = {
@@ -62,6 +63,7 @@ function fmt(mbps: number): string {
 
 function SpeedLadder() {
   const { t } = useLang();
+  const narrow = useNarrow();
   const min = Math.log10(50);
   const max = Math.log10(400000);
   const x = (m: number) => 60 + ((Math.log10(m) - min) / (max - min)) * 900;
@@ -69,6 +71,30 @@ function SpeedLadder() {
     [C.dedicated, DEDICATED, "var(--fiber)"],
     [C.hosted, HOSTED, "var(--aws)"],
   ];
+  if (narrow)
+    return (
+      <Panel>
+        <p className="mb-3 text-xs font-bold text-[var(--muted)]">{t(C.speeds)}</p>
+        {rows.map(([label, speeds, color]) => (
+          <div key={label.en} className="mb-3">
+            <p className="mb-1.5 text-sm font-bold" style={{ color }}>
+              {t(label)}
+            </p>
+            <p className="flex flex-wrap gap-1.5">
+              {speeds.map((sp) => (
+                <span
+                  key={sp}
+                  className="rounded-full border-2 px-2.5 py-0.5 font-mono text-xs font-bold"
+                  style={{ borderColor: color, color }}
+                >
+                  {fmt(sp)}
+                </span>
+              ))}
+            </p>
+          </div>
+        ))}
+      </Panel>
+    );
   return (
     <Panel>
       <p className="mb-2 text-xs font-bold text-[var(--muted)]">{t(C.speeds)}</p>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { useNarrow } from "../components/useNarrow";
 import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, Segmented, T, Tag } from "../components/ui";
 import {
@@ -73,6 +74,7 @@ const MODEL_INFO: Record<ModelId, { name: L; sla: string; shape: L }> = {
 
 function FailureLab() {
   const { t } = useLang();
+  const narrow = useNarrow();
   const [id, setId] = useState<ModelId>("maximum");
   const [cutConns, setCutConns] = useState<string[]>([]);
   const [cutLocs, setCutLocs] = useState<string[]>([]);
@@ -91,10 +93,14 @@ function FailureLab() {
   const perLoc = model.locations.map((l) =>
     model.connections.filter((c) => c.location === l),
   );
-  const locW = 260;
-  const gap = 40;
+  // Phones get a narrower drawing instead of a shrunken one.
+  const W = narrow ? 360 : 900;
+  const gap = narrow ? 14 : 40;
+  const locW = narrow ? (model.locations.length > 1 ? 166 : 200) : 260;
   const totalW = model.locations.length * locW + (model.locations.length - 1) * gap;
-  const x0 = (900 - totalW) / 2;
+  const x0 = (W - totalW) / 2;
+  const boxW = narrow ? 260 : 300;
+  const devW = narrow ? 62 : 84;
 
   return (
     <Panel>
@@ -119,33 +125,45 @@ function FailureLab() {
       <p className="mb-2 text-xs text-[var(--muted)]">{t(C.labHint)}</p>
       <Scroll>
         <svg
-          viewBox="0 0 900 330"
-          className="diagram min-w-[640px]"
+          viewBox={`0 0 ${W} 330`}
+          className={`diagram ${narrow ? "w-full" : "min-w-[640px]"}`}
           role="group"
           aria-label={t(C.lab)}
         >
           <rect
-            x="300"
+            x={(W - boxW) / 2}
             y="10"
-            width="300"
+            width={boxW}
             height="46"
             rx="8"
             fill="var(--panel-2)"
             stroke="var(--line)"
           />
-          <text x="450" y="38" fontSize="15" textAnchor="middle" fill="var(--ink)">
+          <text
+            x={W / 2}
+            y="38"
+            fontSize={narrow ? 14 : 15}
+            textAnchor="middle"
+            fill="var(--ink)"
+          >
             {t({ en: "your data center(s)", ja: "自社データセンター" })}
           </text>
           <rect
-            x="300"
+            x={(W - boxW) / 2}
             y="274"
-            width="300"
+            width={boxW}
             height="46"
             rx="8"
             fill="var(--panel-2)"
             stroke="var(--aws)"
           />
-          <text x="450" y="302" fontSize="15" textAnchor="middle" fill="var(--aws)">
+          <text
+            x={W / 2}
+            y="302"
+            fontSize={narrow ? 12.5 : 15}
+            textAnchor="middle"
+            fill="var(--aws)"
+          >
             {t({
               en: "AWS Region · VPCs in 2+ AZs",
               ja: "AWS リージョン · VPC は 2 AZ 以上",
@@ -231,9 +249,9 @@ function FailureLab() {
                         className={alive ? "flow" : undefined}
                       />
                       <rect
-                        x={cx - 42}
+                        x={cx - devW / 2}
                         y="150"
-                        width="84"
+                        width={devW}
                         height="36"
                         rx="6"
                         fill="var(--panel-2)"
@@ -246,7 +264,7 @@ function FailureLab() {
                         textAnchor="middle"
                         fill="var(--ink)"
                       >
-                        {t({ en: "AWS device", ja: "AWS 機器" })}
+                        {narrow ? "AWS" : t({ en: "AWS device", ja: "AWS 機器" })}
                       </text>
                       <text
                         x={cx}

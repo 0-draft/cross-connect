@@ -1,14 +1,15 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { useNarrow } from "../components/useNarrow";
 import { HikariSays } from "../components/Hikari";
-import { Callout, Panel, Scroll, Section, T } from "../components/ui";
+import { Callout, Panel, Scroll, Section, Segmented, T } from "../components/ui";
 
 const C = {
   kicker: { en: "Security", ja: "セキュリティ" },
   title: {
     en: "Private is not the same as encrypted",
-    ja: "「専用」は「暗号化」ではない",
+    ja: "「閉域」は「暗号化」ではない",
   },
   lead: {
     en: "AWS states plainly that Direct Connect does not encrypt your traffic in transit by default. The cross connect, a partner's network and the DX device all carry your frames in clear text until you add a layer that encrypts.",
@@ -67,6 +68,7 @@ const LAYERS: Record<
 
 function LayerDiagram() {
   const { t } = useLang();
+  const narrow = useNarrow();
   const [focus, setFocus] = useState<Layer>("macsec");
   const nodes: [number, string][] = [
     [60, t({ en: "app", ja: "アプリ" })],
@@ -77,94 +79,206 @@ function LayerDiagram() {
   ];
   return (
     <Panel>
-      <Scroll>
-        <svg
-          viewBox="0 0 950 250"
-          className="diagram min-w-[680px]"
-          role="group"
-          aria-label={t(C.layers)}
-        >
-          <line x1="60" x2="890" y1="40" y2="40" stroke="var(--line)" strokeWidth="2" />
-          <line x1="150" x2="450" y1="40" y2="40" stroke="var(--fiber)" strokeWidth="3" />
-          <text x="300" y="30" fontSize="11.2" textAnchor="middle" fill="var(--fiber)">
-            {t({ en: "cross connect / carrier", ja: "クロスコネクト / キャリア" })}
-          </text>
-          <line x1="450" x2="790" y1="40" y2="40" stroke="var(--aws)" strokeWidth="3" />
-          <text x="620" y="30" fontSize="11.2" textAnchor="middle" fill="var(--aws)">
-            {t({
-              en: "AWS backbone (AWS physical-layer encryption)",
-              ja: "AWS バックボーン (AWS が物理層で暗号化)",
-            })}
-          </text>
-          {nodes.map(([x, label]) => (
-            <g key={label}>
-              <circle
-                cx={x}
-                cy="40"
-                r="7"
-                fill="var(--panel)"
-                stroke="var(--ink)"
-                strokeWidth="2"
-              />
-              <text x={x} y="66" fontSize="12.5" textAnchor="middle" fill="var(--muted)">
-                {label}
-              </text>
-            </g>
-          ))}
-          {(Object.keys(LAYERS) as Layer[]).map((k, i) => {
-            const l = LAYERS[k];
-            const y = 95 + i * 50;
-            const on = focus === k;
-            return (
-              <g
-                key={k}
-                role="button"
-                tabIndex={0}
-                aria-pressed={on}
-                aria-label={l.label}
-                className="cursor-pointer"
-                onClick={() => setFocus(k)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setFocus(k);
-                  }
-                }}
-              >
-                <rect
-                  x={l.from}
-                  y={y}
-                  width={l.to - l.from}
-                  height="30"
-                  rx="15"
-                  fill={l.color}
-                  opacity={on ? 0.22 : 0.08}
-                />
-                <rect
-                  x={l.from}
-                  y={y}
-                  width={l.to - l.from}
-                  height="30"
-                  rx="15"
-                  fill="none"
-                  stroke={l.color}
-                  strokeWidth={on ? 2.5 : 1.5}
-                  strokeDasharray={on ? undefined : "4 4"}
+      {narrow ? (
+        <div>
+          <Segmented
+            label={t(C.layers)}
+            value={focus}
+            options={(Object.keys(LAYERS) as Layer[]).map((k) => ({
+              value: k,
+              label: LAYERS[k].label,
+            }))}
+            onChange={setFocus}
+          />
+          <svg
+            viewBox="0 0 340 360"
+            className="diagram mt-3 w-full"
+            role="img"
+            aria-label={t(C.layers)}
+          >
+            {(() => {
+              // Map the horizontal path positions (60..890) onto a vertical axis.
+              const y = (x: number) => 20 + ((x - 60) / 830) * 320;
+              const l = LAYERS[focus];
+              return (
+                <g>
+                  <line
+                    x1="60"
+                    x2="60"
+                    y1={y(60)}
+                    y2={y(890)}
+                    stroke="var(--line)"
+                    strokeWidth="3"
+                  />
+                  <line
+                    x1="60"
+                    x2="60"
+                    y1={y(150)}
+                    y2={y(450)}
+                    stroke="var(--fiber)"
+                    strokeWidth="4"
+                  />
+                  <line
+                    x1="60"
+                    x2="60"
+                    y1={y(450)}
+                    y2={y(790)}
+                    stroke="var(--aws)"
+                    strokeWidth="4"
+                  />
+                  <rect
+                    x="36"
+                    y={y(l.from) - 8}
+                    width="48"
+                    height={y(l.to) - y(l.from) + 16}
+                    rx="24"
+                    fill={l.color}
+                    opacity="0.22"
+                    stroke={l.color}
+                    strokeWidth="2.5"
+                  />
+                  {nodes.map(([x, label]) => (
+                    <g key={label}>
+                      <circle
+                        cx="60"
+                        cy={y(x)}
+                        r="8"
+                        fill="var(--panel)"
+                        stroke="var(--ink)"
+                        strokeWidth="2"
+                      />
+                      <text x="100" y={y(x) + 5} fontSize="15" fill="var(--ink)">
+                        {label}
+                      </text>
+                    </g>
+                  ))}
+                  <text
+                    x="100"
+                    y={(y(150) + y(450)) / 2 + 5}
+                    fontSize="12"
+                    fill="var(--fiber)"
+                  >
+                    {t({
+                      en: "cross connect / carrier",
+                      ja: "クロスコネクト / キャリア",
+                    })}
+                  </text>
+                  <text
+                    x="100"
+                    y={(y(450) + y(790)) / 2 + 5}
+                    fontSize="12"
+                    fill="var(--aws)"
+                  >
+                    {t({ en: "AWS backbone", ja: "AWS バックボーン" })}
+                  </text>
+                </g>
+              );
+            })()}
+          </svg>
+        </div>
+      ) : (
+        <Scroll>
+          <svg
+            viewBox="0 0 950 250"
+            className="diagram min-w-[680px]"
+            role="group"
+            aria-label={t(C.layers)}
+          >
+            <line x1="60" x2="890" y1="40" y2="40" stroke="var(--line)" strokeWidth="2" />
+            <line
+              x1="150"
+              x2="450"
+              y1="40"
+              y2="40"
+              stroke="var(--fiber)"
+              strokeWidth="3"
+            />
+            <text x="300" y="30" fontSize="11.2" textAnchor="middle" fill="var(--fiber)">
+              {t({ en: "cross connect / carrier", ja: "クロスコネクト / キャリア" })}
+            </text>
+            <line x1="450" x2="790" y1="40" y2="40" stroke="var(--aws)" strokeWidth="3" />
+            <text x="620" y="30" fontSize="11.2" textAnchor="middle" fill="var(--aws)">
+              {t({
+                en: "AWS backbone (AWS physical-layer encryption)",
+                ja: "AWS バックボーン (AWS が物理層で暗号化)",
+              })}
+            </text>
+            {nodes.map(([x, label]) => (
+              <g key={label}>
+                <circle
+                  cx={x}
+                  cy="40"
+                  r="7"
+                  fill="var(--panel)"
+                  stroke="var(--ink)"
+                  strokeWidth="2"
                 />
                 <text
-                  x={(l.from + l.to) / 2}
-                  y={y + 19}
-                  fontSize="13.8"
+                  x={x}
+                  y="66"
+                  fontSize="12.5"
                   textAnchor="middle"
-                  fill={l.color}
+                  fill="var(--muted)"
                 >
-                  {l.label}
+                  {label}
                 </text>
               </g>
-            );
-          })}
-        </svg>
-      </Scroll>
+            ))}
+            {(Object.keys(LAYERS) as Layer[]).map((k, i) => {
+              const l = LAYERS[k];
+              const y = 95 + i * 50;
+              const on = focus === k;
+              return (
+                <g
+                  key={k}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={on}
+                  aria-label={l.label}
+                  className="cursor-pointer"
+                  onClick={() => setFocus(k)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setFocus(k);
+                    }
+                  }}
+                >
+                  <rect
+                    x={l.from}
+                    y={y}
+                    width={l.to - l.from}
+                    height="30"
+                    rx="15"
+                    fill={l.color}
+                    opacity={on ? 0.22 : 0.08}
+                  />
+                  <rect
+                    x={l.from}
+                    y={y}
+                    width={l.to - l.from}
+                    height="30"
+                    rx="15"
+                    fill="none"
+                    stroke={l.color}
+                    strokeWidth={on ? 2.5 : 1.5}
+                    strokeDasharray={on ? undefined : "4 4"}
+                  />
+                  <text
+                    x={(l.from + l.to) / 2}
+                    y={y + 19}
+                    fontSize="13.8"
+                    textAnchor="middle"
+                    fill={l.color}
+                  >
+                    {l.label}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        </Scroll>
+      )}
       <p aria-live="polite" className="mt-3 text-sm leading-relaxed">
         <span className="font-mono font-semibold" style={{ color: LAYERS[focus].color }}>
           {LAYERS[focus].label}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { useNarrow } from "../components/useNarrow";
 import { HikariSays } from "../components/Hikari";
 import { Callout, Panel, Scroll, Section, Segmented, T } from "../components/ui";
 
@@ -91,10 +92,59 @@ const INFO: Record<Vif, { what: L; attach: L; asn: L; ips: L; mtu: string; note:
   },
 };
 
+const LANE_DEST: Record<Vif, L[]> = {
+  private: [
+    { en: "VGW → one VPC in the same Region", ja: "VGW → 同一リージョンの VPC 1 つ" },
+    {
+      en: "or DX gateway → VGWs in any Region / account (up to 20)",
+      ja: "または DX ゲートウェイ → 任意のリージョン / アカウントの VGW (最大 20)",
+    },
+  ],
+  public: [
+    {
+      en: "AWS public prefixes in all public Regions (S3, DynamoDB, CloudFront, Route 53…)",
+      ja: "全パブリックリージョンの AWS パブリックプレフィックス (S3、DynamoDB、CloudFront、Route 53 など)",
+    },
+  ],
+  transit: [
+    {
+      en: "DX gateway → Transit Gateway (up to 6) or a Cloud WAN core network",
+      ja: "DX ゲートウェイ → Transit Gateway (最大 6) または Cloud WAN コアネットワーク",
+    },
+  ],
+};
+
+/** Phone layout: one row per VLAN lane, the chosen lane lit up. */
+function VifLanes({ vif }: { vif: Vif }) {
+  const { t } = useLang();
+  return (
+    <ol className="space-y-2" aria-label={t(INFO[vif].what)}>
+      {(["private", "public", "transit"] as Vif[]).map((v, i) => (
+        <li
+          key={v}
+          className="rounded-2xl border-2 p-3 transition-opacity"
+          style={{ borderColor: COLOR[v], opacity: v === vif ? 1 : 0.4 }}
+        >
+          <p className="font-mono text-sm font-bold" style={{ color: COLOR[v] }}>
+            VLAN {101 + i} · {v} VIF
+          </p>
+          <ul className="mt-1 space-y-0.5 text-sm">
+            {LANE_DEST[v].map((d) => (
+              <li key={d.en}>{t(d)}</li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 function VifDiagram({ vif }: { vif: Vif }) {
   const { t } = useLang();
+  const narrow = useNarrow();
   const c = COLOR[vif];
   const dim = (v: Vif) => (v === vif ? 1 : 0.18);
+  if (narrow) return <VifLanes vif={vif} />;
   return (
     <Scroll>
       <svg

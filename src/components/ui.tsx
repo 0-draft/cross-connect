@@ -1,6 +1,8 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import type { KeyboardEvent, ReactNode } from "react";
 import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
+import { TRAPS } from "../content/traps";
 
 /** Renders a bilingual string in the current language. */
 export function T({ c }: { c: L }) {
@@ -66,6 +68,7 @@ export function Section({
   children: ReactNode;
 }) {
   const { t } = useLang();
+  const solves = TRAPS.filter((x) => x.stop === id);
   return (
     <section
       id={id}
@@ -90,6 +93,28 @@ export function Section({
           {t(title)}
         </h2>
         <p className="text-lg leading-relaxed text-[var(--muted)]">{t(lead)}</p>
+        {solves.length > 0 && (
+          <div className="mt-4 rounded-2xl bg-[var(--panel-2)] px-4 py-3">
+            <p className="mb-1.5 text-xs font-bold text-[var(--muted)]">
+              {t({
+                en: "Untangles these traps",
+                ja: "このステップでほどける、つまずきポイント",
+              })}
+            </p>
+            <ul className="flex flex-wrap gap-1.5">
+              {solves.map((x) => (
+                <li key={x.title.en}>
+                  <a
+                    href="#traps"
+                    className="inline-block rounded-full border-2 border-[var(--fiber-soft)] bg-[var(--panel)] px-2.5 py-0.5 text-xs font-bold hover:border-[var(--fiber)]"
+                  >
+                    {t(x.title)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {layers.length > 0 && (
           <p className="mt-4 flex flex-wrap gap-2">
             {layers.map((l) => (
@@ -158,16 +183,31 @@ export function Tag({ children, color }: { children: ReactNode; color?: string }
 /** Horizontally scrollable wrapper for wide diagrams and tables. */
 export function Scroll({ children }: { children: ReactNode }) {
   const { t } = useLang();
+  const ref = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+
+  // Only promise a swipe when there is actually something off-screen.
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => setOverflows(el.scrollWidth > el.clientWidth + 1);
+    check();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <div>
-      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">{children}</div>
-      {/* Wide diagrams scroll sideways on phones; say so. */}
-      <p
-        className="mt-1 text-center text-xs text-[var(--muted)] sm:hidden"
-        aria-hidden="true"
-      >
-        {t({ en: "← swipe to see more →", ja: "← 横にスワイプできます →" })}
-      </p>
+      <div ref={ref} className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        {children}
+      </div>
+      {overflows && (
+        <p className="mt-1 text-center text-xs text-[var(--muted)]" aria-hidden="true">
+          {t({ en: "← swipe to see more →", ja: "← 横にスワイプできます →" })}
+        </p>
+      )}
     </div>
   );
 }
