@@ -6,7 +6,13 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 
 export default defineConfig(
-  globalIgnores(["dist", "node_modules", "coverage"]),
+  globalIgnores([
+    "dist",
+    "node_modules",
+    "coverage",
+    "playwright-report",
+    "test-results",
+  ]),
   js.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   reactHooks.configs.flat.recommended,
@@ -31,7 +37,7 @@ export default defineConfig(
   },
   {
     // vite.config.ts runs in Node and is type-checked via tsconfig.node.json.
-    files: ["vite.config.ts"],
+    files: ["vite.config.ts", "playwright.config.ts", "e2e/**/*.ts"],
     languageOptions: {
       globals: globals.node,
       parserOptions: { projectService: false, project: "./tsconfig.node.json" },

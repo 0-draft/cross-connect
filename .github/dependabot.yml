@@ -29,7 +29,8 @@ updates:
           - markdownlint-cli2
           - globals
       test:
-        patterns: ["vitest", "@vitest/*", "@testing-library/*", "jsdom"]
+        patterns:
+          ["vitest", "@vitest/*", "@testing-library/*", "jsdom", "@playwright/test"]
       types:
         patterns: ["@types/node"]
 

@@ -19,7 +19,8 @@
     "lint:md": "markdownlint-cli2",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run lint:md && npm run test && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run lint:md && npm run test && npm run build",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "react": "^19.3.0",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

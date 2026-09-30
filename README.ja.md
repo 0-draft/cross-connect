@@ -36,6 +36,7 @@ Node.js 24 が必要です。
 npm ci
 npm run dev        # http://localhost:5173/cross-connect/
 npm run check      # 型チェック、lint、フォーマット、markdownlint、テスト、ビルド
+npm run test:e2e   # 実ブラウザでのレイアウト検査 (事前に npx playwright install chromium)
 ```
 
 シミュレーター (`src/lib/`) は純粋関数で、ユニットテスト付きです。BGP 経路選択、冗長化モデル、LAG と MACsec のルール、許可プレフィックスの挙動、料金計算 (AWS 公式の計算例と一致することを検証)、トポロジー提案を含みます。

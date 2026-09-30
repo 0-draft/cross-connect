@@ -39,6 +39,7 @@ Requires Node.js 24.
 npm ci
 npm run dev        # http://localhost:5173/cross-connect/
 npm run check      # typecheck, lint, format, markdownlint, tests, build
+npm run test:e2e   # real-browser layout checks (needs: npx playwright install chromium)
 ```
 
 The simulators (`src/lib/`) are pure functions with unit tests: BGP path selection, resiliency models, LAG and MACsec rules, allowed-prefix behavior, the pricing calculator (checked against AWS's own worked examples) and the topology advisor.
@@ -47,7 +48,8 @@ The simulators (`src/lib/`) are pure functions with unit tests: BGP path selecti
 
 | Workflow | What it does |
 | --- | --- |
-| `ci.yml` | typecheck, ESLint, Prettier, markdownlint, build, tests with coverage, actionlint, `npm audit`, dependency review on PRs |
+| `ci.yml` | typecheck, ESLint, Prettier, markdownlint, build, tests with coverage, Playwright E2E (desktop and phone, EN and JA), actionlint, `npm audit`, dependency review on PRs |
+| `freshness.yml` | Opens a monthly issue to re-verify prices, quotas and launches |
 | `codeql.yml` | CodeQL for JavaScript/TypeScript and GitHub Actions |
 | `deploy.yml` | Builds and deploys to GitHub Pages on every push to `main` |
 | Dependabot | Weekly grouped updates for npm and GitHub Actions |

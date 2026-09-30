@@ -6,3 +6,5 @@ coverage/
 .vite/
 .playwright-mcp/
 .claude/
+playwright-report/
+test-results/
