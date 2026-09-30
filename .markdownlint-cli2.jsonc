@@ -1,0 +1,13 @@
+{
+  // Paragraphs are one line each, so line length is not enforced. Duplicate
+  // headings are allowed because the English and Japanese READMEs mirror each
+  // other.
+  "config": {
+    "MD013": false,
+    "MD024": false,
+    "MD036": false,
+    "MD041": false,
+  },
+  "globs": ["**/*.md"],
+  "ignores": ["node_modules/**", "dist/**", "coverage/**"],
+}

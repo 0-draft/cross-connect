@@ -1,0 +1,38 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    ignore:
+      # typescript-eslint declares peer typescript "<6.1.0"; a TypeScript bump
+      # past that cannot install. Lift once the lint toolchain widens its range.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    groups:
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      build:
+        patterns: ["vite", "@vitejs/*", "tailwindcss", "@tailwindcss/*", "typescript"]
+      lint:
+        patterns:
+          - eslint
+          - "@eslint/*"
+          - typescript-eslint
+          - "eslint-plugin-*"
+          - prettier
+          - markdownlint-cli2
+          - globals
+      test:
+        patterns: ["vitest", "@vitest/*", "@testing-library/*", "jsdom"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ["*"]
