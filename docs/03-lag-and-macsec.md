@@ -54,13 +54,13 @@ flowchart LR
 
 ## MACsec
 
-MACsec (IEEE 802.1AE) provides data confidentiality, data integrity, and data origin authenticity at Layer 2. On Direct Connect it encrypts the point-to-point link between your MACsec-capable edge device and the AWS Direct Connect device, that is, the cross connect. It is not end-to-end encryption across multiple network segments. AWS additionally encrypts data at the physical layer as it flows between Direct Connect locations and AWS Regions.
+MACsec (IEEE 802.1AE) provides data confidentiality, data integrity, and data origin authenticity at Layer 2. On Direct Connect it encrypts the point-to-point link between your MACsec-capable edge device and the AWS Direct Connect device. The two must have direct Layer 2 adjacency, so MACsec is hop-by-hop: it is not end-to-end encryption across multiple network segments. If your router sits in the colo, that hop is just the cross connect, and any carrier circuit from the colo to your site is a separate, unencrypted segment. A carrier circuit is inside the MACsec hop only when your MACsec device is at your end and the carrier passes Ethernet frames through transparently at Layer 2. AWS additionally encrypts data at the physical layer as it flows between Direct Connect locations and AWS Regions.
 
 ```mermaid
 flowchart LR
-  A["Customer router (MACsec-capable port)"] -- "MACsec encrypted cross connect (L2)" --- B["AWS Direct Connect device"]
+  A["Option 1: MACsec router in the colo"] -- "Cross connect: MACsec (L2)" --- B["AWS Direct Connect device"]
+  S["Option 2: MACsec router at your site"] -- "L2-transparent carrier circuit + cross connect: one MACsec hop" --- B
   B -- "AWS backbone (physical-layer encryption by AWS)" --- C["AWS Region"]
-  X["Carrier L2 circuit must be transparent to MACsec if used"] -.-> A
 ```
 
 ### Where MACsec is supported
@@ -75,7 +75,7 @@ flowchart LR
 | Partner interconnect | Supported on supported 10G/100G interconnects (since July 2025, 100+ PoPs) |
 | Hosted connection | Not supported |
 
-MACsec-capable speeds are marked "(M)" on the Direct Connect locations page. There is no additional charge for MACsec. The connection must be transparent to Layer 2 traffic, and the device terminating the link must support MACsec.
+MACsec-capable speeds are marked "(M)" on the Direct Connect locations page. There is no additional charge for MACsec. The connection must be transparent to Layer 2 traffic, and the device terminating the Layer 2 adjacency must support MACsec. If you use a last-mile provider, check with them that the circuit can carry MACsec.
 
 ### Timeline
 

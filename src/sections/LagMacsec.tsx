@@ -58,8 +58,8 @@ const C = {
     ja: "区間暗号であってエンドツーエンドではない",
   },
   notE2e: {
-    en: "MACsec protects the cross connect between your MACsec-capable port and the AWS device. Any carrier circuit in between must be transparent to MACsec. AWS separately encrypts traffic at the physical layer between Direct Connect locations and Regions. For end-to-end protection add IPsec or TLS.",
-    ja: "MACsec が守るのは、MACsec 対応ポートと AWS 機器の間のクロスコネクト区間です。途中にキャリア回線を挟むなら MACsec を透過できる必要があります。DX ロケーションとリージョン間は AWS が別途物理層で暗号化しています。エンドツーエンドで守るなら IPsec か TLS を重ねます。",
+    en: "MACsec protects one Layer 2 hop: from your MACsec-capable port to the AWS device, which must be directly adjacent at Layer 2. If your router sits in the colo, that hop is just the cross connect and the carrier circuit back to your site stays in clear text. A carrier stretch is covered only when your MACsec device is at your end and the carrier passes Ethernet frames through transparently. AWS separately encrypts traffic at the physical layer between Direct Connect locations and Regions. For end-to-end protection add IPsec or TLS.",
+    ja: "MACsec が守るのはレイヤー 2 の 1 区間、MACsec 対応ポートから AWS 機器までです。両者は L2 で直結している必要があります。ルーターをコロケーションに置くならその区間はクロスコネクトだけで、自社拠点までのキャリア回線は平文のままです。キャリア区間まで守れるのは、MACsec 機器を自社側に置き、キャリアがイーサネットフレームを透過的に運ぶ場合に限られます。DX ロケーションとリージョン間は AWS が別途物理層で暗号化しています。エンドツーエンドで守るなら IPsec か TLS を重ねます。",
   },
 };
 

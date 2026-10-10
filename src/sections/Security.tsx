@@ -30,25 +30,39 @@ const C = {
 
 type Layer = "macsec" | "ipsec" | "tls";
 
+// Path positions on the wide diagram: app, your router, the colo's meet-me room
+// (where the carrier hands off to the cross connect), the AWS DX device, the
+// TGW/VGW and the workload.
+const X = { app: 60, router: 150, mmr: 330, dx: 450, gw: 790, workload: 890 };
+
 const LAYERS: Record<
   Layer,
-  { label: string; color: string; from: number; to: number; body: L }
+  {
+    label: string;
+    color: string;
+    from: number;
+    to: number;
+    /** Reach that holds only under a condition (drawn dashed), from here to `from`. */
+    maybeFrom?: number;
+    body: L;
+  }
 > = {
   macsec: {
     label: "MACsec · L2",
     color: "var(--ok)",
-    from: 150,
-    to: 450,
+    from: X.mmr,
+    to: X.dx,
+    maybeFrom: X.router,
     body: {
-      en: "Your router ↔ AWS DX device. Near line rate, no extra charge. Dedicated 10/100/400G at (M) locations, LAGs and partner interconnects. Protects everything on the link, including ARP and BGP.",
-      ja: "自社ルーター ↔ AWS DX 機器。ほぼラインレート、追加料金なし。(M) 表記拠点の専用 10/100/400G、LAG、パートナー相互接続で利用可。ARP や BGP を含むリンク上のすべてを保護。",
+      en: "One hop: your MACsec device ↔ AWS DX device, which must be Layer 2 adjacent. It always covers the cross connect. The carrier circuit is covered only when your MACsec device sits at your site and the carrier passes Ethernet frames through transparently; with your router in the colo, the carrier stretch behind it is not covered. Near line rate, no extra charge. Dedicated 10/100/400G at (M) locations, LAGs and partner interconnects. Protects everything on the link, including ARP and BGP.",
+      ja: "1 区間のみ: 自社の MACsec 機器 ↔ AWS DX 機器。両者はレイヤー 2 で直結している必要があります。クロスコネクトは必ず対象です。キャリア回線まで守れるのは、MACsec 機器を自社拠点側に置き、キャリアがイーサネットフレームを透過的に運ぶ場合だけ。ルーターをコロケーションに置くなら、その手前のキャリア区間は対象外です。ほぼラインレート、追加料金なし。(M) 表記拠点の専用 10/100/400G、LAG、パートナー相互接続で利用可。ARP や BGP を含むリンク上のすべてを保護。",
     },
   },
   ipsec: {
     label: "IPsec · L3",
     color: "var(--violet)",
-    from: 150,
-    to: 790,
+    from: X.router,
+    to: X.gw,
     body: {
       en: "Your router ↔ Transit Gateway (Private IP VPN over a transit VIF, since 2022-06, no public IPs) or ↔ VGW/TGW public endpoints over a public VIF. Works on any connection, including 1G and hosted. Per-tunnel throughput limits apply.",
       ja: "自社ルーター ↔ Transit Gateway (トランジット VIF 上の Private IP VPN、2022-06〜、パブリック IP 不要)、またはパブリック VIF 経由で VGW / TGW のパブリックエンドポイント。1G やホスト接続を含むあらゆる接続で使えるが、トンネルあたりのスループット上限あり。",
@@ -57,8 +71,8 @@ const LAYERS: Record<
   tls: {
     label: "TLS · L7",
     color: "var(--aws)",
-    from: 60,
-    to: 890,
+    from: X.app,
+    to: X.workload,
     body: {
       en: "Application ↔ application. Always recommended for sensitive data, whatever the network does underneath.",
       ja: "アプリケーション ↔ アプリケーション。下のネットワークが何であれ、機密データには常に推奨。",
@@ -71,12 +85,16 @@ function LayerDiagram() {
   const narrow = useNarrow();
   const [focus, setFocus] = useState<Layer>("macsec");
   const nodes: [number, string][] = [
-    [60, t({ en: "app", ja: "アプリ" })],
-    [150, t({ en: "router", ja: "ルーター" })],
-    [450, t({ en: "DX device", ja: "DX 機器" })],
-    [790, "TGW / VGW"],
-    [890, t({ en: "workload", ja: "ワークロード" })],
+    [X.app, t({ en: "app", ja: "アプリ" })],
+    [X.router, t({ en: "router", ja: "ルーター" })],
+    [X.mmr, t({ en: "colo MMR", ja: "構内 MMR" })],
+    [X.dx, t({ en: "DX device", ja: "DX 機器" })],
+    [X.gw, "TGW / VGW"],
+    [X.workload, t({ en: "workload", ja: "ワークロード" })],
   ];
+  const carrier = t({ en: "carrier", ja: "キャリア" });
+  const xc = t({ en: "cross connect", ja: "クロスコネクト" });
+  const maybe = t({ en: "if L2-transparent", ja: "L2 透過なら" });
   return (
     <Panel>
       {narrow ? (
@@ -115,16 +133,25 @@ function LayerDiagram() {
                   <line
                     x1="30"
                     x2="30"
-                    y1={y(150)}
-                    y2={y(450)}
+                    y1={y(X.router)}
+                    y2={y(X.mmr)}
+                    stroke="var(--fiber)"
+                    strokeWidth="4"
+                    strokeDasharray="6 4"
+                  />
+                  <line
+                    x1="30"
+                    x2="30"
+                    y1={y(X.mmr)}
+                    y2={y(X.dx)}
                     stroke="var(--fiber)"
                     strokeWidth="4"
                   />
                   <line
                     x1="30"
                     x2="30"
-                    y1={y(450)}
-                    y2={y(790)}
+                    y1={y(X.dx)}
+                    y2={y(X.gw)}
                     stroke="var(--aws)"
                     strokeWidth="4"
                   />
@@ -132,18 +159,33 @@ function LayerDiagram() {
                     const l = LAYERS[k];
                     const on = k === focus;
                     return (
-                      <rect
-                        key={k}
-                        x={56 + i * 26}
-                        y={y(l.from) - 8}
-                        width="18"
-                        height={y(l.to) - y(l.from) + 16}
-                        rx="9"
-                        fill={l.color}
-                        opacity={on ? 0.9 : 0.25}
-                        stroke={l.color}
-                        strokeWidth={on ? 0 : 1.5}
-                      />
+                      <g key={k}>
+                        {l.maybeFrom !== undefined && (
+                          <rect
+                            x={56 + i * 26}
+                            y={y(l.maybeFrom) - 8}
+                            width="18"
+                            height={y(l.to) - y(l.maybeFrom) + 16}
+                            rx="9"
+                            fill={l.color}
+                            opacity={on ? 0.35 : 0.12}
+                            stroke={l.color}
+                            strokeWidth="1.5"
+                            strokeDasharray="4 3"
+                          />
+                        )}
+                        <rect
+                          x={56 + i * 26}
+                          y={y(l.from) - 8}
+                          width="18"
+                          height={y(l.to) - y(l.from) + 16}
+                          rx="9"
+                          fill={l.color}
+                          opacity={on ? 0.9 : 0.25}
+                          stroke={l.color}
+                          strokeWidth={on ? 0 : 1.5}
+                        />
+                      </g>
                     );
                   })}
                   {nodes.map(([x, label]) => (
@@ -163,18 +205,31 @@ function LayerDiagram() {
                   ))}
                   <text
                     x="146"
-                    y={(y(150) + y(450)) / 2 + 2}
+                    y={(y(X.router) + y(X.mmr)) / 2 - 4}
                     fontSize="15"
                     fill="var(--fiber)"
                   >
-                    {t({
-                      en: "cross connect / carrier",
-                      ja: "クロスコネクト / キャリア",
-                    })}
+                    {carrier}
                   </text>
                   <text
                     x="146"
-                    y={(y(450) + y(790)) / 2 - 6}
+                    y={(y(X.router) + y(X.mmr)) / 2 + 14}
+                    fontSize="13"
+                    fill="var(--muted)"
+                  >
+                    {t({ en: "MACsec if L2-transparent", ja: "L2 透過なら MACsec 可" })}
+                  </text>
+                  <text
+                    x="146"
+                    y={(y(X.mmr) + y(X.dx)) / 2 + 5}
+                    fontSize="15"
+                    fill="var(--fiber)"
+                  >
+                    {xc}
+                  </text>
+                  <text
+                    x="146"
+                    y={(y(X.dx) + y(X.gw)) / 2 - 6}
                     fontSize="15"
                     fill="var(--aws)"
                   >
@@ -182,7 +237,7 @@ function LayerDiagram() {
                   </text>
                   <text
                     x="146"
-                    y={(y(450) + y(790)) / 2 + 14}
+                    y={(y(X.dx) + y(X.gw)) / 2 + 14}
                     fontSize="15"
                     fill="var(--muted)"
                   >
@@ -201,20 +256,64 @@ function LayerDiagram() {
             role="group"
             aria-label={t(C.layers)}
           >
-            <line x1="60" x2="890" y1="40" y2="40" stroke="var(--line)" strokeWidth="2" />
             <line
-              x1="150"
-              x2="450"
+              x1={X.app}
+              x2={X.workload}
+              y1="40"
+              y2="40"
+              stroke="var(--line)"
+              strokeWidth="2"
+            />
+            <line
+              x1={X.router}
+              x2={X.mmr}
+              y1="40"
+              y2="40"
+              stroke="var(--fiber)"
+              strokeWidth="3"
+              strokeDasharray="6 4"
+            />
+            <text
+              x={(X.router + X.mmr) / 2}
+              y="30"
+              fontSize="11.2"
+              textAnchor="middle"
+              fill="var(--fiber)"
+            >
+              {carrier}
+            </text>
+            <line
+              x1={X.mmr}
+              x2={X.dx}
               y1="40"
               y2="40"
               stroke="var(--fiber)"
               strokeWidth="3"
             />
-            <text x="300" y="30" fontSize="11.2" textAnchor="middle" fill="var(--fiber)">
-              {t({ en: "cross connect / carrier", ja: "クロスコネクト / キャリア" })}
+            <text
+              x={(X.mmr + X.dx) / 2}
+              y="30"
+              fontSize="11.2"
+              textAnchor="middle"
+              fill="var(--fiber)"
+            >
+              {xc}
             </text>
-            <line x1="450" x2="790" y1="40" y2="40" stroke="var(--aws)" strokeWidth="3" />
-            <text x="620" y="30" fontSize="11.2" textAnchor="middle" fill="var(--aws)">
+            <line
+              x1={X.dx}
+              x2={X.gw}
+              y1="40"
+              y2="40"
+              stroke="var(--aws)"
+              strokeWidth="3"
+            />
+            <text
+              x={(X.dx + X.gw) / 2}
+              y="30"
+              fontSize="11.2"
+              textAnchor="middle"
+              fill="var(--aws)"
+            >
               {t({
                 en: "AWS backbone (AWS physical-layer encryption)",
                 ja: "AWS バックボーン (AWS が物理層で暗号化)",
@@ -261,6 +360,31 @@ function LayerDiagram() {
                     }
                   }}
                 >
+                  {l.maybeFrom !== undefined && (
+                    <>
+                      <rect
+                        x={l.maybeFrom}
+                        y={y}
+                        width={l.from - l.maybeFrom - 4}
+                        height="30"
+                        rx="15"
+                        fill={l.color}
+                        fillOpacity={on ? 0.1 : 0.04}
+                        stroke={l.color}
+                        strokeWidth="1.2"
+                        strokeDasharray="3 4"
+                      />
+                      <text
+                        x={(l.maybeFrom + l.from) / 2}
+                        y={y + 19}
+                        fontSize="11.2"
+                        textAnchor="middle"
+                        fill={l.color}
+                      >
+                        {maybe}
+                      </text>
+                    </>
+                  )}
                   <rect
                     x={l.from}
                     y={y}
@@ -268,15 +392,7 @@ function LayerDiagram() {
                     height="30"
                     rx="15"
                     fill={l.color}
-                    opacity={on ? 0.22 : 0.08}
-                  />
-                  <rect
-                    x={l.from}
-                    y={y}
-                    width={l.to - l.from}
-                    height="30"
-                    rx="15"
-                    fill="none"
+                    fillOpacity={on ? 0.22 : 0.08}
                     stroke={l.color}
                     strokeWidth={on ? 2.5 : 1.5}
                     strokeDasharray={on ? undefined : "4 4"}
@@ -309,8 +425,8 @@ function LayerDiagram() {
 const PICK: [L, string][] = [
   [
     {
-      en: "10G+ dedicated, only the last mile is untrusted, need line rate",
-      ja: "10G 以上の専用接続、信用できないのは最後の区間だけ、ラインレートが必要",
+      en: "10G+ dedicated, only the hop into the AWS device needs protecting, need line rate",
+      ja: "10G 以上の専用接続、守るべきは AWS 機器までの 1 区間だけ、ラインレートが必要",
     },
     "MACsec",
   ],

@@ -207,8 +207,8 @@ export const GLOSSARY: Entry[] = [
     en: "MACsec",
     ja: "MACsec",
     def: {
-      en: "IEEE 802.1AE Layer 2 encryption on the link between your router and the AWS device. Hop-by-hop, not end-to-end. Dedicated 10/100/400G only.",
-      ja: "自社ルーターと AWS 機器の間のリンクを暗号化する IEEE 802.1AE (L2)。区間暗号でありエンドツーエンドではない。専用 10/100/400G のみ。",
+      en: "IEEE 802.1AE Layer 2 encryption on the one hop between your MACsec device and the AWS device. Hop-by-hop, not end-to-end: a carrier circuit is covered only if it is Layer 2 transparent and your MACsec device is at your end. Dedicated 10/100/400G only.",
+      ja: "自社の MACsec 機器と AWS 機器の間の 1 区間を暗号化する IEEE 802.1AE (L2)。区間暗号でありエンドツーエンドではない。キャリア回線が対象になるのは、L2 透過で MACsec 機器が自社側にある場合だけ。専用 10/100/400G のみ。",
     },
     see: "lag-macsec",
   },

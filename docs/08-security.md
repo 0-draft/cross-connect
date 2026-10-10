@@ -10,18 +10,24 @@ AWS states that "AWS Direct Connect does not encrypt your traffic that is in tra
 
 | Option | Layer | Scope | Connections | Throughput | Notes |
 | --- | --- | --- | --- | --- | --- |
-| MACsec (IEEE 802.1AE) | L2 | Point-to-point: your router to the AWS DX device | Dedicated 10/100/400 Gbps at select locations, LAGs, partner interconnects | Near line rate | No extra charge. Not available on 1 Gbps dedicated or hosted connections. |
+| MACsec (IEEE 802.1AE) | L2 | One Layer 2 hop: your MACsec device to the AWS DX device | Dedicated 10/100/400 Gbps at select locations, LAGs, partner interconnects | Near line rate | No extra charge. Not available on 1 Gbps dedicated or hosted connections. |
 | IPsec VPN over public VIF | L3 | Your router to VGW, TGW, Cloud WAN, or EC2 VPN endpoints | Any DX connection | Per tunnel limits apply | Needs public IPs and a public VIF |
 | Private IP VPN over transit VIF | L3 | Your router to Transit Gateway using private IPs | Any DX connection with a transit VIF | Per tunnel limits apply | GA 2022-06-22. No public IPs needed. |
 | Self-managed VPN over private VIF | L3 | Your router to your EC2 VPN appliance | Any | Depends on the appliance | You run both ends |
 | Application TLS | L7 | End to end | Any | n/a | Always recommended for sensitive data |
 
-AWS also notes that it encrypts all data at the physical layer as it moves across the AWS network between DX locations and Regions. MACsec covers the remaining segment, from your router into the DX location.
+AWS also notes that it encrypts all data at the physical layer as it moves across the AWS network between DX locations and Regions. MACsec covers the segment from your MACsec device to the AWS DX device, and only that segment. The two ends must be directly adjacent at Layer 2, so what MACsec actually protects depends on where your device sits:
+
+- **Router in the colo.** MACsec covers the cross connect only. A carrier circuit from the colo back to your site is a separate segment and stays in clear text.
+- **Router at your site.** MACsec also covers the carrier circuit, but only if the carrier passes Ethernet frames through transparently at Layer 2 (no device in between that terminates or rewrites the frames). The DX FAQ makes this a prerequisite: the connection "must be transparent to Layer 2 traffic and the device terminating the Layer 2 adjacency must support MACsec."
+
+The AWS docs put it plainly: MACsec "does not provide end-to-end encryption across multiple sequential Ethernet or other network segments." AWS's MACsec reference architecture says the same for the colo case: if the Layer 2 circuit terminates on a customer or partner device at the DX location, the segment beyond it is the customer's or partner's responsibility.
 
 ```mermaid
 flowchart LR
   App[On-prem app] --> R[Customer router]
-  R -- "MACsec (L2, one hop)" --> DXD[AWS DX device]
+  R -- "Carrier circuit (covered by MACsec only if L2-transparent)" --> MMR[Colo meet-me room]
+  MMR -- "Cross connect (MACsec, L2, one hop)" --> DXD[AWS DX device]
   DXD -- "AWS backbone (physical-layer encryption by AWS)" --> Region[AWS Region]
   R -. "IPsec (L3, end to end to TGW/VGW)" .-> Region
   App -. "TLS (L7)" .-> Region
@@ -68,7 +74,7 @@ flowchart LR
 
 | Requirement | Pick |
 | --- | --- |
-| 10G+ dedicated, need line-rate encryption, only the last mile is untrusted | MACsec |
+| 10G+ dedicated, need line-rate encryption, only the hop into the AWS device needs protecting | MACsec |
 | 1 Gbps dedicated or any hosted connection | IPsec (MACsec is not available) |
 | Compliance requires end-to-end encryption to the VPC edge | IPsec (Private IP VPN), optionally with MACsec |
 | No public IPs allowed | Private IP VPN over transit VIF |
@@ -118,6 +124,8 @@ flowchart LR
 
 - Encryption in transit: <https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html>
 - MACsec: <https://docs.aws.amazon.com/directconnect/latest/UserGuide/MACsec.html>
+- MACsec prerequisites (Layer 2 transparency): <https://aws.amazon.com/directconnect/faqs/>
+- MACsec reference architecture: <https://docs.aws.amazon.com/reference-architecture-diagrams/latest/traffic-encryption-direct-connect/encryption-macsec.html>
 - MACsec launch (2021-03-31): <https://aws.amazon.com/about-aws/whats-new/2021/03/aws-direct-connect-announces-macsec-encryption-for-dedicated-10gbps-and-100gbps-connections-at-select-locations/>
 - MACsec on partner interconnects (2025-07-28): <https://aws.amazon.com/about-aws/whats-new/2025/07/aws-direct-connect-extends-macsec-support-partner-interconnects/>
 - Well-Architected Hybrid Networking Lens, DX and IPsec: <https://docs.aws.amazon.com/wellarchitected/latest/hybrid-networking-lens/aws-direct-connect-and-ipsec-vpn.html>
