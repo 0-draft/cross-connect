@@ -1,4 +1,5 @@
 import { useLang } from "../i18n/useLang";
+import { onRampUrl } from "../content/onramp";
 
 const C = {
   disclaimer: {
@@ -6,10 +7,14 @@ const C = {
     ja: "AWS とは無関係の非公式解説です。料金やクォータは変わるので、設計・購入前に必ず AWS 公式ドキュメントを確認してください。",
   },
   notes: { en: "Research notes (Markdown)", ja: "調査ノート (Markdown)" },
+  onRamp: {
+    en: "On-ramp: every road into AWS",
+    ja: "On-ramp: AWS へのすべての道",
+  },
 };
 
 export function Footer() {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   return (
     <footer className="mt-16 border-t border-[var(--line)] py-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 text-sm text-[var(--muted)] sm:px-6">
@@ -26,6 +31,9 @@ export function Footer() {
             href="https://github.com/0-draft/cross-connect/tree/main/docs"
           >
             {t(C.notes)}
+          </a>
+          <a className="underline hover:text-[var(--ink)]" href={onRampUrl(lang)}>
+            {t(C.onRamp)}
           </a>
           <span>MIT License</span>
         </p>

@@ -11,6 +11,7 @@ import {
   selectPath,
 } from "../lib/routing";
 import { Hikari, HikariSays } from "../components/Hikari";
+import { OnRampLink } from "../components/OnRampLink";
 
 const C = {
   kicker: { en: "BGP & routing", ja: "BGP とルーティング" },
@@ -72,6 +73,11 @@ const C = {
   none: { en: "No path — unreachable", ja: "経路なし — 到達不可" },
   commTitle: { en: "BGP communities cheat sheet", ja: "BGP コミュニティ早見表" },
   medTitle: { en: "What this lab leaves out", ja: "このラボで省略しているもの" },
+  hubChoice: {
+    en: "How the choice between DX and a VPN backup differs on a VGW, a Transit Gateway and Cloud WAN is laid out on On-ramp: ",
+    ja: "DX と VPN バックアップのどちらを選ぶかが VGW・Transit Gateway・Cloud WAN でどう変わるかは、On-ramp で整理しています: ",
+  },
+  hubChoiceLink: { en: "path selection", ja: "経路選択" },
   med: {
     en: "MED is compared after AS_PATH (AWS does not recommend relying on it). On a Transit Gateway the order is static > prefix-list > VPC > DXGW-propagated > Connect > Private IP VPN > VPN, and a VGW does not ECMP across VPN tunnels. With SiteLink enabled, Regions stop preferring their own locations and pick the shortest AS_PATH.",
     ja: "MED は AS_PATH の後に比較されます (AWS は MED に頼ることを推奨していません)。Transit Gateway では、静的 > プレフィックスリスト > VPC > DXGW 伝播 > Connect > Private IP VPN > VPN の順で、VGW は VPN トンネル間で ECMP しません。SiteLink を有効にすると、リージョンは自リージョンのロケーション優先をやめ、最短 AS_PATH を選びます。",
@@ -659,6 +665,12 @@ export function Routing() {
       <div className="mt-6 max-w-3xl">
         <Callout title={C.medTitle}>
           <T c={C.med} />
+          <span className="mt-2 block">
+            <T c={C.hubChoice} />
+            <OnRampLink section="routing">
+              <T c={C.hubChoiceLink} />
+            </OnRampLink>
+          </span>
         </Callout>
       </div>
 

@@ -9,6 +9,8 @@ AWS Direct Connect, drawn. An illustrated, bilingual (English / 日本語) expla
 
 [日本語の README](README.ja.md)
 
+Direct Connect is one of several roads into AWS. For the others (internet, Site-to-Site VPN, SD-WAN, VGW / Transit Gateway / Cloud WAN hubs, how AWS chooses between DX and VPN, PrivateLink, hybrid DNS) see the sibling site [On-ramp](https://0-draft.github.io/on-ramp/) ([repo](https://github.com/0-draft/on-ramp)).
+
 ## What is in it
 
 | Section | Interactive part |

@@ -115,6 +115,37 @@ describe("App", () => {
     ).toHaveAttribute("href", "#traps");
   });
 
+  it("links to On-ramp for the other roads, keeping the language", async () => {
+    renderApp();
+    const section = (id: string) =>
+      document.querySelector(`section#${id}`) as HTMLElement;
+    expect(within(section("why")).getByRole("link", { name: "On-ramp" })).toHaveAttribute(
+      "href",
+      "https://0-draft.github.io/on-ramp/",
+    );
+    expect(
+      within(section("routing")).getByRole("link", { name: "path selection" }),
+    ).toHaveAttribute("href", "https://0-draft.github.io/on-ramp/#routing");
+    expect(
+      within(section("gateway")).getByRole("link", { name: "hubs" }),
+    ).toHaveAttribute("href", "https://0-draft.github.io/on-ramp/#hubs");
+    await userEvent.click(screen.getByRole("button", { name: "日本語" }));
+    expect(
+      within(section("gateway")).getByRole("link", { name: "ハブ" }),
+    ).toHaveAttribute("href", "https://0-draft.github.io/on-ramp/?lang=ja#hubs");
+    expect(
+      screen.getByRole("link", { name: "On-ramp: AWS へのすべての道" }),
+    ).toHaveAttribute("href", "https://0-draft.github.io/on-ramp/?lang=ja");
+  });
+
+  it("does not claim MACsec covers a carrier circuit unconditionally", () => {
+    renderApp();
+    const security = document.querySelector("section#security") as HTMLElement;
+    // The default focus is MACsec; its note must state the carrier condition.
+    expect(security).toHaveTextContent(/carrier circuit is covered only when/);
+    expect(security).toHaveTextContent(/if L2-transparent/);
+  });
+
   it("has both languages for every timeline entry", () => {
     for (const e of EVENTS) {
       expect(e.text.en.length).toBeGreaterThan(0);

@@ -6,6 +6,8 @@
 
 [English README](README.md)
 
+Direct Connect は AWS への道のひとつです。それ以外の道 (インターネット、Site-to-Site VPN、SD-WAN、VGW / Transit Gateway / Cloud WAN のハブ、DX と VPN の経路選択、PrivateLink、ハイブリッド DNS) は姉妹サイト [On-ramp](https://0-draft.github.io/on-ramp/?lang=ja) ([リポジトリ](https://github.com/0-draft/on-ramp)) で解説しています。
+
 ## 内容
 
 | セクション | インタラクティブ要素 |

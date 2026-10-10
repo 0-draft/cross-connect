@@ -6,6 +6,7 @@ import { HikariSays } from "../components/Hikari";
 import { Term } from "../components/Term";
 import { CAUSE, TRAPS, type Trap } from "../content/traps";
 import { NAV } from "../content/nav";
+import { OnRampLink } from "../components/OnRampLink";
 
 const C = {
   kicker: { en: "Start here", ja: "まずはここから" },
@@ -36,6 +37,14 @@ const C = {
     ja: "つまずきポイントと、その解き方",
   },
   goto: { en: "Stop", ja: "ステップ" },
+  roads: {
+    en: "Direct Connect is one road into AWS, not the only one. The internet, Site-to-Site VPN, SD-WAN, and the hubs and DNS that tie them together are mapped on our sibling site, ",
+    ja: "Direct Connect は AWS への道のひとつにすぎません。インターネット、Site-to-Site VPN、SD-WAN、それらをまとめるハブや DNS は、姉妹サイトの ",
+  },
+  roadsEnd: {
+    en: ". This site stays on the DX road.",
+    ja: " で道路地図として整理しています。このサイトは DX の道に絞って解説します。",
+  },
   notThat: {
     en: "One more thing: in Japan “DX” usually means digital transformation. Here it means Direct Connect — the fiber, not the buzzword.",
     ja: "最初にひとつだけ。ここでの「DX」はデジタルトランスフォーメーションではなく Direct Connect のこと。バズワードじゃなくて、ファイバーの話だよ。",
@@ -299,6 +308,11 @@ export function WhyHard() {
           <T c={C.notThat} />
         </HikariSays>
       </div>
+      <p className="mb-8 max-w-3xl text-sm leading-relaxed text-[var(--muted)]">
+        <T c={C.roads} />
+        <OnRampLink>On-ramp</OnRampLink>
+        <T c={C.roadsEnd} />
+      </p>
       <Causes onPick={pick} />
       <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
         <Stack />

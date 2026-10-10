@@ -3,6 +3,7 @@ import type { L } from "../i18n/lang";
 import { useLang } from "../i18n/useLang";
 import { useNarrow } from "../components/useNarrow";
 import { HikariSays } from "../components/Hikari";
+import { OnRampLink } from "../components/OnRampLink";
 import { Callout, Panel, Scroll, Section, Segmented, T, Tag } from "../components/ui";
 import { parseCidr } from "../lib/cidr";
 import { type Association, advertised } from "../lib/dxgw";
@@ -22,6 +23,11 @@ const C = {
     en: "The three association types are mutually exclusive on a DXGW. The DXGW's own ASN must be private (default 64512).",
     ja: "3 種類の関連付けは 1 つの DXGW の中で排他的です。DXGW 自身の ASN はプライベート ASN (デフォルト 64512)。",
   },
+  hubs: {
+    en: "Picking the hub itself (VGW, Transit Gateway or Cloud WAN) for VPN and SD-WAN as well as DX? On-ramp compares them side by side: ",
+    ja: "DX だけでなく VPN や SD-WAN も含めてハブ (VGW・Transit Gateway・Cloud WAN) を選ぶなら、On-ramp で並べて比較しています: ",
+  },
+  hubsLink: { en: "hubs", ja: "ハブ" },
   prefixLab: {
     en: "Allowed prefixes lab",
     ja: "許可されたプレフィックス (allowed prefixes) ラボ",
@@ -701,6 +707,12 @@ export function Gateway() {
           {t(MODES[mode].note)}
         </p>
       </Panel>
+      <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--muted)]">
+        <T c={C.hubs} />
+        <OnRampLink section="hubs">
+          <T c={C.hubsLink} />
+        </OnRampLink>
+      </p>
 
       <h3 className="mt-14 mb-2 text-xl font-semibold">{t(C.prefixLab)}</h3>
       <p className="mb-4 text-sm text-[var(--muted)]">{t(C.prefixLead)}</p>
