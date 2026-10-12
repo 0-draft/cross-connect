@@ -2,7 +2,7 @@
 
 Direct Connect is private in the sense that it bypasses the public internet, but it is **not encrypted by default**. This page covers encryption options (MACsec at layer 2, IPsec at layer 3), how a public VIF changes your exposure, and the control-plane side: IAM, tagging, and CloudTrail.
 
-_Last verified: 2026-09-30._
+_Last verified: 2026-10-12._
 
 ## Encryption posture at a glance
 

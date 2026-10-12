@@ -31,7 +31,7 @@ Direct Connect is one of several roads into AWS. For the others (internet, Site-
 | Timeline | 2011–2026 launches |
 | Glossary | Every term with its official English and Japanese console name and what it is often confused with |
 
-The research behind every number lives in [`docs/`](docs/README.md), with sources. Facts were verified against AWS documentation on 2026-09-30.
+The research behind every number lives in [`docs/`](docs/README.md), with sources. Facts were verified against AWS documentation on 2026-10-12.
 
 ## Development
 

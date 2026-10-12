@@ -2,7 +2,7 @@
 
 A Direct Connect connection is only a Layer 1/Layer 2 pipe. Traffic flows only after you create one or more virtual interfaces (VIFs) on it. Each VIF is an 802.1Q VLAN plus an eBGP session between your router and AWS. There are three types: private (to VPCs), public (to AWS public endpoints), and transit (to Transit Gateways or AWS Cloud WAN through a Direct Connect gateway). This page covers what each type reaches, the BGP and addressing parameters, MTU, hosted VIFs, per-connection limits, and the 2025–2026 changes: 4-byte ASNs, CloudWatch BGP metrics, BGP route visibility, and inbound prefix controls.
 
-_Last verified: 2026-09-30_
+_Last verified: 2026-10-12_
 
 ## The three VIF types at a glance
 

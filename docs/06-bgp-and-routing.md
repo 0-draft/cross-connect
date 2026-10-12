@@ -2,7 +2,7 @@
 
 Every Direct Connect VIF is an eBGP session, and nearly every design decision comes down to how AWS picks a path. That includes active/active or active/passive, DX primary with VPN backup, and Regional scoping of public prefixes. This page covers the public VIF inbound and outbound policies, the full BGP community set (7224:7xxx, 7224:8xxx, 7224:9xxx, NO_EXPORT), AWS path selection on private and transit VIFs, how DX routes compete with VPN routes on a VGW, a Transit Gateway, and in a VPC route table, Private IP VPN over a transit VIF, reaching PrivateLink endpoints over DX, and the route-scale quotas, including the 2026 prefix-control change.
 
-_Last verified: 2026-09-30_
+_Last verified: 2026-10-12_
 
 ## Route-scale quotas (quick reference)
 

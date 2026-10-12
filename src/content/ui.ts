@@ -9,8 +9,8 @@ export const UI = {
     ja: "図の各パーツをタップ (クリック) すると解説が出ます。",
   },
   asOf: {
-    en: "Facts verified against AWS documentation as of 2026-09-30.",
-    ja: "記載内容は 2026-09-30 時点の AWS 公式ドキュメントで確認済み。",
+    en: "Facts verified against AWS documentation as of 2026-10-12.",
+    ja: "記載内容は 2026-10-12 時点の AWS 公式ドキュメントで確認済み。",
   },
   sources: { en: "Sources", ja: "出典" },
   up: { en: "up", ja: "稼働" },

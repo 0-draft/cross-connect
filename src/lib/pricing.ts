@@ -1,11 +1,11 @@
 /**
  * Pay-as-you-go Direct Connect list prices in USD, taken from
- * aws.amazon.com/directconnect/pricing on 2026-09-30. Monthly figures use
+ * aws.amazon.com/directconnect/pricing on 2026-10-12. Monthly figures use
  * 730 hours, as AWS's own examples do.
  */
 
 export const HOURS_PER_MONTH = 730;
-export const PRICES_AS_OF = "2026-09-30";
+export const PRICES_AS_OF = "2026-10-12";
 
 export type ConnType = "dedicated" | "hosted";
 

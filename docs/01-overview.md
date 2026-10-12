@@ -1,6 +1,6 @@
 # AWS Direct Connect Overview
 
-AWS Direct Connect (DX) links your internal network to a Direct Connect location over a standard Ethernet fiber-optic cable, so you can reach AWS public services and your VPCs without going through internet service providers. This page explains what DX is, its building blocks, when to pick it over Site-to-Site VPN or the internet, and what changed between 2023 and 2026. Facts were verified against AWS documentation and What's New posts as of 2026-09-30.
+AWS Direct Connect (DX) links your internal network to a Direct Connect location over a standard Ethernet fiber-optic cable, so you can reach AWS public services and your VPCs without going through internet service providers. This page explains what DX is, its building blocks, when to pick it over Site-to-Site VPN or the internet, and what changed between 2023 and 2026. Facts were verified against AWS documentation and What's New posts as of 2026-10-12.
 
 ## What Direct Connect is
 

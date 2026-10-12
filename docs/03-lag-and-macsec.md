@@ -1,6 +1,6 @@
 # Direct Connect LAG and MACsec
 
-This page covers link aggregation groups (LAGs) and MAC Security (MACsec) on AWS Direct Connect: LACP behavior, member limits, the minimum-links attribute, MACsec supported speeds and connection types, CKN/CAK keys, cipher suites, encryption modes, key rotation, and how MACsec interacts with LAGs. Verified against AWS documentation as of 2026-09-30.
+This page covers link aggregation groups (LAGs) and MAC Security (MACsec) on AWS Direct Connect: LACP behavior, member limits, the minimum-links attribute, MACsec supported speeds and connection types, CKN/CAK keys, cipher suites, encryption modes, key rotation, and how MACsec interacts with LAGs. Verified against AWS documentation as of 2026-10-12.
 
 ## Link aggregation groups (LAGs)
 

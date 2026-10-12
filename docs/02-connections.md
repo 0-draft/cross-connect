@@ -1,6 +1,6 @@
 # Direct Connect Connections, Locations, and Ordering
 
-This page covers the physical and connection layer of AWS Direct Connect: dedicated vs hosted connections, hosted connections vs hosted VIFs, Direct Connect locations and how they map to Regions, the LOA-CFA and cross connect workflow with its timelines, physical requirements (optics, fiber, auto-negotiation, VLANs, BGP, BFD, MTU), and the quotas that apply to connections. Verified against AWS documentation as of 2026-09-30.
+This page covers the physical and connection layer of AWS Direct Connect: dedicated vs hosted connections, hosted connections vs hosted VIFs, Direct Connect locations and how they map to Regions, the LOA-CFA and cross connect workflow with its timelines, physical requirements (optics, fiber, auto-negotiation, VLANs, BGP, BFD, MTU), and the quotas that apply to connections. Verified against AWS documentation as of 2026-10-12.
 
 ## Connection types
 
@@ -60,7 +60,7 @@ A Direct Connect location is a colocation facility (for example Equinix, CoreSit
 
 ### Speeds per location
 
-The locations page lists each site's speeds in an "Available as" column and marks MACsec support per speed with "(M)". Examples as of 2026-09-30:
+The locations page lists each site's speeds in an "Available as" column and marks MACsec support per speed with "(M)". Examples as of 2026-10-12:
 
 | Location | Available as |
 | --- | --- |
