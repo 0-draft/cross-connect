@@ -2,7 +2,7 @@
 
 A Direct Connect gateway (DXGW) is a global, account-level resource that decouples your VIFs from Regions. You attach private or transit VIFs to it, then associate it with virtual private gateways (VGWs), Transit Gateways (TGWs), or one AWS Cloud WAN core network in any Region and in any account, except the China Regions. It acts as a distributed set of BGP route reflectors outside the data path, so a single DXGW has no single point of failure. This page covers association types and their mutual exclusivity, how "allowed prefixes" behave differently for VGW and TGW, cross-account proposals, the non-transitive rules, the Cloud WAN native attachment (2024-11-25), SiteLink, and all DXGW-related quotas, including the 2026 prefix-allocation pool.
 
-_Last verified: 2026-09-30_
+_Last verified: 2026-10-12_
 
 ## What a DXGW is (and is not)
 

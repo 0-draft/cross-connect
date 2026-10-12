@@ -7,7 +7,7 @@ Direct Connect has two billing modes as of September 2026:
 
 Data into AWS over DX is always free. Cross-connect and colocation fees come from the facility operator, not AWS.
 
-_Prices are USD list prices taken from aws.amazon.com/directconnect/pricing on 2026-09-30, and they exclude tax (Japanese Consumption Tax applies to customers with a Japanese billing address). AWS pricing changes. Always check the live page or the AWS Pricing Calculator. Monthly figures assume 730 hours._
+_Prices are USD list prices taken from aws.amazon.com/directconnect/pricing on 2026-10-12, and they exclude tax (Japanese Consumption Tax applies to customers with a Japanese billing address). AWS pricing changes. Always check the live page or the AWS Pricing Calculator. Monthly figures assume 730 hours._
 
 ## What you pay for
 

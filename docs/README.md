@@ -1,6 +1,6 @@
 # Research notes
 
-Everything the site says is backed by these notes. Each page ends with the AWS documentation, What's New posts and blogs it was checked against. All pages were verified on 2026-09-30.
+Everything the site says is backed by these notes. Each page ends with the AWS documentation, What's New posts and blogs it was checked against. All pages were verified on 2026-10-12.
 
 | # | Page | Covers |
 | --- | --- | --- |

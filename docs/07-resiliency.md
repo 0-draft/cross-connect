@@ -2,7 +2,7 @@
 
 Direct Connect (DX) is a physical service: a fiber, an optic, a router port, and a building. Any one of them can fail, and AWS also takes DX devices down for maintenance. This page covers the Resiliency Toolkit models, the SLA tiers and what you must build to qualify for them, failover testing, fast failure detection with BFD, active/active versus active/passive routing, and VPN as a backup path.
 
-_Last verified: 2026-09-30. SLA text last updated by AWS on 2026-07-24._
+_Last verified: 2026-10-12. SLA text last updated by AWS on 2026-07-24._
 
 ## Why resiliency matters for DX
 

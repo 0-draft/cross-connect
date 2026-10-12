@@ -2,7 +2,7 @@
 
 This page covers what to watch on a Direct Connect deployment: CloudWatch metrics, the BGP metrics added in 2026, BGP route visibility, VIF rate limiter metrics, Network Synthetic Monitor, AWS Health maintenance notices, and CloudTrail. It then walks through the layer 1, layer 2, layer 3, and routing troubleshooting flow.
 
-_Last verified: 2026-09-30._
+_Last verified: 2026-10-12._
 
 ## Observability stack
 

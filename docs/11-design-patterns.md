@@ -2,7 +2,7 @@
 
 This page collects reusable Direct Connect topologies, the mistakes that cause real outages, and a decision tree for choosing a topology. It builds on [Resiliency](07-resiliency.md), [Security](08-security.md), and [Pricing](10-pricing.md).
 
-_Last verified: 2026-09-30._
+_Last verified: 2026-10-12._
 
 ## Building blocks (quick recap)
 

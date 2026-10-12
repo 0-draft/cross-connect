@@ -2,7 +2,7 @@
 
 This is a dated history of notable AWS Direct Connect launches, from the 2011 public release to the 2026 flat-rate pricing. Dates come from the DX User Guide document history and from AWS What's New posts. Where the two differ, both are noted.
 
-_Last verified: 2026-09-30._
+_Last verified: 2026-10-12._
 
 > Note: Direct Connect launched on **2011-08-03**, not 2012. The 2012 milestones are the new console, the User Guide, IAM support, and more Regions.
 
@@ -79,10 +79,11 @@ timeline
 
 ## Location footprint
 
-AWS What's New posts give the running count of DX locations: "over 142" (2025-08), "over 146" (2025-09 to 2025-10), "over 149" (2025-12), and "over 150" (2026-03 to 2026-04). Recent additions include Hanoi (the first in Vietnam, 2025-12) and Sydney SY5 (2026-03). 100G expansions include Kansas City (2025-10), Auckland (2026-04), and Lima (2026-07). The GDS No. 3 Shenzhen location stopped accepting new connections after 2026-06-30, with end of support in July 2027.
+AWS What's New posts give the running count of DX locations: "over 142" (2025-08), "over 146" (2025-09 to 2025-10), "over 149" (2025-12), and "over 150" (2026-03 to 2026-04). Recent additions include Hanoi (the first in Vietnam, 2025-12) and Sydney SY5 (2026-03). 100G expansions include Kansas City (2025-10), Auckland (2026-04), and Lima (2026-07). Two locations are winding down: per the locations page, GDS No. 3 Shenzhen and Equinix MU1 Munich take no new connections after July 1, 2026 and reach end of support in July 2027. The document history gives the same Shenzhen cutoff as "after June 30, 2026".
 
 ## Sources
 
+- Direct Connect locations: <https://aws.amazon.com/directconnect/locations/>
 - DX User Guide document history: <https://docs.aws.amazon.com/directconnect/latest/UserGuide/AboutThisGuide.html>
 - Announcing AWS Direct Connect (2011-08-03): <https://aws.amazon.com/about-aws/whats-new/2011/08/03/Announcing-AWS-Direct-Connect/>
 - LAG (2017-02): <https://aws.amazon.com/de/about-aws/whats-new/2017/02/aws-direct-connect-announces-support-for-link-aggregation>
