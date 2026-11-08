@@ -1,7 +1,7 @@
 # cross-connect
 
 > [!WARNING]
-> **Merged into [0-draft/aws-connectivity](https://github.com/0-draft/aws-connectivity) on 2026-11-08, to be archived on or after 2026-12-08.** Direct Connect is one road into AWS, and its deep dive and the road map were two sites with overlapping facts and two price lists. The whole site now lives at <https://0-draft.github.io/aws-connectivity/direct-connect/> (research notes in [docs/direct-connect/](https://github.com/0-draft/aws-connectivity/tree/main/docs/direct-connect)); the old URL redirects there.
+> **Merged into [0-draft/aws-connectivity](https://github.com/0-draft/aws-connectivity) on 2026-11-08, archived on 2026-11-08.** Direct Connect is one road into AWS, and its deep dive and the road map were two sites with overlapping facts and two price lists. The whole site now lives at <https://0-draft.github.io/aws-connectivity/direct-connect/> (research notes in [docs/direct-connect/](https://github.com/0-draft/aws-connectivity/tree/main/docs/direct-connect)); the old URL redirects there.
 
 [![ci](https://github.com/0-draft/cross-connect/actions/workflows/ci.yml/badge.svg)](https://github.com/0-draft/cross-connect/actions/workflows/ci.yml)
 [![deploy](https://github.com/0-draft/cross-connect/actions/workflows/deploy.yml/badge.svg)](https://github.com/0-draft/cross-connect/actions/workflows/deploy.yml)
