@@ -1,12 +1,15 @@
 # cross-connect
 
+> [!WARNING]
+> **2026-11-08 に [0-draft/aws-connectivity](https://github.com/0-draft/aws-connectivity) へ統合しました。2026-12-08 以降にアーカイブします。** Direct Connect は AWS への道の 1 本で、その深掘りサイトと道路地図サイトは内容と料金表が重複していました。サイトは <https://0-draft.github.io/aws-connectivity/direct-connect/?lang=ja> に移り (調査ノートは [docs/direct-connect/](https://github.com/0-draft/aws-connectivity/tree/main/docs/direct-connect))、旧 URL からはそちらへ転送します。
+
 図解 AWS Direct Connect。コロケーション施設のクロスコネクトから、BGP の経路選択、冗長化モデル、MACsec、月額料金までを、触って動かせる図で解説するバイリンガル (English / 日本語) サイトです。「Direct Connect はなぜわかりにくいのか」を調べた結果 ([調査](docs/13-why-dx-is-hard.md)) をもとに構成し、ファイバーに住む光の粒「ヒカリ」が案内します。
 
-**サイト:** <https://0-draft.github.io/cross-connect/?lang=ja>
+**サイト:** <https://0-draft.github.io/aws-connectivity/direct-connect/?lang=ja>
 
 [English README](README.md)
 
-Direct Connect は AWS への道のひとつです。それ以外の道 (インターネット、Site-to-Site VPN、SD-WAN、VGW / Transit Gateway / Cloud WAN のハブ、DX と VPN の経路選択、PrivateLink、ハイブリッド DNS) は姉妹サイト [On-ramp](https://0-draft.github.io/on-ramp/?lang=ja) ([リポジトリ](https://github.com/0-draft/on-ramp)) で解説しています。
+Direct Connect は AWS への道のひとつです。それ以外の道 (インターネット、Site-to-Site VPN、SD-WAN、VGW / Transit Gateway / Cloud WAN のハブ、DX と VPN の経路選択、PrivateLink、ハイブリッド DNS) は同じサイトの道路地図 [AWS Connectivity](https://0-draft.github.io/aws-connectivity/?lang=ja) ([リポジトリ](https://github.com/0-draft/aws-connectivity)) で解説しています。
 
 ## 内容
 

@@ -1,15 +1,18 @@
 # cross-connect
 
+> [!WARNING]
+> **Merged into [0-draft/aws-connectivity](https://github.com/0-draft/aws-connectivity) on 2026-11-08, to be archived on or after 2026-12-08.** Direct Connect is one road into AWS, and its deep dive and the road map were two sites with overlapping facts and two price lists. The whole site now lives at <https://0-draft.github.io/aws-connectivity/direct-connect/> (research notes in [docs/direct-connect/](https://github.com/0-draft/aws-connectivity/tree/main/docs/direct-connect)); the old URL redirects there.
+
 [![ci](https://github.com/0-draft/cross-connect/actions/workflows/ci.yml/badge.svg)](https://github.com/0-draft/cross-connect/actions/workflows/ci.yml)
 [![deploy](https://github.com/0-draft/cross-connect/actions/workflows/deploy.yml/badge.svg)](https://github.com/0-draft/cross-connect/actions/workflows/deploy.yml)
 
 AWS Direct Connect, drawn. An illustrated, bilingual (English / 日本語) explainer that walks from the cross connect in a colocation facility to BGP path selection, resiliency models, MACsec and the monthly bill. It is built around the specific reasons people find Direct Connect hard ([research](docs/13-why-dx-is-hard.md)), with a guide character, Hikari, a photon who lives in the fiber.
 
-**Site:** <https://0-draft.github.io/cross-connect/> ([日本語](https://0-draft.github.io/cross-connect/?lang=ja))
+**Site:** <https://0-draft.github.io/aws-connectivity/direct-connect/> ([日本語](https://0-draft.github.io/aws-connectivity/direct-connect/?lang=ja))
 
 [日本語の README](README.ja.md)
 
-Direct Connect is one of several roads into AWS. For the others (internet, Site-to-Site VPN, SD-WAN, VGW / Transit Gateway / Cloud WAN hubs, how AWS chooses between DX and VPN, PrivateLink, hybrid DNS) see the sibling site [On-ramp](https://0-draft.github.io/on-ramp/) ([repo](https://github.com/0-draft/on-ramp)).
+Direct Connect is one of several roads into AWS. For the others (internet, Site-to-Site VPN, SD-WAN, VGW / Transit Gateway / Cloud WAN hubs, how AWS chooses between DX and VPN, PrivateLink, hybrid DNS) see the road map on the same site, [AWS Connectivity](https://0-draft.github.io/aws-connectivity/) ([repo](https://github.com/0-draft/aws-connectivity)).
 
 ## What is in it
 
@@ -51,9 +54,8 @@ The simulators (`src/lib/`) are pure functions with unit tests: BGP path selecti
 | Workflow | What it does |
 | --- | --- |
 | `ci.yml` | typecheck, ESLint, Prettier, markdownlint, build, tests with coverage, Playwright E2E (desktop and phone, EN and JA), actionlint, `npm audit`, dependency review on PRs |
-| `freshness.yml` | Opens a monthly issue to re-verify prices, quotas and launches |
 | `codeql.yml` | CodeQL for JavaScript/TypeScript and GitHub Actions |
-| `deploy.yml` | Builds and deploys to GitHub Pages on every push to `main` |
+| `deploy.yml` | Since the merge, deploys only `redirect/` to GitHub Pages, which forwards the old URL to the new site |
 | Dependabot | Weekly grouped updates for npm and GitHub Actions |
 
 ## Disclaimer
